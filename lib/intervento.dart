@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:innova_service_flutter_project/form_section.dart';
+import 'package:innova_service_flutter_project/form_azienda.dart';
 
 class Intervento extends StatefulWidget {
   @override
@@ -18,7 +18,7 @@ class _InterventoState extends State<Intervento> {
           color: Color(0xCCFFFFFF),
           margin:
               EdgeInsets.only(bottom: 10.0, left: 10.0, right: 10.0, top: 30.0),
-          child: FormSection(),
+          child: FormAzienda(),
         ),
       ],
     ));

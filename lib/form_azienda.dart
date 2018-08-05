@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class FormSection extends StatefulWidget {
+class FormAzienda extends StatefulWidget {
   @override
-  FormSectionState createState() {
-    return FormSectionState();
+  FormAziendaState createState() {
+    return FormAziendaState();
   }
 }
 
-class FormSectionState extends State<FormSection> {
+class FormAziendaState extends State<FormAzienda> {
   // Create a global key that will uniquely identify the Form widget and allow
   // us to validate the form
   //
@@ -25,8 +25,10 @@ class FormSectionState extends State<FormSection> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 TextFormField(
+                  maxLength: 24,
+                  decoration: InputDecoration(labelText: 'nome',  prefixIcon: Icon(Icons.group)),
                   validator: (value) {
-                    if (value.isEmpty) {
+                    if (value.isEmpty ) {
                       return 'Please enter some text';
                     }
                   },

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:innova_service_flutter_project/form_section.dart';
+import 'package:innova_service_flutter_project/form_azienda.dart';
 
 class Preventivo extends StatefulWidget {
   @override
@@ -7,17 +7,54 @@ class Preventivo extends StatefulWidget {
 }
 
 class _PreventivoState extends State<Preventivo> {
+  var _groupValue = 'azienda';
+
   Widget build(BuildContext context) {
     return Scaffold(
+        appBar:
+            AppBar(title: Text("Richiedi un Preventivo"), centerTitle: true),
         body: Stack(
           fit: StackFit.expand,
           children: <Widget>[
-            Image.asset('asset/images/intervento_bg.png', fit: BoxFit.cover),
-            Card(
-              color: Color(0xCCFFFFFF),
-              margin:
-              EdgeInsets.only(bottom: 10.0, left: 10.0, right: 10.0, top: 30.0),
-              child: FormSection(),
+            Container(color: Theme.of(context).primaryColor),
+            SingleChildScrollView(
+              child: Card(
+                child: Column(
+                  children: <Widget>[
+                    ButtonBar(
+                      alignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        Radio(
+                          onChanged: (value) {
+                            setState(() {
+                              _groupValue = value;
+                              print(_groupValue);
+                            });
+                          },
+                          groupValue: _groupValue,
+                          value: 'azienda',
+                        ),
+                        Text('azienda'),
+                        Radio(
+                          onChanged: (value) {
+                            setState(() {
+                              _groupValue = value;
+                              print(_groupValue);
+                            });
+                          },
+                          groupValue: _groupValue,
+                          value: 'privato',
+                        ),
+                        Text('privato'),
+                      ],
+                    ),
+                    Container(
+                      padding : EdgeInsets.symmetric(horizontal: 20.0),
+                      child: _groupValue =='azienda'? FormAzienda() : null ,
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
         ));

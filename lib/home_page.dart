@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:innova_service_flutter_project/intervento.dart';
 import 'package:innova_service_flutter_project/preventivo.dart';
 
-import 'services_page_view.dart';
 import 'bottom_modal_sheet.dart';
 
 class MyHomePage extends StatefulWidget {
