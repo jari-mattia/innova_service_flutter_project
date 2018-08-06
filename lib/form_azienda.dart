@@ -67,10 +67,10 @@ class FormAziendaState extends State<FormAzienda> {
     });
   }
 
-  Widget clear(TextEditingController controller){
+  Widget Clear(TextEditingController _controller){
     return IconButton(
         icon: Icon(Icons.cancel),
-        onPressed: (){_clearField(controller);}
+        onPressed: () => setState(() => _clearField(_controller))
     );
   }
 
@@ -89,7 +89,7 @@ class FormAziendaState extends State<FormAzienda> {
               controller: _controllerName,
               maxLength: 24,
               decoration: InputDecoration(
-                  suffixIcon: clear(_controllerName),
+                  suffixIcon: (_controllerName.text != '')? Clear(_controllerName) : null,
                   labelText: 'Nome', prefixIcon: Icon(Icons.group)),
               validator: (String arg) {
                 if (arg.length < 3)
@@ -103,7 +103,7 @@ class FormAziendaState extends State<FormAzienda> {
                 controller: _controllerPI,
                 maxLength: 11,
                 decoration: InputDecoration(
-                    suffixIcon: clear(_controllerPI),
+                    suffixIcon: (_controllerPI.text != '')? Clear(_controllerPI) : null,
                     labelText: 'Partita Iva',
                     prefixIcon: Icon(Icons.payment)),
                 keyboardType: TextInputType.number,
@@ -113,7 +113,7 @@ class FormAziendaState extends State<FormAzienda> {
                 controller: _controllerEmail,
                 maxLength: 256,
                 decoration: InputDecoration(
-                    suffixIcon: clear(_controllerEmail),
+                    suffixIcon: (_controllerEmail.text != '')? Clear(_controllerEmail) : null,
                     labelText: 'Email', prefixIcon: Icon(Icons.email)),
                 keyboardType: TextInputType.emailAddress,
                 validator: validateEmail), // We'
@@ -122,7 +122,7 @@ class FormAziendaState extends State<FormAzienda> {
               controller: _controllerRichiesta,
               maxLength: 1000,
               decoration: InputDecoration(
-                  suffixIcon: clear(_controllerRichiesta),
+                  suffixIcon: (_controllerRichiesta.text != '')? Clear(_controllerRichiesta) : null,
                   labelText: 'Richiesta', prefixIcon: Icon(Icons.edit)),
               maxLines: null,
               keyboardType: TextInputType.multiline,
