@@ -16,6 +16,11 @@ class FormAziendaState extends State<FormAzienda> {
 
   bool _autoValidate = false;
 
+  TextEditingController _controllerName;
+  TextEditingController _controllerPI;
+  TextEditingController _controllerEmail;
+  TextEditingController _controllerRichiesta;
+
   void _validateInputs() {
     if (_formKey.currentState.validate()) {
 //    If all data are correct then save data to out variables
@@ -47,8 +52,26 @@ class FormAziendaState extends State<FormAzienda> {
       return null;
   }
 
-  void _resetForm(){
+  void _resetForm() {
     _formKey.currentState.reset();
+    setState(() {
+      _autoValidate = false;
+    });
+  }
+
+  void _clearField(TextEditingController _controller) {
+    setState(() {
+      _controller = TextEditingController(text: '');
+      print(_controller);
+
+    });
+  }
+
+  Widget clear(TextEditingController controller){
+    return IconButton(
+        icon: Icon(Icons.cancel),
+        onPressed: (){_clearField(controller);}
+    );
   }
 
   @override
@@ -59,71 +82,78 @@ class FormAziendaState extends State<FormAzienda> {
         autovalidate: _autoValidate,
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
-          child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: <
+                  Widget>[
+            TextFormField(
+              controller: _controllerName,
+              maxLength: 24,
+              decoration: InputDecoration(
+                  suffixIcon: clear(_controllerName),
+                  labelText: 'Nome', prefixIcon: Icon(Icons.group)),
+              validator: (String arg) {
+                if (arg.length < 3)
+                  return 'Name must be more than 2 character';
+                else
+                  return null;
+              },
+            ), // We'll build this out in the next steps!
+
+            TextFormField(
+                controller: _controllerPI,
+                maxLength: 11,
+                decoration: InputDecoration(
+                    suffixIcon: clear(_controllerPI),
+                    labelText: 'Partita Iva',
+                    prefixIcon: Icon(Icons.payment)),
+                keyboardType: TextInputType.number,
+                validator: validatePartitaIva), // We'l
+
+            TextFormField(
+                controller: _controllerEmail,
+                maxLength: 256,
+                decoration: InputDecoration(
+                    suffixIcon: clear(_controllerEmail),
+                    labelText: 'Email', prefixIcon: Icon(Icons.email)),
+                keyboardType: TextInputType.emailAddress,
+                validator: validateEmail), // We'
+
+            TextFormField(
+              controller: _controllerRichiesta,
+              maxLength: 1000,
+              decoration: InputDecoration(
+                  suffixIcon: clear(_controllerRichiesta),
+                  labelText: 'Richiesta', prefixIcon: Icon(Icons.edit)),
+              maxLines: null,
+              keyboardType: TextInputType.multiline,
+              validator: (value) {
+                if (value.isEmpty) {
+                  return 'Please enter some text';
+                }
+              },
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
-                TextFormField(
-                  maxLength: 24,
-                  decoration: InputDecoration(
-                      labelText: 'Nome', prefixIcon: Icon(Icons.group)),
-                  validator: (String arg) {
-                    if (arg.length < 3)
-                      return 'Name must be more than 2 character';
-                    else
-                      return null;
-                  },
-                ), // We'll build this out in the next steps!
-
-                TextFormField(
-                    maxLength: 11,
-                    decoration: InputDecoration(
-                        labelText: 'Partita Iva',
-                        prefixIcon: Icon(Icons.payment)),
-                    keyboardType: TextInputType.number,
-                    validator: validatePartitaIva), // We'l
-
-                TextFormField(
-                    maxLength: 256,
-                    decoration: InputDecoration(
-                        labelText: 'Email', prefixIcon: Icon(Icons.email)),
-                    keyboardType: TextInputType.emailAddress,
-                    validator: validateEmail), // We'
-
-                TextFormField(
-                  maxLength: 1000,
-                  decoration: InputDecoration(
-                      labelText: 'Richiesta', prefixIcon: Icon(Icons.edit)),
-                  maxLines: null,
-                  keyboardType: TextInputType.multiline,
-                  validator: (value) {
-                    if (value.isEmpty) {
-                      return 'Please enter some text';
-                    }
-                  },
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                  child: RaisedButton(
+                    color: Theme.of(context).primaryColor,
+                    onPressed: _validateInputs,
+                    child: Text('Invia', style: TextStyle(color: Colors.white)),
+                  ),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 16.0),
-                      child: RaisedButton(
-                        color: Theme.of(context).primaryColor,
-                        onPressed: _validateInputs,
-                        child: Text('Invia',style:TextStyle(color: Colors.white)),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 16.0),
-                      child: RaisedButton(
-                        color: Colors.redAccent,
-                        onPressed: _resetForm,
-                        child: Text('reset',style:TextStyle(color: Colors.white)),
-                      ),
-                    ),
-                  ],
-                )
-
-              ]),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                  child: RaisedButton(
+                    color: Colors.redAccent,
+                    onPressed: _resetForm,
+                    child: Text('reset', style: TextStyle(color: Colors.white)),
+                  ),
+                ),
+              ],
+            )
+          ]),
         ));
   }
 }
