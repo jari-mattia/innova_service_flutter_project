@@ -21,6 +21,15 @@ class FormAziendaState extends State<FormAzienda> {
   TextEditingController _controllerEmail;
   TextEditingController _controllerRichiesta;
 
+  @override
+  void initState() {
+    super.initState();
+    _controllerName = TextEditingController(text: '');
+    _controllerPI = TextEditingController(text: '');
+    _controllerEmail = TextEditingController(text: '');
+    _controllerRichiesta = TextEditingController(text: '');
+  }
+
   void _validateInputs() {
     if (_formKey.currentState.validate()) {
 //    If all data are correct then save data to out variables
@@ -59,19 +68,10 @@ class FormAziendaState extends State<FormAzienda> {
     });
   }
 
-  void _clearField(TextEditingController _controller) {
-    setState(() {
-      _controller = TextEditingController(text: '');
-      print(_controller);
-
-    });
-  }
-
-  Widget Clear(TextEditingController _controller){
+  Widget Clear(TextEditingController _controller) {
     return IconButton(
         icon: Icon(Icons.cancel),
-        onPressed: () => setState(() => _clearField(_controller))
-    );
+        onPressed: () => setState(() => _controller.clear()));
   }
 
   @override
@@ -89,8 +89,11 @@ class FormAziendaState extends State<FormAzienda> {
               controller: _controllerName,
               maxLength: 24,
               decoration: InputDecoration(
-                  suffixIcon: (_controllerName.text != '')? Clear(_controllerName) : null,
-                  labelText: 'Nome', prefixIcon: Icon(Icons.group)),
+                  suffixIcon: (_controllerName.text != '')
+                      ? Clear(_controllerName)
+                      : null,
+                  labelText: 'Nome',
+                  prefixIcon: Icon(Icons.group)),
               validator: (String arg) {
                 if (arg.length < 3)
                   return 'Name must be more than 2 character';
@@ -103,7 +106,9 @@ class FormAziendaState extends State<FormAzienda> {
                 controller: _controllerPI,
                 maxLength: 11,
                 decoration: InputDecoration(
-                    suffixIcon: (_controllerPI.text != '')? Clear(_controllerPI) : null,
+                    suffixIcon: (_controllerPI.text != '')
+                        ? Clear(_controllerPI)
+                        : null,
                     labelText: 'Partita Iva',
                     prefixIcon: Icon(Icons.payment)),
                 keyboardType: TextInputType.number,
@@ -113,8 +118,11 @@ class FormAziendaState extends State<FormAzienda> {
                 controller: _controllerEmail,
                 maxLength: 256,
                 decoration: InputDecoration(
-                    suffixIcon: (_controllerEmail.text != '')? Clear(_controllerEmail) : null,
-                    labelText: 'Email', prefixIcon: Icon(Icons.email)),
+                    suffixIcon: (_controllerEmail.text != '')
+                        ? Clear(_controllerEmail)
+                        : null,
+                    labelText: 'Email',
+                    prefixIcon: Icon(Icons.email)),
                 keyboardType: TextInputType.emailAddress,
                 validator: validateEmail), // We'
 
@@ -122,8 +130,11 @@ class FormAziendaState extends State<FormAzienda> {
               controller: _controllerRichiesta,
               maxLength: 1000,
               decoration: InputDecoration(
-                  suffixIcon: (_controllerRichiesta.text != '')? Clear(_controllerRichiesta) : null,
-                  labelText: 'Richiesta', prefixIcon: Icon(Icons.edit)),
+                  suffixIcon: (_controllerRichiesta.text != '')
+                      ? Clear(_controllerRichiesta)
+                      : null,
+                  labelText: 'Richiesta',
+                  prefixIcon: Icon(Icons.edit)),
               maxLines: null,
               keyboardType: TextInputType.multiline,
               validator: (value) {
