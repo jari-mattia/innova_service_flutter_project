@@ -5,7 +5,12 @@ import 'package:innova_service_flutter_project/preventivo.dart';
 class ChiSiamo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Stack(fit: StackFit.expand, children: <Widget>[
+    return Scaffold(
+        backgroundColor: Theme.of(context).primaryColor,
+        appBar: AppBar(
+        backgroundColor: Theme.of(context).primaryColor,
+        title: Text("Chi Siamo"),centerTitle: true,),
+    body:Stack(fit: StackFit.expand, children: <Widget>[
       Image.asset('asset/images/home_bg.png',
           fit: BoxFit.fitWidth, alignment: Alignment.topCenter),
       ListView(children: <Widget>[
@@ -213,6 +218,6 @@ class ChiSiamo extends StatelessWidget {
                           ])),
                 ]))
       ]),
-    ]);
+    ]));
   }
 }

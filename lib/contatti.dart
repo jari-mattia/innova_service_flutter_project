@@ -9,7 +9,12 @@ class Contatti extends StatefulWidget {
 class _ContattiState extends State<Contatti> {
   @override
   Widget build(BuildContext context) {
-    return OrientationBuilder(builder: (context, orientation) {
+    return Scaffold(
+        backgroundColor: Theme.of(context).primaryColor,
+    appBar: AppBar(
+    backgroundColor: Theme.of(context).primaryColor,
+    title: Text("Contatti"),centerTitle: true,),
+    body:OrientationBuilder(builder: (context, orientation) {
       if (orientation == Orientation.portrait) {
         return Container(
             color: Colors.blue,
@@ -92,13 +97,13 @@ class _ContattiState extends State<Contatti> {
         return
             Container(
                 color: Colors.blue,
-                child: Card(
-                    margin: EdgeInsets.only(
-                        bottom: 10.0, left: 10.0, right: 10.0, top: 30.0),
-                  child : ListView(
+                child:ListView(
 
                       children: <Widget>[
-                        Container(
+                        Card(
+                margin: EdgeInsets.only(
+                bottom: 10.0, left: 10.0, right: 10.0, top: 30.0),
+                       child : Container(
                       padding: EdgeInsets.symmetric(horizontal: 25.0, vertical: 10.0),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -171,7 +176,7 @@ class _ContattiState extends State<Contatti> {
 
                         ],
                       ),
-                    )])));
-      }});
+                    ))]));
+      }}));
   }
 }

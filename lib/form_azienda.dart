@@ -39,7 +39,7 @@ class FormAziendaState extends State<FormAzienda> {
   @override
   void initState() {
     _dropDownMenuItems = getDropDownMenuItems();
-    _currentCat = _dropDownMenuItems[0].value;
+    _currentCat = null;
     super.initState();
   }
 
@@ -116,97 +116,110 @@ class FormAziendaState extends State<FormAzienda> {
     _formKey.currentState.reset();
     setState(() {
       _autoValidate = false;
+      _currentCat = null;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     // Build a Form widget using the _formKey we created above
-    return Form(
-        key: _formKey,
-        autovalidate: _autoValidate,
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisSize:MainAxisSize.max ,children: <
-                  Widget>[
-            Container(
-              padding: EdgeInsets.symmetric(vertical: 10.0),
-              child: Column(
-                children: <Widget>[
-                  Text("Seleziona la tua categoria di interesse: "),
-                  DropdownButton(
-                    value: _currentCat,
-                    items: _dropDownMenuItems,
-                    onChanged: changedDropDownItem,
-                  ),
-                ],
+    return SafeArea(
+      bottom: false,
+      top: false,
+      child: Form(
+          key: _formKey,
+          autovalidate: _autoValidate,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisSize:MainAxisSize.max ,children: <
+                    Widget>[
+              Container(
+                padding: EdgeInsets.symmetric(vertical: 10.0),
+                child: Column(
+                  children: <Widget>[
+                    InputDecorator(
+                      decoration: const InputDecoration(
+                        icon: const Icon(Icons.list),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton(
+                          hint: Text('Scegli tra i servizi'),
+                          value: _currentCat,
+                          items: _dropDownMenuItems,
+                          onChanged: changedDropDownItem,
+                        ),
+                      ),
+                    )
+                  ],
+                ),
               ),
-            ),
-            TextFormField(
-              onSaved: (String value) {
-                this._dati.nome = value;
-              },
-              onFieldSubmitted: validateNome,
-              maxLength: 24,
-              decoration: InputDecoration(
-                  labelText: 'Nome', prefixIcon: Icon(Icons.group)),
-              validator: validateNome,
-            ), // We'll build this out in the next steps!
-
-            TextFormField(
+              TextFormField(
                 onSaved: (String value) {
-                  this._dati.pIva = value;
+                  this._dati.nome = value;
                 },
-                maxLength: 11,
+                onFieldSubmitted: validateNome,
+                maxLength: 24,
                 decoration: InputDecoration(
-                    labelText: 'Partita Iva', prefixIcon: Icon(Icons.payment)),
-                keyboardType: TextInputType.number,
-                validator: validatePartitaIva), // We'l
+                    labelText: 'Nome', icon: Icon(Icons.group)),
+                validator: validateNome,
+              ), // We'll build this out in the next steps!
 
-            TextFormField(
+              TextFormField(
+                  onSaved: (String value) {
+                    this._dati.pIva = value;
+                  },
+                  maxLength: 11,
+                  decoration: InputDecoration(
+                      labelText: 'Partita Iva',icon: Icon(Icons.payment)),
+                  keyboardType: TextInputType.number,
+                  validator: validatePartitaIva), // We'l
+
+              TextFormField(
+                  onSaved: (String value) {
+                    this._dati.email = value;
+                  },
+                  maxLength: 256,
+                  decoration: InputDecoration(
+                      labelText: 'Email', icon: Icon(Icons.email)),
+                  keyboardType: TextInputType.emailAddress,
+                  validator: validateEmail), // We'
+
+              TextFormField(
                 onSaved: (String value) {
-                  this._dati.email = value;
+                  this._dati.richiesta = value;
                 },
-                maxLength: 256,
+                maxLength: 1000,
                 decoration: InputDecoration(
-                    labelText: 'Email', prefixIcon: Icon(Icons.email)),
-                keyboardType: TextInputType.emailAddress,
-                validator: validateEmail), // We'
-
-            TextFormField(
-              onSaved: (String value) {
-                this._dati.richiesta = value;
-              },
-              maxLength: 1000,
-              decoration: InputDecoration(
-                  labelText: 'Richiesta', prefixIcon: Icon(Icons.edit)),
-              maxLines: null,
-              keyboardType: TextInputType.multiline,
-              validator: validateRichiesta,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16.0),
-                  child: RaisedButton(
-                    color: Theme.of(context).primaryColor,
-                    onPressed: _validateInputs,
-                    child: Text('Invia', style: TextStyle(color: Colors.white)),
+                    labelText: 'Richiesta', icon: Icon(Icons.edit)),
+                maxLines: null,
+                keyboardType: TextInputType.multiline,
+                validator: validateRichiesta,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween ,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20.0),
+                    child: RaisedButton(
+                      padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
+                      color: Theme.of(context).primaryColor,
+                      onPressed: _validateInputs,
+                      child: Text('INVIA', style: TextStyle(color: Colors.white)),
+                    ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16.0),
-                  child: RaisedButton(
-                    color: Colors.redAccent,
-                    onPressed: _resetForm,
-                    child: Text('reset', style: TextStyle(color: Colors.white)),
-                  ),
-                ),
-              ],
-            )
-          ]),
-        ));
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20.0),
+                    child: RaisedButton(
+                      padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
+                      color: Colors.redAccent,
+                      onPressed: _resetForm,
+                      child: Text('RESET', style: TextStyle(color: Colors.white)),
+                    )),
+                ],
+              )
+            ]),
+          )),
+    );
   }
 }

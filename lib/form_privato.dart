@@ -35,12 +35,13 @@ class FormPrivatoState extends State<FormPrivato> {
   ];
 
   List<DropdownMenuItem<String>> _dropDownMenuItems;
-  String _currentCat;
 
+  String _currentCat;
   @override
   void initState() {
     _dropDownMenuItems = getDropDownMenuItems();
-    _currentCat = _dropDownMenuItems[0].value;
+    _currentCat = null;
+    // _currentCat = _dropDownMenuItems[0].value;
     super.initState();
   }
 
@@ -71,7 +72,7 @@ class FormPrivatoState extends State<FormPrivato> {
 //    If all data are correct then save data to out variables
       _formKey.currentState.save();
       print(
-          'categoria : ${_dati.cat}, \nnome : ${_dati.nome},\npartita iva : ${_dati.codFisc}, \nemail : ${_dati.email},\nmessaggio : ${_dati.richiesta}\n');
+          'tipologia cliente : ${_DatiPrivato.tipologia},\ncategoria : ${_dati.cat}, \nnome : ${_dati.nome},\ncognome : ${_dati.cognome},\npartita iva : ${_dati.codFisc}, \nemail : ${_dati.email},\nmessaggio : ${_dati.richiesta}\n');
     } else {
 //    If all data are not valid then start auto validation.
       setState(() {
@@ -105,7 +106,8 @@ class FormPrivatoState extends State<FormPrivato> {
   }
 
   String validateCodFisc(String value) {
-    Pattern pattern = r'/^(?:(?:[B-DF-HJ-NP-TV-Z]|[AEIOU])[AEIOU][AEIOUX]|[B-DF-HJ-NP-TV-Z]{2}[A-Z]){2}[\dLMNP-V]{2}(?:[A-EHLMPR-T](?:[04LQ][1-9MNP-V]|[1256LMRS][\dLMNP-V])|[DHPS][37PT][0L]|[ACELMRT][37PT][01LM])(?:[A-MZ][1-9MNP-V][\dLMNP-V]{2}|[A-M][0L](?:[1-9MNP-V][\dLMNP-V]|[0L][1-9MNP-V]))[A-Z]$/i';
+    Pattern pattern =
+        r'^[a-zA-Z]{6}[0-9]{2}[a-zA-Z][0-9]{2}[a-zA-Z][0-9]{3}[a-zA-Z]$';
     RegExp regex = new RegExp(pattern);
     if (!regex.hasMatch(value))
       return 'inserisci un Codice Fiscale valido';
@@ -120,111 +122,130 @@ class FormPrivatoState extends State<FormPrivato> {
       return null;
   }
 
+  String validateCat(value) {
+    return value == null ? 'scegli un servizio' : null;
+  }
+
   void _resetForm() {
     _formKey.currentState.reset();
     setState(() {
       _autoValidate = false;
+      _currentCat = null;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     // Build a Form widget using the _formKey we created above
-    return Form(
-        key: _formKey,
-        autovalidate: _autoValidate,
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
-          child:
-          Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisSize:MainAxisSize.max ,children: <
-              Widget>[
-            Container(
-              padding: EdgeInsets.symmetric(vertical: 10.0),
-              child: Column(
+    return SafeArea(
+      bottom: false,
+      top: false,
+      child: Form(
+          key: _formKey,
+          autovalidate: _autoValidate,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.max,
                 children: <Widget>[
-                  Text("Seleziona la tua categoria di interesse: "),
-                  DropdownButton(
-                    value: _currentCat,
-                    items: _dropDownMenuItems,
-                    onChanged: changedDropDownItem,
+                  Container(
+                    padding: EdgeInsets.symmetric(vertical: 10.0),
+                    child: Column(
+                      children: <Widget>[
+                        InputDecorator(
+                          decoration: const InputDecoration(
+                            icon: const Icon(Icons.list),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton(
+                              hint: Text('Scegli tra i servizi'),
+                              value: _currentCat,
+                              items: _dropDownMenuItems,
+                              onChanged: changedDropDownItem,
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
                   ),
-                ],
-              ),
-            ),
-            TextFormField(
-              onSaved: (String value) {
-                this._dati.nome = value;
-              },
-              onFieldSubmitted: validateNome,
-              maxLength: 24,
-              decoration: InputDecoration(
-                  labelText: 'Nome', prefixIcon: Icon(Icons.person)),
-              validator: validateNome,
-            ), // We'll build this out in the next steps!
+                  TextFormField(
+                    onSaved: (String value) {
+                      this._dati.nome = value;
+                    },
+                    onFieldSubmitted: validateNome,
+                    maxLength: 24,
+                    decoration: InputDecoration(
+                        labelText: 'Nome', icon: Icon(Icons.person)),
+                    validator: validateNome,
+                  ), // We'll build this out in the next steps!
 
-            TextFormField(
-              onSaved: (String value) {
-                this._dati.cognome = value;
-              },
-              onFieldSubmitted: validateCognome,
-              maxLength: 24,
-              decoration: InputDecoration(
-                  labelText: 'Cognome', prefixIcon: Icon(Icons.person_outline)),
-              validator: validateCognome,
-            ), // We'll build t
+                  TextFormField(
+                    onSaved: (String value) {
+                      this._dati.cognome = value;
+                    },
+                    onFieldSubmitted: validateCognome,
+                    maxLength: 24,
+                    decoration: InputDecoration(
+                        labelText: 'Cognome', icon: Icon(Icons.person_outline)),
+                    validator: validateCognome,
+                  ), // We'll build t
 
-            TextFormField(
-                onSaved: (String value) {
-                  this._dati.codFisc = value;
-                },
-                maxLength: 16,
-                decoration: InputDecoration(
-                    labelText: 'Codice Fiscale', prefixIcon: Icon(Icons.payment)),
-                validator: validateCodFisc), // We'l
+                  TextFormField(
+                      onSaved: (String value) {
+                        this._dati.codFisc = value;
+                      },
+                      maxLength: 16,
+                      decoration: InputDecoration(
+                          labelText: 'Codice Fiscale',
+                          icon: Icon(Icons.payment)),
+                      validator: validateCodFisc), // We'l
 
-            TextFormField(
-                onSaved: (String value) {
-                  this._dati.email = value;
-                },
-                maxLength: 256,
-                decoration: InputDecoration(
-                    labelText: 'Email', prefixIcon: Icon(Icons.email)),
-                keyboardType: TextInputType.emailAddress,
-                validator: validateEmail), // We'
+                  TextFormField(
+                      onSaved: (String value) {
+                        this._dati.email = value;
+                      },
+                      maxLength: 256,
+                      decoration: InputDecoration(
+                          labelText: 'Email', icon: Icon(Icons.email)),
+                      keyboardType: TextInputType.emailAddress,
+                      validator: validateEmail), // We'
 
-            TextFormField(
-              onSaved: (String value) {
-                this._dati.richiesta = value;
-              },
-              maxLength: 1000,
-              decoration: InputDecoration(
-                  labelText: 'Richiesta', prefixIcon: Icon(Icons.edit)),
-              maxLines: null,
-              keyboardType: TextInputType.multiline,
-              validator: validateRichiesta,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16.0),
-                  child: RaisedButton(
-                    color: Theme.of(context).primaryColor,
-                    onPressed: _validateInputs,
-                    child: Text('Invia', style: TextStyle(color: Colors.white)),
+                  TextFormField(
+                    onSaved: (String value) {
+                      this._dati.richiesta = value;
+                    },
+                    maxLength: 1000,
+                    decoration: InputDecoration(
+                        labelText: 'Richiesta', icon: Icon(Icons.edit)),
+                    maxLines: null,
+                    keyboardType: TextInputType.multiline,
+                    validator: validateRichiesta,
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16.0),
-                  child: RaisedButton(
-                    color: Colors.redAccent,
-                    onPressed: _resetForm,
-                    child: Text('reset', style: TextStyle(color: Colors.white)),
-                  ),
-                ),
-              ],
-            )
-          ]),
-        ));
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween ,
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 20.0),
+                        child: RaisedButton(
+                          padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
+                          color: Theme.of(context).primaryColor,
+                          onPressed: _validateInputs,
+                          child: Text('INVIA', style: TextStyle(color: Colors.white)),
+                        ),
+                      ),
+                      Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 20.0),
+                          child: RaisedButton(
+                            padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
+                            color: Colors.redAccent,
+                            onPressed: _resetForm,
+                            child: Text('RESET', style: TextStyle(color: Colors.white)),
+                          )),
+                    ],
+                  )
+                ]),
+          )),
+    );
   }
 }

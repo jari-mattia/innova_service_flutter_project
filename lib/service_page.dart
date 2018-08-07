@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:innova_service_flutter_project/preventivo.dart';
 
-
 class MyServicesPage extends StatefulWidget {
   MyServicesPage(
       Key key, this.av, this.bg, this.title, this.desc, this.color, this.arrow)
@@ -24,8 +23,10 @@ class _MyServicesPageState extends State<MyServicesPage> {
         return Scaffold(
           backgroundColor: widget.color,
           appBar: AppBar(
-              backgroundColor: widget.color,
-              title: Text("Innova Service")),
+            backgroundColor: widget.color,
+            title: Text("Servizi"),
+            centerTitle: true,
+          ),
           body: Stack(
             children: <Widget>[
               Container(
@@ -83,7 +84,8 @@ class _MyServicesPageState extends State<MyServicesPage> {
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
-                                                builder: (context) => Preventivo()),
+                                                builder: (context) =>
+                                                    Preventivo()),
                                           );
                                         },
                                         child: Text("FAI UN PREVENTIVO"),
@@ -130,8 +132,7 @@ class _MyServicesPageState extends State<MyServicesPage> {
         return Scaffold(
           backgroundColor: widget.color,
           appBar: AppBar(
-              backgroundColor: widget.color,
-              title: Text("Innova Service")),
+              backgroundColor: widget.color, title: Text("Innova Service")),
           body: Stack(
             fit: StackFit.expand,
             children: <Widget>[
@@ -190,7 +191,8 @@ class _MyServicesPageState extends State<MyServicesPage> {
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
-                                                builder: (context) => Preventivo()),
+                                                builder: (context) =>
+                                                    Preventivo()),
                                           );
                                         },
                                         child: Text("FAI UN PREVENTIVO"),
@@ -219,7 +221,7 @@ class _MyServicesPageState extends State<MyServicesPage> {
                             alignment: Alignment.center,
                             child: CircleAvatar(
                               backgroundImage:
-                              AssetImage("asset/images/${widget.av}"),
+                                  AssetImage("asset/images/${widget.av}"),
                               radius: 80.0,
                             ),
                           ),
