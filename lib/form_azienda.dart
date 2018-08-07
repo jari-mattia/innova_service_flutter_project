@@ -14,21 +14,14 @@ class FormAziendaState extends State<FormAzienda> {
   // Note: This is a `GlobalKey<FormState>`, not a GlobalKey<MyCustomFormState>!
   final _formKey = GlobalKey<FormState>();
 
+  List<DropdownMenuItem<Text>> categorie = [new DropdownMenuItem(  child : new Text('pulizie aziendali')),
+  new DropdownMenuItem(  child : new Text('aree verdi')),
+  new DropdownMenuItem(  child : new Text('impianti'))];
+
   bool _autoValidate = false;
 
-  TextEditingController _controllerName;
-  TextEditingController _controllerPI;
-  TextEditingController _controllerEmail;
-  TextEditingController _controllerRichiesta;
+  bool clearable = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _controllerName = TextEditingController(text: '');
-    _controllerPI = TextEditingController(text: '');
-    _controllerEmail = TextEditingController(text: '');
-    _controllerRichiesta = TextEditingController(text: '');
-  }
 
   void _validateInputs() {
     if (_formKey.currentState.validate()) {
@@ -68,11 +61,6 @@ class FormAziendaState extends State<FormAzienda> {
     });
   }
 
-  Widget Clear(TextEditingController _controller) {
-    return IconButton(
-        icon: Icon(Icons.cancel),
-        onPressed: () => setState(() => _controller.clear()));
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,13 +73,15 @@ class FormAziendaState extends State<FormAzienda> {
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: <
                   Widget>[
+                    DropdownButton(
+
+                      items : categorie ,
+                      onChanged: null ,
+                    ),
             TextFormField(
-              controller: _controllerName,
+              //controller: _controllerName,
               maxLength: 24,
               decoration: InputDecoration(
-                  suffixIcon: (_controllerName.text != '')
-                      ? Clear(_controllerName)
-                      : null,
                   labelText: 'Nome',
                   prefixIcon: Icon(Icons.group)),
               validator: (String arg) {
@@ -103,36 +93,27 @@ class FormAziendaState extends State<FormAzienda> {
             ), // We'll build this out in the next steps!
 
             TextFormField(
-                controller: _controllerPI,
+                //controller: _controllerPI,
                 maxLength: 11,
                 decoration: InputDecoration(
-                    suffixIcon: (_controllerPI.text != '')
-                        ? Clear(_controllerPI)
-                        : null,
                     labelText: 'Partita Iva',
                     prefixIcon: Icon(Icons.payment)),
                 keyboardType: TextInputType.number,
                 validator: validatePartitaIva), // We'l
 
             TextFormField(
-                controller: _controllerEmail,
+                //controller: _controllerEmail,
                 maxLength: 256,
                 decoration: InputDecoration(
-                    suffixIcon: (_controllerEmail.text != '')
-                        ? Clear(_controllerEmail)
-                        : null,
                     labelText: 'Email',
                     prefixIcon: Icon(Icons.email)),
                 keyboardType: TextInputType.emailAddress,
                 validator: validateEmail), // We'
 
             TextFormField(
-              controller: _controllerRichiesta,
+              //controller: _controllerRichiesta,
               maxLength: 1000,
               decoration: InputDecoration(
-                  suffixIcon: (_controllerRichiesta.text != '')
-                      ? Clear(_controllerRichiesta)
-                      : null,
                   labelText: 'Richiesta',
                   prefixIcon: Icon(Icons.edit)),
               maxLines: null,
