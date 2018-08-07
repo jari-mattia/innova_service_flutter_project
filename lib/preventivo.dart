@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:innova_service_flutter_project/form_azienda.dart';
+import 'package:innova_service_flutter_project/form_privato.dart';
 
 class Preventivo extends StatefulWidget {
   @override
@@ -19,40 +20,44 @@ class _PreventivoState extends State<Preventivo> {
             Container(color: Theme.of(context).primaryColor),
             SingleChildScrollView(
               child: Card(
-                child: Column(
-                  children: <Widget>[
-                    ButtonBar(
-                      alignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        Radio(
-                          onChanged: (value) {
-                            setState(() {
-                              _groupValue = value;
-                              print(_groupValue);
-                            });
-                          },
-                          groupValue: _groupValue,
-                          value: 'azienda',
-                        ),
-                        Text('azienda'),
-                        Radio(
-                          onChanged: (value) {
-                            setState(() {
-                              _groupValue = value;
-                              print(_groupValue);
-                            });
-                          },
-                          groupValue: _groupValue,
-                          value: 'privato',
-                        ),
-                        Text('privato'),
-                      ],
-                    ),
-                    Container(
-                      padding : EdgeInsets.symmetric(horizontal: 20.0),
-                      child: _groupValue =='azienda'? FormAzienda() : null ,
-                    ),
-                  ],
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 20.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    children: <Widget>[
+                      ButtonBar(
+                        alignment: MainAxisAlignment.spaceEvenly,
+                        children: <Widget>[
+                          Radio(
+                            onChanged: (value) {
+                              setState(() {
+                                _groupValue = value;
+                                print(_groupValue);
+                              });
+                            },
+                            groupValue: _groupValue,
+                            value: 'azienda',
+                          ),
+                          Text('azienda'),
+                          Radio(
+                            onChanged: (value) {
+                              setState(() {
+                                _groupValue = value;
+                                print(_groupValue);
+                              });
+                            },
+                            groupValue: _groupValue,
+                            value: 'privato',
+                          ),
+                          Text('privato'),
+                        ],
+                      ),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 20.0),
+                        child: _groupValue == 'azienda' ? FormAzienda() : FormPrivato(),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

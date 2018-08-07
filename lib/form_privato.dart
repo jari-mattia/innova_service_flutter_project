@@ -1,29 +1,30 @@
 import 'package:flutter/material.dart';
 
-class FormAzienda extends StatefulWidget {
+class FormPrivato extends StatefulWidget {
   @override
-  FormAziendaState createState() {
-    return FormAziendaState();
+  FormPrivatoState createState() {
+    return FormPrivatoState();
   }
 }
 
-class _DatiAzienda {
-  static String tipologia = 'azienda';
+class _DatiPrivato {
+  static String tipologia = 'privato';
   String nome = '';
+  String cognome = '';
   String email = '';
-  String pIva = '';
+  String codFisc = '';
   String richiesta = '';
   String cat = '';
 }
 
-class FormAziendaState extends State<FormAzienda> {
+class FormPrivatoState extends State<FormPrivato> {
   // Create a global key that will uniquely identify the Form widget and allow
   // us to validate the form
   //
   // Note: This is a `GlobalKey<FormState>`, not a GlobalKey<MyCustomFormState>!
   final _formKey = GlobalKey<FormState>();
 
-  _DatiAzienda _dati = new _DatiAzienda();
+  _DatiPrivato _dati = new _DatiPrivato();
 
   List _categorie = [
     "Pulizie ",
@@ -70,7 +71,7 @@ class FormAziendaState extends State<FormAzienda> {
 //    If all data are correct then save data to out variables
       _formKey.currentState.save();
       print(
-          'tipologia cliente : ${_DatiAzienda.tipologia}, \ncategoria : ${_dati.cat}, \nnome azienda : ${_dati.nome},\npartita iva : ${_dati.pIva}, \nemail : ${_dati.email},\nmessaggio : ${_dati.richiesta}\n');
+          'categoria : ${_dati.cat}, \nnome : ${_dati.nome},\npartita iva : ${_dati.codFisc}, \nemail : ${_dati.email},\nmessaggio : ${_dati.richiesta}\n');
     } else {
 //    If all data are not valid then start auto validation.
       setState(() {
@@ -86,6 +87,13 @@ class FormAziendaState extends State<FormAzienda> {
       return null;
   }
 
+  String validateCognome(String value) {
+    if (value.length < 3)
+      return 'il cognome deve contenere almeno 3 caratteri';
+    else
+      return null;
+  }
+
   String validateEmail(String value) {
     Pattern pattern =
         r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
@@ -96,11 +104,11 @@ class FormAziendaState extends State<FormAzienda> {
       return null;
   }
 
-  String validatePartitaIva(String value) {
-    Pattern pattern = r'^[0-9]{11}$';
+  String validateCodFisc(String value) {
+    Pattern pattern = r'/^(?:(?:[B-DF-HJ-NP-TV-Z]|[AEIOU])[AEIOU][AEIOUX]|[B-DF-HJ-NP-TV-Z]{2}[A-Z]){2}[\dLMNP-V]{2}(?:[A-EHLMPR-T](?:[04LQ][1-9MNP-V]|[1256LMRS][\dLMNP-V])|[DHPS][37PT][0L]|[ACELMRT][37PT][01LM])(?:[A-MZ][1-9MNP-V][\dLMNP-V]{2}|[A-M][0L](?:[1-9MNP-V][\dLMNP-V]|[0L][1-9MNP-V]))[A-Z]$/i';
     RegExp regex = new RegExp(pattern);
     if (!regex.hasMatch(value))
-      return 'inserisci una partita iva valida';
+      return 'inserisci un Codice Fiscale valido';
     else
       return null;
   }
@@ -128,8 +136,8 @@ class FormAziendaState extends State<FormAzienda> {
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
           child:
-              Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisSize:MainAxisSize.max ,children: <
-                  Widget>[
+          Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisSize:MainAxisSize.max ,children: <
+              Widget>[
             Container(
               padding: EdgeInsets.symmetric(vertical: 10.0),
               child: Column(
@@ -150,19 +158,29 @@ class FormAziendaState extends State<FormAzienda> {
               onFieldSubmitted: validateNome,
               maxLength: 24,
               decoration: InputDecoration(
-                  labelText: 'Nome', prefixIcon: Icon(Icons.group)),
+                  labelText: 'Nome', prefixIcon: Icon(Icons.person)),
               validator: validateNome,
             ), // We'll build this out in the next steps!
 
             TextFormField(
+              onSaved: (String value) {
+                this._dati.cognome = value;
+              },
+              onFieldSubmitted: validateCognome,
+              maxLength: 24,
+              decoration: InputDecoration(
+                  labelText: 'Cognome', prefixIcon: Icon(Icons.person_outline)),
+              validator: validateCognome,
+            ), // We'll build t
+
+            TextFormField(
                 onSaved: (String value) {
-                  this._dati.pIva = value;
+                  this._dati.codFisc = value;
                 },
-                maxLength: 11,
+                maxLength: 16,
                 decoration: InputDecoration(
-                    labelText: 'Partita Iva', prefixIcon: Icon(Icons.payment)),
-                keyboardType: TextInputType.number,
-                validator: validatePartitaIva), // We'l
+                    labelText: 'Codice Fiscale', prefixIcon: Icon(Icons.payment)),
+                validator: validateCodFisc), // We'l
 
             TextFormField(
                 onSaved: (String value) {
