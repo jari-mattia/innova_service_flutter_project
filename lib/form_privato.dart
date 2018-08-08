@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class FormPrivato extends StatefulWidget {
   @override
   FormPrivatoState createState() {
@@ -71,8 +73,19 @@ class FormPrivatoState extends State<FormPrivato> {
     if (_formKey.currentState.validate()) {
 //    If all data are correct then save data to out variables
       _formKey.currentState.save();
-      print(
-          'tipologia cliente : ${_DatiPrivato.tipologia},\ncategoria : ${_dati.cat}, \nnome : ${_dati.nome},\ncognome : ${_dati.cognome},\npartita iva : ${_dati.codFisc}, \nemail : ${_dati.email},\nmessaggio : ${_dati.richiesta}\n');
+      Firestore.instance.runTransaction((Transaction transaction) async {
+        await Firestore.instance
+            .collection('richieste')
+            .document('privato')
+            .setData({
+          'nome': _dati.nome,
+          'cognome': _dati.cognome,
+          'email': _dati.email,
+          'codice_fiscale': _dati.codFisc,
+          'servizio': _dati.cat,
+          'richiesta': _dati.richiesta
+        });
+      });
     } else {
 //    If all data are not valid then start auto validation.
       setState(() {
@@ -223,24 +236,28 @@ class FormPrivatoState extends State<FormPrivato> {
                     validator: validateRichiesta,
                   ),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween ,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 20.0),
                         child: RaisedButton(
-                          padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 20.0, horizontal: 50.0),
                           color: Theme.of(context).primaryColor,
                           onPressed: _validateInputs,
-                          child: Text('INVIA', style: TextStyle(color: Colors.white)),
+                          child: Text('INVIA',
+                              style: TextStyle(color: Colors.white)),
                         ),
                       ),
                       Padding(
                           padding: const EdgeInsets.symmetric(vertical: 20.0),
                           child: RaisedButton(
-                            padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 20.0, horizontal: 50.0),
                             color: Colors.redAccent,
                             onPressed: _resetForm,
-                            child: Text('RESET', style: TextStyle(color: Colors.white)),
+                            child: Text('RESET',
+                                style: TextStyle(color: Colors.white)),
                           )),
                     ],
                   )
