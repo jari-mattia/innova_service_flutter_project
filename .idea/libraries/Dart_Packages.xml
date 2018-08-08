@@ -79,13 +79,6 @@
             </list>
           </value>
         </entry>
-        <entry key="firebase_analytics">
-          <value>
-            <list>
-              <option value="C:/src/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_analytics-0.3.3/lib" />
-            </list>
-          </value>
-        </entry>
         <entry key="firebase_core">
           <value>
             <list>
@@ -443,7 +436,6 @@
       <root url="file://C:/src/flutter/.pub-cache/hosted/pub.dartlang.org/crypto-2.0.3/lib" />
       <root url="file://C:/src/flutter/.pub-cache/hosted/pub.dartlang.org/csslib-0.14.4/lib" />
       <root url="file://C:/src/flutter/.pub-cache/hosted/pub.dartlang.org/cupertino_icons-0.1.2/lib" />
-      <root url="file://C:/src/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_analytics-0.3.3/lib" />
       <root url="file://C:/src/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_core-0.2.5/lib" />
       <root url="file://C:/src/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_launch-0.1.0/lib" />
       <root url="file://C:/src/flutter/.pub-cache/hosted/pub.dartlang.org/front_end-0.1.0-alpha.12/lib" />

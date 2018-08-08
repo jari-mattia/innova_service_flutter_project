@@ -74,17 +74,20 @@ class FormPrivatoState extends State<FormPrivato> {
 //    If all data are correct then save data to out variables
       _formKey.currentState.save();
       Firestore.instance.runTransaction((Transaction transaction) async {
-        await Firestore.instance
-            .collection('richieste')
-            .document('privato')
-            .setData({
-          'nome': _dati.nome,
-          'cognome': _dati.cognome,
-          'email': _dati.email,
-          'codice_fiscale': _dati.codFisc,
-          'servizio': _dati.cat,
-          'richiesta': _dati.richiesta
-        });
+        DocumentReference document =
+            Firestore.instance.document('richieste/privato');
+        await document
+            .collection('${_dati.cognome}')
+            .add(<String, String>{
+              'nome': _dati.nome,
+              'cognome': _dati.cognome,
+              'email': _dati.email,
+              'codice_fiscale': _dati.codFisc,
+              'servizio': _dati.cat,
+              'richiesta': _dati.richiesta
+            })
+            .whenComplete(() => print('added'))
+            .catchError((e) => print(e));
       });
     } else {
 //    If all data are not valid then start auto validation.
