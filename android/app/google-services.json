@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "775439105293",
+    "firebase_url": "https://innova-servicve.firebaseio.com",
+    "project_id": "innova-servicve",
+    "storage_bucket": "innova-servicve.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:775439105293:android:688f2dd6002ae05f",
+        "android_client_info": {
+          "package_name": "com.example.innovaserviceflutterproject"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "775439105293-aa6eomc9m070v609sv6u95bskfs7plqd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDcnCubzQNiBXvITDhYVYovUrr5X1hbTHM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
