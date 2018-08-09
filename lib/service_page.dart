@@ -85,7 +85,7 @@ class _MyServicesPageState extends State<MyServicesPage> {
                                             context,
                                             MaterialPageRoute(
                                                 builder: (context) =>
-                                                    Preventivo()),
+                                                    QuoteRequest()),
                                           );
                                         },
                                         child: Text("FAI UN PREVENTIVO"),
@@ -192,7 +192,7 @@ class _MyServicesPageState extends State<MyServicesPage> {
                                             context,
                                             MaterialPageRoute(
                                                 builder: (context) =>
-                                                    Preventivo()),
+                                                    QuoteRequest()),
                                           );
                                         },
                                         child: Text("FAI UN PREVENTIVO"),

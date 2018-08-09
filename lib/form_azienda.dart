@@ -3,32 +3,32 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class FormAzienda extends StatefulWidget {
+class FormCompany extends StatefulWidget {
   @override
-  FormAziendaState createState() {
-    return FormAziendaState();
+  FormCompanyState createState() {
+    return FormCompanyState();
   }
 }
 
-class _DatiAzienda {
-  static String tipologia = 'azienda';
+class _CompanyData {
+  static String clientType = 'azienda';
   String nome = '';
   String email = '';
   String pIva = '';
-  String richiesta = '';
-  String cat = '';
+  String request = '';
+  String service = '';
 }
 
-class FormAziendaState extends State<FormAzienda> {
+class FormCompanyState extends State<FormCompany> {
   // Create a global key that will uniquely identify the Form widget and allow
   // us to validate the form
   //
   // Note: This is a `GlobalKey<FormState>`, not a GlobalKey<MyCustomFormState>!
   final _formKey = GlobalKey<FormState>();
 
-  _DatiAzienda _dati = new _DatiAzienda();
+  _CompanyData _data = new _CompanyData();
 
-  List _categorie = [
+  List _categories = [
     "Pulizie ",
     "Aree Verdi",
     "Impianti",
@@ -49,11 +49,11 @@ class FormAziendaState extends State<FormAzienda> {
   // here we are creating the list needed for the DropDownButton
   List<DropdownMenuItem<String>> getDropDownMenuItems() {
     List<DropdownMenuItem<String>> items = new List();
-    for (String _categoria in _categorie) {
+    for (String _category in _categories) {
       // here we are creating the drop down menu items, you can customize the item right here
       // but I'll just use a simple text for this
       items.add(
-          new DropdownMenuItem(value: _categoria, child: new Text(_categoria)));
+          new DropdownMenuItem(value: _category, child: new Text(_category)));
     }
     return items;
   }
@@ -62,7 +62,7 @@ class FormAziendaState extends State<FormAzienda> {
     print("Selected city $selectedCat, we are going to refresh the UI");
     setState(() {
       _currentCat = selectedCat;
-      _dati.cat = selectedCat;
+      _data.service = selectedCat;
     });
   }
 
@@ -75,22 +75,24 @@ class FormAziendaState extends State<FormAzienda> {
 
       Firestore.instance.runTransaction((Transaction transaction) async {
         DocumentReference document =
-        Firestore.instance.document('richieste/privato');
+            Firestore.instance.document('richieste/privato');
         await document
-            .collection('${_dati.pIva}')
+            .collection('${_data.pIva}')
             .document('${DateTime.now().toUtc().toString()}')
             .setData(<String, String>{
-          'nome': _dati.nome,
-          'email': _dati.email,
-          'partita iva': _dati.pIva,
-          'servizio': _dati.cat,
-          'richiesta': _dati.richiesta
-        })
-            .whenComplete(() =>  Scaffold.of(context).showSnackBar(SnackBar(content: Text("la richiesta è stata inviata correttamente . Grazie !!!"), duration: Duration(seconds: 4) ,)))
+              'nome': _data.nome,
+              'email': _data.email,
+              'partita iva': _data.pIva,
+              'servizio': _data.service,
+              'richiesta': _data.request
+            })
+            .whenComplete(() => Scaffold.of(context).showSnackBar(SnackBar(
+                  content: Text("""Grazie per averci inviato la richiesta \nTi ricontatteremo al più presto """),
+                  duration: Duration(seconds: 4),
+                )))
             .whenComplete(resetForm)
             .catchError((e) => print(e));
       });
-
     } else {
 //    If all data are not valid then start auto validation.
       setState(() {
@@ -99,15 +101,13 @@ class FormAziendaState extends State<FormAzienda> {
     }
   }
 
-  String sanitazeTextField(String value){
-    if(value.isNotEmpty)
-      value = value.trim().toLowerCase();
+  String _sanitizeTextField(String value) {
+    if (value.isNotEmpty) value = value.trim().toLowerCase();
     return value;
   }
 
-  String sanitazePIva(String value){
-    if(value.isNotEmpty)
-      value = value.trim();
+  String _sanitizePIva(String value) {
+    if (value.isNotEmpty) value = value.trim();
     return value;
   }
 
@@ -128,7 +128,7 @@ class FormAziendaState extends State<FormAzienda> {
       return null;
   }
 
-  String validatePartitaIva(String value) {
+  String validatePIva(String value) {
     Pattern pattern = r'^[0-9]{11}$';
     RegExp regex = new RegExp(pattern);
     if (!regex.hasMatch(value))
@@ -137,7 +137,7 @@ class FormAziendaState extends State<FormAzienda> {
       return null;
   }
 
-  String validateRichiesta(String value) {
+  String validateRequest(String value) {
     if (value.isEmpty)
       return 'inserisci la richiesta ';
     else
@@ -167,97 +167,102 @@ class FormAziendaState extends State<FormAzienda> {
           autovalidate: _autoValidate,
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisSize:MainAxisSize.max ,children: <
-                    Widget>[
-              Container(
-                padding: EdgeInsets.symmetric(vertical: 10.0),
-                child: Column(
-                  children: <Widget>[
-                    InputDecorator(
-                      decoration: const InputDecoration(
-                        icon: const Icon(Icons.list),
-                      ),
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton(
-                          hint: Text('Scegli tra i servizi'),
-                          value: _currentCat,
-                          items: _dropDownMenuItems,
-                          onChanged: changedDropDownItem,
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-              TextFormField(
-                onSaved: (String value) {
-                  value = sanitazeTextField(value);
-                  this._dati.nome = value;
-                },
-                onFieldSubmitted: validateNome,
-                maxLength: 24,
-                decoration: InputDecoration(
-                    labelText: 'Nome', icon: Icon(Icons.group)),
-                validator: validateNome,
-              ), // We'll build this out in the next steps!
-
-              TextFormField(
-                  onSaved: (String value) {
-                    value = sanitazePIva(value);
-                    this._dati.pIva = value;
-                  },
-                  maxLength: 11,
-                  decoration: InputDecoration(
-                      labelText: 'Partita Iva',icon: Icon(Icons.payment)),
-                  keyboardType: TextInputType.number,
-                  validator: validatePartitaIva), // We'l
-
-              TextFormField(
-                  onSaved: (String value) {
-                    value = sanitazeTextField(value);
-                    this._dati.email = value;
-                  },
-                  maxLength: 256,
-                  decoration: InputDecoration(
-                      labelText: 'Email', icon: Icon(Icons.email)),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: validateEmail), // We'
-
-              TextFormField(
-                onSaved: (String value) {
-                  this._dati.richiesta = value;
-                },
-                maxLength: 1000,
-                decoration: InputDecoration(
-                    labelText: 'Richiesta', icon: Icon(Icons.edit)),
-                maxLines: null,
-                keyboardType: TextInputType.multiline,
-                validator: validateRichiesta,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween ,
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.max,
                 children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20.0),
-                    child: RaisedButton(
-                      padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
-                      color: Theme.of(context).primaryColor,
-                      onPressed: _validateInputs,
-                      child: Text('INVIA', style: TextStyle(color: Colors.white)),
+                  Container(
+                    padding: EdgeInsets.symmetric(vertical: 10.0),
+                    child: Column(
+                      children: <Widget>[
+                        InputDecorator(
+                          decoration: const InputDecoration(
+                            icon: const Icon(Icons.list),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton(
+                              hint: Text('Scegli tra i servizi'),
+                              value: _currentCat,
+                              items: _dropDownMenuItems,
+                              onChanged: changedDropDownItem,
+                            ),
+                          ),
+                        )
+                      ],
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20.0),
-                    child: RaisedButton(
-                      padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
-                      color: Colors.redAccent,
-                      onPressed: _resetForm,
-                      child: Text('RESET', style: TextStyle(color: Colors.white)),
-                    )),
-                ],
-              )
-            ]),
+                  TextFormField(
+                    onSaved: (String value) {
+                      value = _sanitizeTextField(value);
+                      this._data.nome = value;
+                    },
+                    onFieldSubmitted: validateNome,
+                    maxLength: 24,
+                    decoration: InputDecoration(
+                        labelText: 'Nome', icon: Icon(Icons.group)),
+                    validator: validateNome,
+                  ), // We'll build this out in the next steps!
+
+                  TextFormField(
+                      onSaved: (String value) {
+                        value = _sanitizePIva(value);
+                        this._data.pIva = value;
+                      },
+                      maxLength: 11,
+                      decoration: InputDecoration(
+                          labelText: 'Partita Iva', icon: Icon(Icons.payment)),
+                      keyboardType: TextInputType.number,
+                      validator: validatePIva), // We'l
+
+                  TextFormField(
+                      onSaved: (String value) {
+                        value = _sanitizeTextField(value);
+                        this._data.email = value;
+                      },
+                      maxLength: 256,
+                      decoration: InputDecoration(
+                          labelText: 'Email', icon: Icon(Icons.email)),
+                      keyboardType: TextInputType.emailAddress,
+                      validator: validateEmail), // We'
+
+                  TextFormField(
+                    onSaved: (String value) {
+                      this._data.request = value;
+                    },
+                    maxLength: 1000,
+                    decoration: InputDecoration(
+                        labelText: 'Richiesta', icon: Icon(Icons.edit)),
+                    maxLines: null,
+                    keyboardType: TextInputType.multiline,
+                    validator: validateRequest,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 20.0),
+                        child: RaisedButton(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 20.0, horizontal: 50.0),
+                          color: Theme.of(context).primaryColor,
+                          onPressed: _validateInputs,
+                          child: Text('INVIA',
+                              style: TextStyle(color: Colors.white)),
+                        ),
+                      ),
+                      Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 20.0),
+                          child: RaisedButton(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 20.0, horizontal: 50.0),
+                            color: Colors.redAccent,
+                            onPressed: _resetForm,
+                            child: Text('RESET',
+                                style: TextStyle(color: Colors.white)),
+                          )),
+                    ],
+                  )
+                ]),
           )),
     );
   }

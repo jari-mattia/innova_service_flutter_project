@@ -1,36 +1,36 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 
-class FormPrivato extends StatefulWidget {
+class FormPrivate extends StatefulWidget {
   @override
-  FormPrivatoState createState() {
-    return FormPrivatoState();
+  FormPrivateState createState() {
+    return FormPrivateState();
   }
 }
 
-class _DatiPrivato {
-  static String tipologia = 'privato';
-  String nome = '';
-  String cognome = '';
+class _DataPrivate {
+  static String clientType = 'privato';
+  String firstName = '';
+  String lastName = '';
   String email = '';
-  String codFisc = '';
-  String richiesta = '';
-  String cat = '';
+  String fiscalCode = '';
+  String request = '';
+  String service = '';
 }
 
-class FormPrivatoState extends State<FormPrivato> {
+class FormPrivateState extends State<FormPrivate> {
   // Create a global key that will uniquely identify the Form widget and allow
   // us to validate the form
   //
   // Note: This is a `GlobalKey<FormState>`, not a GlobalKey<MyCustomFormState>!
   final _formKey = GlobalKey<FormState>();
 
-  _DatiPrivato _dati = new _DatiPrivato();
+  _DataPrivate _data = new _DataPrivate();
 
-  List _categorie = [
+  List services = [
     "Pulizie ",
     "Aree Verdi",
     "Impianti",
@@ -40,27 +40,23 @@ class FormPrivatoState extends State<FormPrivato> {
 
   List<DropdownMenuItem<String>> _dropDownMenuItems;
 
-  String _currentCat;
-
+  String _currentService;
 
   @override
   void initState() {
     _dropDownMenuItems = getDropDownMenuItems();
-    _currentCat = null;
-    // _currentCat = _dropDownMenuItems[0].value;
+    _currentService = null;
     super.initState();
   }
 
   // here we are creating the list needed for the DropDownButton
   List<DropdownMenuItem<String>> getDropDownMenuItems() {
     List<DropdownMenuItem<String>> items = new List();
-    for (String _categoria in _categorie) {
+    for (String _service in services) {
       // here we are creating the drop down menu items, you can customize the item right here
       // but I'll just use a simple text for this
       items.add(
-          new DropdownMenuItem(value: _categoria,
-                               child: new Text(_categoria))
-      );
+          new DropdownMenuItem(value: _service, child: new Text(_service)));
     }
     return items;
   }
@@ -68,8 +64,8 @@ class FormPrivatoState extends State<FormPrivato> {
   void changedDropDownItem(String selectedCat) {
     print("Selected city $selectedCat, we are going to refresh the UI");
     setState(() {
-      _currentCat = selectedCat;
-      _dati.cat = selectedCat;
+      _currentService = selectedCat;
+      _data.service = selectedCat;
     });
   }
 
@@ -84,17 +80,20 @@ class FormPrivatoState extends State<FormPrivato> {
         DocumentReference document =
             Firestore.instance.document('richieste/privato');
         await document
-            .collection('${_dati.codFisc}')
+            .collection('${_data.fiscalCode}')
             .document('${DateTime.now().toUtc().toString()}')
             .setData(<String, String>{
-              'nome': _dati.nome,
-              'cognome': _dati.cognome,
-              'email': _dati.email,
-              'codice_fiscale': _dati.codFisc,
-              'servizio': _dati.cat,
-              'richiesta': _dati.richiesta
+              'nome': _data.firstName,
+              'cognome': _data.lastName,
+              'email': _data.email,
+              'codice_fiscale': _data.fiscalCode,
+              'servizio': _data.service,
+              'richiesta': _data.request
             })
-            .whenComplete(() =>  Scaffold.of(context).showSnackBar(SnackBar(content: Text("la richiesta è stata inviata correttamente . Grazie !!!"), duration: Duration(seconds: 4) ,)))
+            .whenComplete(() => Scaffold.of(context).showSnackBar(SnackBar(
+                  content: Text("""Grazie per averci inviato la richiesta \nTi ricontatteremo al più presto """),
+                  duration: Duration(seconds: 4),
+                )))
             .whenComplete(resetForm)
             .catchError((e) => print(e));
       });
@@ -106,29 +105,27 @@ class FormPrivatoState extends State<FormPrivato> {
     }
   }
 
-  String validateNome(String value) {
-    if (value.length < 3 )
+  String validateFirstName(String value) {
+    if (value.length < 3)
       return 'il nome deve contenere almeno 3 caratteri';
     else
       return null;
   }
 
-  String validateCognome(String value) {
+  String validateLastName(String value) {
     if (value.length < 3)
       return 'il cognome deve contenere almeno 3 caratteri';
     else
       return null;
   }
 
-  String sanitazeTextField(String value){
-    if(value.isNotEmpty)
-    value = value.trim().toLowerCase();
+  String sanitizeTextField(String value) {
+    if (value.isNotEmpty) value = value.trim().toLowerCase();
     return value;
   }
 
-  String sanitazeCodFisc(String value){
-    if(value.isNotEmpty)
-      value = value.trim().toUpperCase();
+  String sanitizeFiscalCode(String value) {
+    if (value.isNotEmpty) value = value.trim().toUpperCase();
     return value;
   }
 
@@ -142,7 +139,7 @@ class FormPrivatoState extends State<FormPrivato> {
       return null;
   }
 
-  String validateCodFisc(String value) {
+  String validateFiscalCode(String value) {
     Pattern pattern =
         r'^[a-zA-Z]{6}[0-9]{2}[a-zA-Z][0-9]{2}[a-zA-Z][0-9]{3}[a-zA-Z]$';
     RegExp regex = new RegExp(pattern);
@@ -152,14 +149,14 @@ class FormPrivatoState extends State<FormPrivato> {
       return null;
   }
 
-  String validateRichiesta(String value) {
+  String validateRequest(String value) {
     if (value.isEmpty)
       return 'inserisci la richiesta ';
     else
       return null;
   }
 
-  String validateCat(value) {
+  String validateService(value) {
     return value == null ? 'scegli un servizio' : null;
   }
 
@@ -167,7 +164,7 @@ class FormPrivatoState extends State<FormPrivato> {
     _formKey.currentState.reset();
     setState(() {
       _autoValidate = false;
-      _currentCat = null;
+      _currentService = null;
     });
   }
 
@@ -195,14 +192,13 @@ class FormPrivatoState extends State<FormPrivato> {
                     child: Column(
                       children: <Widget>[
                         InputDecorator(
-
                           decoration: const InputDecoration(
                             icon: const Icon(Icons.list),
                           ),
                           child: DropdownButtonHideUnderline(
                             child: DropdownButton(
                               hint: Text('Scegli tra i servizi'),
-                              value: _currentCat,
+                              value: _currentService,
                               items: _dropDownMenuItems,
                               onChanged: changedDropDownItem,
                             ),
@@ -213,43 +209,43 @@ class FormPrivatoState extends State<FormPrivato> {
                   ),
                   TextFormField(
                     onSaved: (String value) {
-                      value = sanitazeTextField(value);
-                      this._dati.nome = value;
+                      value = sanitizeTextField(value);
+                      this._data.firstName = value;
                     },
-                    onFieldSubmitted: validateNome,
+                    onFieldSubmitted: validateFirstName,
                     maxLength: 24,
                     decoration: InputDecoration(
                         labelText: 'Nome', icon: Icon(Icons.person)),
-                    validator: validateNome,
+                    validator: validateFirstName,
                   ), // We'll build this out in the next steps!
 
                   TextFormField(
                     onSaved: (String value) {
-                      value = sanitazeTextField(value);
-                      this._dati.cognome = value;
+                      value = sanitizeTextField(value);
+                      this._data.lastName = value;
                     },
-                    onFieldSubmitted: validateCognome,
+                    onFieldSubmitted: validateLastName,
                     maxLength: 24,
                     decoration: InputDecoration(
                         labelText: 'Cognome', icon: Icon(Icons.person_outline)),
-                    validator: validateCognome,
+                    validator: validateLastName,
                   ), // We'll build t
 
                   TextFormField(
                       onSaved: (String value) {
-                        value = sanitazeCodFisc(value);
-                        this._dati.codFisc = value;
+                        value = sanitizeFiscalCode(value);
+                        this._data.fiscalCode = value;
                       },
                       maxLength: 16,
                       decoration: InputDecoration(
                           labelText: 'Codice Fiscale',
                           icon: Icon(Icons.payment)),
-                      validator: validateCodFisc), // We'l
+                      validator: validateFiscalCode), // We'l
 
                   TextFormField(
                       onSaved: (String value) {
-                        value = sanitazeTextField(value);
-                        this._dati.email = value;
+                        value = sanitizeTextField(value);
+                        this._data.email = value;
                       },
                       maxLength: 256,
                       decoration: InputDecoration(
@@ -259,14 +255,14 @@ class FormPrivatoState extends State<FormPrivato> {
 
                   TextFormField(
                     onSaved: (String value) {
-                      this._dati.richiesta = value;
+                      this._data.request = value;
                     },
                     maxLength: 1000,
                     decoration: InputDecoration(
                         labelText: 'Richiesta', icon: Icon(Icons.edit)),
                     maxLines: null,
                     keyboardType: TextInputType.multiline,
-                    validator: validateRichiesta,
+                    validator: validateRequest,
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -49,7 +49,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => Intervento()),
+                              builder: (context) => InterventionRequest()),
                         );
                       },
                       child: Text("RICHIEDI INTERVENTO"),
@@ -62,7 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => Preventivo()),
+                              builder: (context) => QuoteRequest()),
                         );
                       },
                       child: Text("FAI UN PREVENTIVO"),
@@ -75,7 +75,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         Padding(
                             padding: EdgeInsets.symmetric(horizontal: 10.0),
                             child: FloatingActionButton(
-                              onPressed: getImage,
+                              onPressed:() => getImage(context),
                               child: Icon(
                                 Icons.camera_alt,
                                 color:Colors.white,
@@ -140,7 +140,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => Intervento()),
+                                    builder: (context) => InterventionRequest()),
                               );
                             },
                             child: Text("RICHIEDI INTERVENTO"),
@@ -153,7 +153,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => Preventivo()),
+                                    builder: (context) => QuoteRequest()),
                               );
                             },
                             child: Text("FAI UN PREVENTIVO"),
@@ -166,7 +166,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 10.0),
                               child: FloatingActionButton(
-                                onPressed: getImage,
+                                onPressed:() => getImage(context),
                                 child: Icon(
                                   Icons.camera_alt,
                                   color:Colors.white,

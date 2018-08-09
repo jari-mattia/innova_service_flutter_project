@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:innova_service_flutter_project/form_azienda.dart';
 import 'package:innova_service_flutter_project/form_privato.dart';
 
-class Preventivo extends StatefulWidget {
+class QuoteRequest extends StatefulWidget {
   @override
-  _PreventivoState createState() => new _PreventivoState();
+  QuoteRequestState createState() => new QuoteRequestState();
 }
 
-class _PreventivoState extends State<Preventivo> {
+class QuoteRequestState extends State<QuoteRequest> {
   var _groupValue = 'azienda';
 
   Widget build(BuildContext context) {
@@ -54,7 +54,7 @@ class _PreventivoState extends State<Preventivo> {
                       ),
                       Container(
                         padding: EdgeInsets.symmetric(horizontal: 20.0),
-                        child: _groupValue == 'azienda' ? FormAzienda() : FormPrivato(),
+                        child: _groupValue == 'azienda' ? FormCompany() : FormPrivate(),
                       ),
                     ],
                   ),

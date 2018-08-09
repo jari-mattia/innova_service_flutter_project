@@ -19,7 +19,7 @@ class _MyServicesPageViewState extends State<MyServicesPageView> {
   final page2Bg = "page_2_bg.jpeg";
   final page2Title = "Gestione Aree Verdi";
   final page2Desc =
-  """La nostra esperienza al servizio della Vs area verde. Le aree verdi rappresentano una riserva fondamentale per la sostenibilità e la qualità della vita. Noi interveniamo a qualsiasi livello ed in qualsiasi area con tecnici ed operatori altamente qualificati e con attrezzature all’avanguardia in grado di curare al meglio parchi e giardini.
+      """La nostra esperienza al servizio della Vs area verde. Le aree verdi rappresentano una riserva fondamentale per la sostenibilità e la qualità della vita. Noi interveniamo a qualsiasi livello ed in qualsiasi area con tecnici ed operatori altamente qualificati e con attrezzature all’avanguardia in grado di curare al meglio parchi e giardini.
   
   \n- Progettazione e realizzazione parchi e giardini;
   \n- Potatura siepi , cespugli , arbusti e rampicanti;
@@ -33,7 +33,7 @@ class _MyServicesPageViewState extends State<MyServicesPageView> {
   final page3Title =
       "Installazione e Manutenzione Impianti Termoidraulici ed Elettrici";
   final page3Desc =
-  """Professionalità , esperienza , innovazione tecnologica volta alla sostenibilità ambientale sono i principi che ci guidano nella realizzazione, gestione e manutenzione degli impianti tecnologici. \nLa società Innova Service coop è in grado di realizzare opere di natura idraulica che richiedono un elevato grado di precisione. Vantando un ottima competenza nell’ installazione, gestione e manutenzione di impianti tecnologici, quali:
+      """Professionalità , esperienza , innovazione tecnologica volta alla sostenibilità ambientale sono i principi che ci guidano nella realizzazione, gestione e manutenzione degli impianti tecnologici. \nLa società Innova Service coop è in grado di realizzare opere di natura idraulica che richiedono un elevato grado di precisione. Vantando un ottima competenza nell’ installazione, gestione e manutenzione di impianti tecnologici, quali:
 
 \n- Climatizzazione
 \n- Idrico sanitari
@@ -64,9 +64,8 @@ class _MyServicesPageViewState extends State<MyServicesPageView> {
     children: <Widget>[
       Align(
           alignment: Alignment.center,
-          child:Icon(Icons.arrow_forward_ios,
-              color: Colors.grey[350],
-              size: 30.0)),
+          child: Icon(Icons.arrow_forward_ios,
+              color: Colors.grey[350], size: 30.0)),
     ],
   );
 
@@ -77,16 +76,14 @@ class _MyServicesPageViewState extends State<MyServicesPageView> {
     children: <Widget>[
       Align(
           alignment: Alignment.center,
-          child:Icon(Icons.arrow_back_ios,
-              color: Colors.grey[350],
-              size: 30.0)),
+          child:
+              Icon(Icons.arrow_back_ios, color: Colors.grey[350], size: 30.0)),
     ],
   );
 
   final bothArrow = Stack(
     fit: StackFit.expand,
     children: <Widget>[
-
       Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.max,
@@ -94,9 +91,8 @@ class _MyServicesPageViewState extends State<MyServicesPageView> {
         children: <Widget>[
           Align(
               alignment: Alignment.center,
-              child:Icon(Icons.arrow_back_ios,
-                  color: Colors.grey[350],
-                  size: 30.0)),
+              child: Icon(Icons.arrow_back_ios,
+                  color: Colors.grey[350], size: 30.0)),
         ],
       ),
       Row(
@@ -106,28 +102,26 @@ class _MyServicesPageViewState extends State<MyServicesPageView> {
         children: <Widget>[
           Align(
               alignment: Alignment.center,
-              child:Icon(Icons.arrow_forward_ios,
-                  color: Colors.grey[350],
-                  size: 30.0)),
+              child: Icon(Icons.arrow_forward_ios,
+                  color: Colors.grey[350], size: 30.0)),
         ],
       ),
-
     ],
   );
 
   Widget build(BuildContext context) {
     return PageView(
       children: <Widget>[
-        MyServicesPage(
-            Key("page_1"), page1Av, page1Bg, page1Title, page1Desc, page1Color, rightArrow),
-        MyServicesPage(
-            Key("page_2"), page2Av, page2Bg, page2Title, page2Desc, page2Color, bothArrow),
-        MyServicesPage(
-            Key("page_3"), page3Av, page3Bg, page3Title, page3Desc, page3Color, bothArrow),
-        MyServicesPage(
-            Key("page_4"), page4Av, page4Bg, page4Title, page4Desc, page4Color, bothArrow),
-        MyServicesPage(
-            Key("page_5"), page5Av, page5Bg, page5Title, page5Desc, page5Color, leftArrow),
+        MyServicesPage(Key("page_1"), page1Av, page1Bg, page1Title, page1Desc,
+            page1Color, rightArrow),
+        MyServicesPage(Key("page_2"), page2Av, page2Bg, page2Title, page2Desc,
+            page2Color, bothArrow),
+        MyServicesPage(Key("page_3"), page3Av, page3Bg, page3Title, page3Desc,
+            page3Color, bothArrow),
+        MyServicesPage(Key("page_4"), page4Av, page4Bg, page4Title, page4Desc,
+            page4Color, bothArrow),
+        MyServicesPage(Key("page_5"), page5Av, page5Bg, page5Title, page5Desc,
+            page5Color, leftArrow),
       ],
     );
   }

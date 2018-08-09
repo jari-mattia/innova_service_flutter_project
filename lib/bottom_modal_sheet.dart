@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_launch/flutter_launch.dart';
 import 'package:image_picker/image_picker.dart';
@@ -18,7 +20,7 @@ void showHomeModalSheet(context) {
               child: Text(
                 "Scegli come contattarci",
                 style:
-                TextStyle(fontWeight: FontWeight.w700, color: Colors.white),
+                    TextStyle(fontWeight: FontWeight.w700, color: Colors.white),
               ),
             ),
             ListTile(
@@ -72,7 +74,7 @@ void showHomeModalSheet(context) {
               subtitle: Text(
                   "ti ricontatteremo con la nostra proposta per risolverlo",
                   style: TextStyle(color: Color(0xFFCCCCCC))),
-              onTap: getImage,
+              onTap:() => getImage(context),
             ),
           ],
         );
@@ -81,11 +83,25 @@ void showHomeModalSheet(context) {
 
 File _image;
 
-Future getImage() async {
+Future getImage(BuildContext context) async {
   var image = await ImagePicker.pickImage(source: ImageSource.camera);
   if (image != null) {
-  _image = new File(image.path);
+    _image = new File(image.path);
 
+    StorageReference storage = FirebaseStorage(
+            app: FirebaseApp.instance,
+            storageBucket: 'gs://innova-servicve.appspot.com')
+        .ref();
+    StorageUploadTask uploadImage = storage
+        .child('utente')
+        .child('${DateTime.now().toUtc().toString()}')
+        .putFile(_image);
+    await uploadImage.future
+        .whenComplete(() => Scaffold.of(context).showSnackBar(SnackBar(
+              content: Text("""Grazie per averci inviato la richiesta \nTi ricontatteremo al più presto """),
+              duration: Duration(seconds: 4),
+            )))
+        .catchError((e) => print(e));
   }
 }
 
@@ -98,9 +114,9 @@ Future contactUs(url) async {
 }
 
 void whatsAppOpen() async {
-  bool whatsapp = await FlutterLaunch.hasApp(name: "whatsapp");
+  bool hasWhatsApp = await FlutterLaunch.hasApp(name: "whatsapp");
 
-  if (whatsapp) {
+  if (hasWhatsApp) {
     await FlutterLaunch.launchWathsApp(phone: "+393755070555", message: "");
   } else {
     print("Whatsapp non è installato");

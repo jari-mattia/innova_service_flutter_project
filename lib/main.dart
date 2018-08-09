@@ -17,8 +17,8 @@ class _MyAppState extends State<MyApp> {
 
   MyHomePage home;
   MyServicesPageView services;
-  ChiSiamo chiSiamo;
-  Contatti contatti;
+  ChiSiamo aboutUs;
+  Contacts contacts;
   List<Widget> pages;
   Widget currentPage;
 
@@ -26,10 +26,10 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     home = MyHomePage();
     services = MyServicesPageView();
-    chiSiamo = ChiSiamo();
-    contatti = Contatti();
+    aboutUs = ChiSiamo();
+    contacts = Contacts();
 
-    pages = [home, services, chiSiamo, contatti];
+    pages = [home, services, aboutUs, contacts];
 
     currentPage = home;
     super.initState();

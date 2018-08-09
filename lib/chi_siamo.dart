@@ -134,7 +134,7 @@ class ChiSiamo extends StatelessWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => Preventivo()),
+                                    builder: (context) => QuoteRequest()),
                               );
                             },
                             child: Text("FAI UN PREVENTIVO"),
