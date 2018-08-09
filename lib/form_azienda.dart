@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class FormAzienda extends StatefulWidget {
@@ -69,14 +72,43 @@ class FormAziendaState extends State<FormAzienda> {
     if (_formKey.currentState.validate()) {
 //    If all data are correct then save data to out variables
       _formKey.currentState.save();
-      print(
-          'tipologia cliente : ${_DatiAzienda.tipologia}, \ncategoria : ${_dati.cat}, \nnome azienda : ${_dati.nome},\npartita iva : ${_dati.pIva}, \nemail : ${_dati.email},\nmessaggio : ${_dati.richiesta}\n');
+
+      Firestore.instance.runTransaction((Transaction transaction) async {
+        DocumentReference document =
+        Firestore.instance.document('richieste/privato');
+        await document
+            .collection('${_dati.pIva}')
+            .document('${DateTime.now().toUtc().toString()}')
+            .setData(<String, String>{
+          'nome': _dati.nome,
+          'email': _dati.email,
+          'partita iva': _dati.pIva,
+          'servizio': _dati.cat,
+          'richiesta': _dati.richiesta
+        })
+            .whenComplete(() =>  Scaffold.of(context).showSnackBar(SnackBar(content: Text("la richiesta è stata inviata correttamente . Grazie !!!"), duration: Duration(seconds: 4) ,)))
+            .whenComplete(resetForm)
+            .catchError((e) => print(e));
+      });
+
     } else {
 //    If all data are not valid then start auto validation.
       setState(() {
         _autoValidate = true;
       });
     }
+  }
+
+  String sanitazeTextField(String value){
+    if(value.isNotEmpty)
+      value = value.trim().toLowerCase();
+    return value;
+  }
+
+  String sanitazePIva(String value){
+    if(value.isNotEmpty)
+      value = value.trim();
+    return value;
   }
 
   String validateNome(String value) {
@@ -120,6 +152,10 @@ class FormAziendaState extends State<FormAzienda> {
     });
   }
 
+  Future<void> resetForm() async {
+    _resetForm();
+  }
+
   @override
   Widget build(BuildContext context) {
     // Build a Form widget using the _formKey we created above
@@ -156,6 +192,7 @@ class FormAziendaState extends State<FormAzienda> {
               ),
               TextFormField(
                 onSaved: (String value) {
+                  value = sanitazeTextField(value);
                   this._dati.nome = value;
                 },
                 onFieldSubmitted: validateNome,
@@ -167,6 +204,7 @@ class FormAziendaState extends State<FormAzienda> {
 
               TextFormField(
                   onSaved: (String value) {
+                    value = sanitazePIva(value);
                     this._dati.pIva = value;
                   },
                   maxLength: 11,
@@ -177,6 +215,7 @@ class FormAziendaState extends State<FormAzienda> {
 
               TextFormField(
                   onSaved: (String value) {
+                    value = sanitazeTextField(value);
                     this._dati.email = value;
                   },
                   maxLength: 256,

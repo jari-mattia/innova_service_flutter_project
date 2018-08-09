@@ -287,7 +287,7 @@ class FormPrivatoState extends State<FormPrivato> {
                           child: RaisedButton(
                             padding: const EdgeInsets.symmetric(
                                 vertical: 20.0, horizontal: 50.0),
-                            color: Colors.redAccent,
+                            color: Theme.of(context).accentColor,
                             onPressed: _resetForm,
                             child: Text('RESET',
                                 style: TextStyle(color: Colors.white)),
