@@ -84,12 +84,8 @@ File _image;
 Future getImage() async {
   var image = await ImagePicker.pickImage(source: ImageSource.camera);
   if (image != null) {
-    _image = image;
-    String mailto = 'mailto:yari.mattia@gmail.com?attachment="';
-    String path = _image.path;
-    String url = mailto + path + '"';
-    print(url);
-    contactUs(url);
+  _image = new File(image.path);
+
   }
 }
 

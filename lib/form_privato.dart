@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -39,6 +41,8 @@ class FormPrivatoState extends State<FormPrivato> {
   List<DropdownMenuItem<String>> _dropDownMenuItems;
 
   String _currentCat;
+
+
   @override
   void initState() {
     _dropDownMenuItems = getDropDownMenuItems();
@@ -54,7 +58,9 @@ class FormPrivatoState extends State<FormPrivato> {
       // here we are creating the drop down menu items, you can customize the item right here
       // but I'll just use a simple text for this
       items.add(
-          new DropdownMenuItem(value: _categoria, child: new Text(_categoria)));
+          new DropdownMenuItem(value: _categoria,
+                               child: new Text(_categoria))
+      );
     }
     return items;
   }
@@ -73,12 +79,14 @@ class FormPrivatoState extends State<FormPrivato> {
     if (_formKey.currentState.validate()) {
 //    If all data are correct then save data to out variables
       _formKey.currentState.save();
+
       Firestore.instance.runTransaction((Transaction transaction) async {
         DocumentReference document =
             Firestore.instance.document('richieste/privato');
         await document
-            .collection('${_dati.cognome}')
-            .add(<String, String>{
+            .collection('${_dati.codFisc}')
+            .document('${DateTime.now().toUtc().toString()}')
+            .setData(<String, String>{
               'nome': _dati.nome,
               'cognome': _dati.cognome,
               'email': _dati.email,
@@ -86,7 +94,8 @@ class FormPrivatoState extends State<FormPrivato> {
               'servizio': _dati.cat,
               'richiesta': _dati.richiesta
             })
-            .whenComplete(() => print('added'))
+            .whenComplete(() =>  Scaffold.of(context).showSnackBar(SnackBar(content: Text("la richiesta è stata inviata correttamente . Grazie !!!"), duration: Duration(seconds: 4) ,)))
+            .whenComplete(resetForm)
             .catchError((e) => print(e));
       });
     } else {
@@ -98,7 +107,7 @@ class FormPrivatoState extends State<FormPrivato> {
   }
 
   String validateNome(String value) {
-    if (value.length < 3)
+    if (value.length < 3 )
       return 'il nome deve contenere almeno 3 caratteri';
     else
       return null;
@@ -109,6 +118,18 @@ class FormPrivatoState extends State<FormPrivato> {
       return 'il cognome deve contenere almeno 3 caratteri';
     else
       return null;
+  }
+
+  String sanitazeTextField(String value){
+    if(value.isNotEmpty)
+    value = value.trim().toLowerCase();
+    return value;
+  }
+
+  String sanitazeCodFisc(String value){
+    if(value.isNotEmpty)
+      value = value.trim().toUpperCase();
+    return value;
   }
 
   String validateEmail(String value) {
@@ -150,6 +171,10 @@ class FormPrivatoState extends State<FormPrivato> {
     });
   }
 
+  Future<void> resetForm() async {
+    _resetForm();
+  }
+
   @override
   Widget build(BuildContext context) {
     // Build a Form widget using the _formKey we created above
@@ -170,6 +195,7 @@ class FormPrivatoState extends State<FormPrivato> {
                     child: Column(
                       children: <Widget>[
                         InputDecorator(
+
                           decoration: const InputDecoration(
                             icon: const Icon(Icons.list),
                           ),
@@ -187,6 +213,7 @@ class FormPrivatoState extends State<FormPrivato> {
                   ),
                   TextFormField(
                     onSaved: (String value) {
+                      value = sanitazeTextField(value);
                       this._dati.nome = value;
                     },
                     onFieldSubmitted: validateNome,
@@ -198,6 +225,7 @@ class FormPrivatoState extends State<FormPrivato> {
 
                   TextFormField(
                     onSaved: (String value) {
+                      value = sanitazeTextField(value);
                       this._dati.cognome = value;
                     },
                     onFieldSubmitted: validateCognome,
@@ -209,6 +237,7 @@ class FormPrivatoState extends State<FormPrivato> {
 
                   TextFormField(
                       onSaved: (String value) {
+                        value = sanitazeCodFisc(value);
                         this._dati.codFisc = value;
                       },
                       maxLength: 16,
@@ -219,6 +248,7 @@ class FormPrivatoState extends State<FormPrivato> {
 
                   TextFormField(
                       onSaved: (String value) {
+                        value = sanitazeTextField(value);
                         this._dati.email = value;
                       },
                       maxLength: 256,
