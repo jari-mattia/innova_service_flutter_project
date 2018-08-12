@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "775439105293-9rmrsorgvqhidod5lp9kpq9qbhsvcd86.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.innovaserviceflutterproject",
+            "certificate_hash": "7fa1a6318e3cf6ba56eaad35cd3f7968f7901c3f"
+          }
+        },
+        {
           "client_id": "775439105293-aa6eomc9m070v609sv6u95bskfs7plqd.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -29,8 +37,20 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "775439105293-aa6eomc9m070v609sv6u95bskfs7plqd.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "775439105293-eqru1vmp4cq2uoobqjsi9e9bq96fc0j0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.innovaServiceFlutterProject"
+              }
+            }
+          ]
         },
         "ads_service": {
           "status": 2

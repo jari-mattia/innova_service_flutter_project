@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'service_page.dart';
+import 'package:innova_service_flutter_project/route/service_page.dart';
 
 class MyServicesPageView extends StatefulWidget {
   @override

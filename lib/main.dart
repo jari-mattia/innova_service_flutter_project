@@ -1,9 +1,17 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:innova_service_flutter_project/chi_siamo.dart';
-import 'package:innova_service_flutter_project/contatti.dart';
-import 'package:innova_service_flutter_project/services_page_view.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:innova_service_flutter_project/login_controller/splash_screen.dart';
+import 'package:innova_service_flutter_project/model/user.dart';
 
-import 'home_page.dart';
+
+User currentUser;
+FirebaseAuth fireAuth = FirebaseAuth.instance;
+FirebaseUser fireUser;
+GoogleSignIn googleSignIn = new GoogleSignIn(scopes: [
+'email',
+'https://www.googleapis.com/auth/contacts.readonly',
+]);
 
 void main() => runApp(new MyApp());
 
@@ -13,27 +21,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  int currentTab = 0;
-
-  MyHomePage home;
-  MyServicesPageView services;
-  ChiSiamo aboutUs;
-  Contacts contacts;
-  List<Widget> pages;
-  Widget currentPage;
-
-  @override
-  void initState() {
-    home = MyHomePage();
-    services = MyServicesPageView();
-    aboutUs = ChiSiamo();
-    contacts = Contacts();
-
-    pages = [home, services, aboutUs, contacts];
-
-    currentPage = home;
-    super.initState();
-  }
 
   // This widget is the root of your application.
   @override
@@ -44,29 +31,7 @@ class _MyAppState extends State<MyApp> {
           fontFamily: 'Montserrat',
           primaryColor: Colors.blue,
           accentColor: Colors.cyan),
-      home: Scaffold(
-        body: currentPage,
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: currentTab,
-          onTap: (int index) {
-            setState(() {
-              currentTab = index;
-              currentPage = pages[index];
-            });
-          },
-          type: BottomNavigationBarType.fixed,
-          items: [
-            BottomNavigationBarItem(
-                icon: Icon(Icons.home), title: Text('Home')),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.build), title: Text('Servizi')),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.group), title: Text('Chi Siamo')),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.email), title: Text('Contatti')),
-          ],
-        ),
-      ),
+      home: SplashScreen(),//HandleCurrentScreen()
     );
   }
 }

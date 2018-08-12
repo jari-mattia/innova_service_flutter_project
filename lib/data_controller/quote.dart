@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:innova_service_flutter_project/form_azienda.dart';
-import 'package:innova_service_flutter_project/form_privato.dart';
+import 'package:innova_service_flutter_project/data_controller/form_company.dart';
+import 'package:innova_service_flutter_project/data_controller/form_private.dart';
 
 class QuoteRequest extends StatefulWidget {
   @override

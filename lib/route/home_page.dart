@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:innova_service_flutter_project/intervento.dart';
-import 'package:innova_service_flutter_project/login_test.dart';
-import 'package:innova_service_flutter_project/preventivo.dart';
-
-import 'bottom_modal_sheet.dart';
+import 'package:innova_service_flutter_project/main.dart';
+import 'package:innova_service_flutter_project/data_controller/intervention.dart';
+import 'package:innova_service_flutter_project/login_controller/login_test.dart';
+import 'package:innova_service_flutter_project/data_controller/quote.dart';
+import 'package:innova_service_flutter_project/data_controller/functions.dart';
 
 class MyHomePage extends StatefulWidget {
   @override
@@ -11,6 +11,15 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+ String _welcome;
+  @override
+  void initState() {
+    if (currentUser != null) {
+      _welcome = currentUser.email;
+    }
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return OrientationBuilder(builder: (context, orientation) {
@@ -20,7 +29,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             Image.asset('asset/images/home_bg.png', fit: BoxFit.cover),
             Card(
-              color: Color(0xCCFFFFFF),
+              color: Color(0xDDFFFFFF),
               margin: EdgeInsets.only(top: 35.0,bottom: 25.0, left: 15.0, right: 15.0),
               child: Container(
                 padding: EdgeInsets.symmetric(vertical: 30.0, horizontal: 40.0),
@@ -28,6 +37,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: <Widget>[
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 30.0),
+                      child: Text(_welcome,)
+                    ),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 30.0),
                       child: Image.asset('asset/images/logo.png'),

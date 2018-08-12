@@ -2,35 +2,34 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:innova_service_flutter_project/data_controller/functions.dart';
 
-
-class FormPrivate extends StatefulWidget {
+class FormCompany extends StatefulWidget {
   @override
-  FormPrivateState createState() {
-    return FormPrivateState();
+  FormCompanyState createState() {
+    return FormCompanyState();
   }
 }
 
-class _DataPrivate {
-  static String clientType = 'privato';
-  String firstName = '';
-  String lastName = '';
+class _CompanyData {
+  static String clientType = 'azienda';
+  String nome = '';
   String email = '';
-  String fiscalCode = '';
+  String pIva = '';
   String request = '';
   String service = '';
 }
 
-class FormPrivateState extends State<FormPrivate> {
-  // Create a global key that will uniquely identify the Form widget and allow
-  // us to validate the form
-  //
-  // Note: This is a `GlobalKey<FormState>`, not a GlobalKey<MyCustomFormState>!
+class FormCompanyState extends State<FormCompany> {
+
   final _formKey = GlobalKey<FormState>();
+  bool _autoValidate = false;
+  _CompanyData _data = new _CompanyData();
+  List<DropdownMenuItem<String>> _dropDownMenuItems;
+  String _currentCat;
 
-  _DataPrivate _data = new _DataPrivate();
 
-  List services = [
+  List<String> _items = [
     "Pulizie ",
     "Aree Verdi",
     "Impianti",
@@ -38,38 +37,22 @@ class FormPrivateState extends State<FormPrivate> {
     "Edilizia"
   ];
 
-  List<DropdownMenuItem<String>> _dropDownMenuItems;
 
-  String _currentService;
 
   @override
   void initState() {
-    _dropDownMenuItems = getDropDownMenuItems();
-    _currentService = null;
+    _dropDownMenuItems = getDropDownMenuItems(_items);
+    _currentCat = null;
     super.initState();
-  }
-
-  // here we are creating the list needed for the DropDownButton
-  List<DropdownMenuItem<String>> getDropDownMenuItems() {
-    List<DropdownMenuItem<String>> items = new List();
-    for (String _service in services) {
-      // here we are creating the drop down menu items, you can customize the item right here
-      // but I'll just use a simple text for this
-      items.add(
-          new DropdownMenuItem(value: _service, child: new Text(_service)));
-    }
-    return items;
   }
 
   void changedDropDownItem(String selectedCat) {
     print("Selected city $selectedCat, we are going to refresh the UI");
     setState(() {
-      _currentService = selectedCat;
+      _currentCat = selectedCat;
       _data.service = selectedCat;
     });
   }
-
-  bool _autoValidate = false;
 
   void _validateInputs() {
     if (_formKey.currentState.validate()) {
@@ -80,13 +63,12 @@ class FormPrivateState extends State<FormPrivate> {
         DocumentReference document =
             Firestore.instance.document('richieste/privato');
         await document
-            .collection('${_data.fiscalCode}')
+            .collection('${_data.pIva}')
             .document('${DateTime.now().toUtc().toString()}')
             .setData(<String, String>{
-              'nome': _data.firstName,
-              'cognome': _data.lastName,
+              'nome': _data.nome,
               'email': _data.email,
-              'codice_fiscale': _data.fiscalCode,
+              'partita iva': _data.pIva,
               'servizio': _data.service,
               'richiesta': _data.request
             })
@@ -94,7 +76,7 @@ class FormPrivateState extends State<FormPrivate> {
                   content: Text("""Grazie per averci inviato la richiesta \nTi ricontatteremo al più presto """),
                   duration: Duration(seconds: 4),
                 )))
-            .whenComplete(resetForm)
+            .whenComplete(_resetForm)
             .catchError((e) => print(e));
       });
     } else {
@@ -105,71 +87,12 @@ class FormPrivateState extends State<FormPrivate> {
     }
   }
 
-  String validateFirstName(String value) {
-    if (value.length < 3)
-      return 'il nome deve contenere almeno 3 caratteri';
-    else
-      return null;
-  }
-
-  String validateLastName(String value) {
-    if (value.length < 3)
-      return 'il cognome deve contenere almeno 3 caratteri';
-    else
-      return null;
-  }
-
-  String sanitizeTextField(String value) {
-    if (value.isNotEmpty) value = value.trim().toLowerCase();
-    return value;
-  }
-
-  String sanitizeFiscalCode(String value) {
-    if (value.isNotEmpty) value = value.trim().toUpperCase();
-    return value;
-  }
-
-  String validateEmail(String value) {
-    Pattern pattern =
-        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
-    RegExp regex = new RegExp(pattern);
-    if (!regex.hasMatch(value))
-      return 'inserisci un email valida';
-    else
-      return null;
-  }
-
-  String validateFiscalCode(String value) {
-    Pattern pattern =
-        r'^[a-zA-Z]{6}[0-9]{2}[a-zA-Z][0-9]{2}[a-zA-Z][0-9]{3}[a-zA-Z]$';
-    RegExp regex = new RegExp(pattern);
-    if (!regex.hasMatch(value))
-      return 'inserisci un Codice Fiscale valido';
-    else
-      return null;
-  }
-
-  String validateRequest(String value) {
-    if (value.isEmpty)
-      return 'inserisci la richiesta ';
-    else
-      return null;
-  }
-
-  String validateService(value) {
-    return value == null ? 'scegli un servizio' : null;
-  }
-
   void _resetForm() {
     _formKey.currentState.reset();
     setState(() {
       _autoValidate = false;
-      _currentService = null;
+      _currentCat = null;
     });
-  }
-
-  Future<void> resetForm() async {
-    _resetForm();
   }
 
   @override
@@ -198,7 +121,7 @@ class FormPrivateState extends State<FormPrivate> {
                           child: DropdownButtonHideUnderline(
                             child: DropdownButton(
                               hint: Text('Scegli tra i servizi'),
-                              value: _currentService,
+                              value: _currentCat,
                               items: _dropDownMenuItems,
                               onChanged: changedDropDownItem,
                             ),
@@ -210,37 +133,25 @@ class FormPrivateState extends State<FormPrivate> {
                   TextFormField(
                     onSaved: (String value) {
                       value = sanitizeTextField(value);
-                      this._data.firstName = value;
+                      this._data.nome = value;
                     },
                     onFieldSubmitted: validateFirstName,
                     maxLength: 24,
                     decoration: InputDecoration(
-                        labelText: 'Nome', icon: Icon(Icons.person)),
+                        labelText: 'Nome', icon: Icon(Icons.group)),
                     validator: validateFirstName,
                   ), // We'll build this out in the next steps!
 
                   TextFormField(
-                    onSaved: (String value) {
-                      value = sanitizeTextField(value);
-                      this._data.lastName = value;
-                    },
-                    onFieldSubmitted: validateLastName,
-                    maxLength: 24,
-                    decoration: InputDecoration(
-                        labelText: 'Cognome', icon: Icon(Icons.person_outline)),
-                    validator: validateLastName,
-                  ), // We'll build t
-
-                  TextFormField(
                       onSaved: (String value) {
-                        value = sanitizeFiscalCode(value);
-                        this._data.fiscalCode = value;
+                        value = sanitizePIva(value);
+                        this._data.pIva = value;
                       },
-                      maxLength: 16,
+                      maxLength: 11,
                       decoration: InputDecoration(
-                          labelText: 'Codice Fiscale',
-                          icon: Icon(Icons.payment)),
-                      validator: validateFiscalCode), // We'l
+                          labelText: 'Partita Iva', icon: Icon(Icons.payment)),
+                      keyboardType: TextInputType.number,
+                      validator: validatePIva), // We'l
 
                   TextFormField(
                       onSaved: (String value) {
@@ -283,7 +194,7 @@ class FormPrivateState extends State<FormPrivate> {
                           child: RaisedButton(
                             padding: const EdgeInsets.symmetric(
                                 vertical: 20.0, horizontal: 50.0),
-                            color: Theme.of(context).accentColor,
+                            color: Colors.redAccent,
                             onPressed: _resetForm,
                             child: Text('RESET',
                                 style: TextStyle(color: Colors.white)),

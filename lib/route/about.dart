@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:innova_service_flutter_project/bottom_modal_sheet.dart';
-import 'package:innova_service_flutter_project/preventivo.dart';
+import 'package:innova_service_flutter_project/data_controller/functions.dart';
+import 'package:innova_service_flutter_project/data_controller/quote.dart';
 
 class ChiSiamo extends StatelessWidget {
   @override

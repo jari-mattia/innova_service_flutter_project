@@ -2,33 +2,33 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:innova_service_flutter_project/data_controller/functions.dart';
 
-class FormCompany extends StatefulWidget {
+
+class FormPrivate extends StatefulWidget {
   @override
-  FormCompanyState createState() {
-    return FormCompanyState();
+  FormPrivateState createState() {
+    return FormPrivateState();
   }
 }
 
-class _CompanyData {
-  static String clientType = 'azienda';
-  String nome = '';
+class _DataPrivate {
+  static String clientType = 'privato';
+  String firstName = '';
+  String lastName = '';
   String email = '';
-  String pIva = '';
+  String fiscalCode = '';
   String request = '';
   String service = '';
 }
 
-class FormCompanyState extends State<FormCompany> {
-  // Create a global key that will uniquely identify the Form widget and allow
-  // us to validate the form
-  //
-  // Note: This is a `GlobalKey<FormState>`, not a GlobalKey<MyCustomFormState>!
+class FormPrivateState extends State<FormPrivate> {
+
   final _formKey = GlobalKey<FormState>();
-
-  _CompanyData _data = new _CompanyData();
-
-  List _categories = [
+  _DataPrivate _data = new _DataPrivate();
+  bool _autoValidate = false;
+  String _currentService;
+  List<String> _items = [
     "Pulizie ",
     "Aree Verdi",
     "Impianti",
@@ -37,38 +37,23 @@ class FormCompanyState extends State<FormCompany> {
   ];
 
   List<DropdownMenuItem<String>> _dropDownMenuItems;
-  String _currentCat;
 
   @override
   void initState() {
-    _dropDownMenuItems = getDropDownMenuItems();
-    _currentCat = null;
+    _dropDownMenuItems = getDropDownMenuItems(_items);
+    _currentService = null;
     super.initState();
   }
 
-  // here we are creating the list needed for the DropDownButton
-  List<DropdownMenuItem<String>> getDropDownMenuItems() {
-    List<DropdownMenuItem<String>> items = new List();
-    for (String _category in _categories) {
-      // here we are creating the drop down menu items, you can customize the item right here
-      // but I'll just use a simple text for this
-      items.add(
-          new DropdownMenuItem(value: _category, child: new Text(_category)));
-    }
-    return items;
-  }
-
   void changedDropDownItem(String selectedCat) {
-    print("Selected city $selectedCat, we are going to refresh the UI");
     setState(() {
-      _currentCat = selectedCat;
+      _currentService = selectedCat;
       _data.service = selectedCat;
     });
   }
 
-  bool _autoValidate = false;
 
-  void _validateInputs() {
+  void onSubmitData() {
     if (_formKey.currentState.validate()) {
 //    If all data are correct then save data to out variables
       _formKey.currentState.save();
@@ -77,12 +62,13 @@ class FormCompanyState extends State<FormCompany> {
         DocumentReference document =
             Firestore.instance.document('richieste/privato');
         await document
-            .collection('${_data.pIva}')
+            .collection('${_data.fiscalCode}')
             .document('${DateTime.now().toUtc().toString()}')
             .setData(<String, String>{
-              'nome': _data.nome,
+              'nome': _data.firstName,
+              'cognome': _data.lastName,
               'email': _data.email,
-              'partita iva': _data.pIva,
+              'codice_fiscale': _data.fiscalCode,
               'servizio': _data.service,
               'richiesta': _data.request
             })
@@ -90,65 +76,21 @@ class FormCompanyState extends State<FormCompany> {
                   content: Text("""Grazie per averci inviato la richiesta \nTi ricontatteremo al più presto """),
                   duration: Duration(seconds: 4),
                 )))
-            .whenComplete(resetForm)
+            .whenComplete(_resetForm)
             .catchError((e) => print(e));
       });
     } else {
-//    If all data are not valid then start auto validation.
       setState(() {
         _autoValidate = true;
       });
     }
   }
 
-  String _sanitizeTextField(String value) {
-    if (value.isNotEmpty) value = value.trim().toLowerCase();
-    return value;
-  }
-
-  String _sanitizePIva(String value) {
-    if (value.isNotEmpty) value = value.trim();
-    return value;
-  }
-
-  String validateNome(String value) {
-    if (value.length < 3)
-      return 'il nome deve contenere almeno 3 caratteri';
-    else
-      return null;
-  }
-
-  String validateEmail(String value) {
-    Pattern pattern =
-        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
-    RegExp regex = new RegExp(pattern);
-    if (!regex.hasMatch(value))
-      return 'inserisci un email valida';
-    else
-      return null;
-  }
-
-  String validatePIva(String value) {
-    Pattern pattern = r'^[0-9]{11}$';
-    RegExp regex = new RegExp(pattern);
-    if (!regex.hasMatch(value))
-      return 'inserisci una partita iva valida';
-    else
-      return null;
-  }
-
-  String validateRequest(String value) {
-    if (value.isEmpty)
-      return 'inserisci la richiesta ';
-    else
-      return null;
-  }
-
   void _resetForm() {
     _formKey.currentState.reset();
     setState(() {
       _autoValidate = false;
-      _currentCat = null;
+      _currentService = null;
     });
   }
 
@@ -182,7 +124,7 @@ class FormCompanyState extends State<FormCompany> {
                           child: DropdownButtonHideUnderline(
                             child: DropdownButton(
                               hint: Text('Scegli tra i servizi'),
-                              value: _currentCat,
+                              value: _currentService,
                               items: _dropDownMenuItems,
                               onChanged: changedDropDownItem,
                             ),
@@ -193,30 +135,42 @@ class FormCompanyState extends State<FormCompany> {
                   ),
                   TextFormField(
                     onSaved: (String value) {
-                      value = _sanitizeTextField(value);
-                      this._data.nome = value;
+                      value = sanitizeTextField(value);
+                      this._data.firstName = value;
                     },
-                    onFieldSubmitted: validateNome,
+                    onFieldSubmitted: validateFirstName,
                     maxLength: 24,
                     decoration: InputDecoration(
-                        labelText: 'Nome', icon: Icon(Icons.group)),
-                    validator: validateNome,
+                        labelText: 'Nome', icon: Icon(Icons.person)),
+                    validator: validateFirstName,
                   ), // We'll build this out in the next steps!
 
                   TextFormField(
-                      onSaved: (String value) {
-                        value = _sanitizePIva(value);
-                        this._data.pIva = value;
-                      },
-                      maxLength: 11,
-                      decoration: InputDecoration(
-                          labelText: 'Partita Iva', icon: Icon(Icons.payment)),
-                      keyboardType: TextInputType.number,
-                      validator: validatePIva), // We'l
+                    onSaved: (String value) {
+                      value = sanitizeTextField(value);
+                      this._data.lastName = value;
+                    },
+                    onFieldSubmitted: validateLastName,
+                    maxLength: 24,
+                    decoration: InputDecoration(
+                        labelText: 'Cognome', icon: Icon(Icons.person_outline)),
+                    validator: validateLastName,
+                  ), // We'll build t
 
                   TextFormField(
                       onSaved: (String value) {
-                        value = _sanitizeTextField(value);
+                        value = sanitizeFiscalCode(value);
+                        this._data.fiscalCode = value;
+                      },
+                      maxLength: 16,
+                      decoration: InputDecoration(
+                          labelText: 'Codice Fiscale',
+                          icon: Icon(Icons.payment)),
+                      validator: validateFiscalCode), // We'l
+
+                  TextFormField(
+                      onSaved: (String value) {
+                        value = sanitizeTextField(value);
                         this._data.email = value;
                       },
                       maxLength: 256,
@@ -245,7 +199,7 @@ class FormCompanyState extends State<FormCompany> {
                           padding: const EdgeInsets.symmetric(
                               vertical: 20.0, horizontal: 50.0),
                           color: Theme.of(context).primaryColor,
-                          onPressed: _validateInputs,
+                          onPressed: onSubmitData,
                           child: Text('INVIA',
                               style: TextStyle(color: Colors.white)),
                         ),
@@ -255,7 +209,7 @@ class FormCompanyState extends State<FormCompany> {
                           child: RaisedButton(
                             padding: const EdgeInsets.symmetric(
                                 vertical: 20.0, horizontal: 50.0),
-                            color: Colors.redAccent,
+                            color: Theme.of(context).accentColor,
                             onPressed: _resetForm,
                             child: Text('RESET',
                                 style: TextStyle(color: Colors.white)),
