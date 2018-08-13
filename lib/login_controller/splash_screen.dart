@@ -3,6 +3,7 @@ import 'package:innova_service_flutter_project/main.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:innova_service_flutter_project/login_controller/login_test.dart';
+import 'package:innova_service_flutter_project/model/user.dart';
 import 'package:innova_service_flutter_project/route/router.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -22,31 +23,44 @@ class _SplashScreenState extends State<SplashScreen> {
   void handleCurrentPage() {
     googleSignIn.onCurrentUserChanged
         .listen((GoogleSignInAccount account)  async{
-      setState(() {
-        googleSignIn.currentUser == account;
-      });
+
+        googleUser = account;
       //Logged with Google
-      if (googleSignIn.currentUser != null) {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => Router()) //InterventionRequest()),
-              );
+      if (googleUser != null) {
+        signInFromGoogleSignInAccount(googleUser).whenComplete(() => Navigator.push(context, MaterialPageRoute(builder: (context) => Router())));
+
       }
     });
     //try silently log with google
-    googleSignIn.signInSilently();
-    //if log succeed
-    if (googleSignIn.currentUser != null) {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => Router()) //InterventionRequest()),
-            );
-    }
+    googleSignIn.signInSilently().then((_googleUser) => signInFromGoogleSignInAccount(_googleUser));
     //check for firebase user
-
+    if(googleUser != null){
+      Navigator.push(context, MaterialPageRoute(builder: (context) => Router()));
+    }
+    else {
       Navigator.push(context, MaterialPageRoute(builder: (context) => Login()));
+    }
+  }
+
+  Future<Null> signInFromGoogleSignInAccount(GoogleSignInAccount account) async {
+    if (account == null)
+      return;
+
+    final GoogleSignInAuthentication googleAuth =
+    await account.authentication;
+
+    fireUser = await fireAuth.signInWithGoogle(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    assert(fireUser.email != null);
+    assert(fireUser.displayName != null);
+    assert(!fireUser.isAnonymous);
+    assert(await fireUser.getIdToken() != null);
+      currentUser = await User.instance(fireUser);
+      currentUser.logged = true;
+      print ('loggato come  ${currentUser.email}');
 
   }
 

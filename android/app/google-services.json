@@ -15,11 +15,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "775439105293-9rmrsorgvqhidod5lp9kpq9qbhsvcd86.apps.googleusercontent.com",
+          "client_id": "775439105293-lcc8m0ldh90fietuhso0hsh4apgderbj.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.innovaserviceflutterproject",
-            "certificate_hash": "7fa1a6318e3cf6ba56eaad35cd3f7968f7901c3f"
+            "certificate_hash": "f5b26b02657153a037e4d7f0aae4cabf80858489"
           }
         },
         {

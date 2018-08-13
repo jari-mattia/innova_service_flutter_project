@@ -5,7 +5,6 @@ import 'package:innova_service_flutter_project/route/contacts.dart';
 import 'package:innova_service_flutter_project/route/home_page.dart';
 import 'package:innova_service_flutter_project/route/services_page_view.dart';
 
-
 void main() => runApp(new Router());
 
 class Router extends StatefulWidget {
@@ -29,9 +28,7 @@ class _RouterState extends State<Router> {
     services = MyServicesPageView();
     aboutUs = ChiSiamo();
     contacts = Contacts();
-
     pages = [home, services, aboutUs, contacts];
-
     currentPage = home;
     super.initState();
   }

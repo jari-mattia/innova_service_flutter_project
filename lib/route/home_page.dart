@@ -11,11 +11,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
- String _welcome;
+ String _welcome = '';
   @override
   void initState() {
-    if (currentUser != null) {
-      _welcome = currentUser.email;
+    if (fireUser != null) {
+      _welcome = fireUser.email;
     }
     super.initState();
   }
@@ -39,7 +39,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   children: <Widget>[
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 30.0),
-                      child: Text(_welcome,)
+                      child: Text('${_welcome}')
                     ),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 30.0),

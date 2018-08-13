@@ -16,7 +16,7 @@ class User {
 
   User(this.user);
 
-   static instance(FirebaseUser user) {
+   static Future<User> instance(FirebaseUser user) async {
    User _currentUser = new User(user);
    _currentUser.email = user.email;
    _currentUser.name = user.displayName;
@@ -27,6 +27,14 @@ class User {
    _currentUser.providerId = user.providerId;
    _currentUser.providerData = user.providerData;
    _currentUser.logged = false;
+   assert(_currentUser != null);
+   assert(_currentUser.email != null);
+   assert(_currentUser.uid != null);
+   assert(!_currentUser.isAnonymous);
+   assert(_currentUser.idToken != null);
+   assert(_currentUser.providerData != null);
+   assert(_currentUser.providerId != null);
+   assert(_currentUser.logged != null);
     return _currentUser;
   }
 }

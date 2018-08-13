@@ -1,17 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:innova_service_flutter_project/login_controller/login_test.dart';
 import 'package:innova_service_flutter_project/login_controller/splash_screen.dart';
 import 'package:innova_service_flutter_project/model/user.dart';
 
 
-User currentUser;
-FirebaseAuth fireAuth = FirebaseAuth.instance;
-FirebaseUser fireUser;
-GoogleSignIn googleSignIn = new GoogleSignIn(scopes: [
-'email',
-'https://www.googleapis.com/auth/contacts.readonly',
-]);
+
 
 void main() => runApp(new MyApp());
 
@@ -31,7 +26,7 @@ class _MyAppState extends State<MyApp> {
           fontFamily: 'Montserrat',
           primaryColor: Colors.blue,
           accentColor: Colors.cyan),
-      home: SplashScreen(),//HandleCurrentScreen()
+      home: Login(),//HandleCurrentScreen()
     );
   }
 }
