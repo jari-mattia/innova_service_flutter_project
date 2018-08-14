@@ -183,7 +183,7 @@ class FormCompanyState extends State<FormCompany> {
                         child: RaisedButton(
                           padding: const EdgeInsets.symmetric(
                               vertical: 20.0, horizontal: 50.0),
-                          color: Theme.of(context).primaryColor,
+                          color: Theme.of(context).accentColor,
                           onPressed: _validateInputs,
                           child: Text('INVIA',
                               style: TextStyle(color: Colors.white)),
@@ -194,7 +194,7 @@ class FormCompanyState extends State<FormCompany> {
                           child: RaisedButton(
                             padding: const EdgeInsets.symmetric(
                                 vertical: 20.0, horizontal: 50.0),
-                            color: Colors.redAccent,
+                            color: Colors.black54,
                             onPressed: _resetForm,
                             child: Text('RESET',
                                 style: TextStyle(color: Colors.white)),

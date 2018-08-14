@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:innova_service_flutter_project/main.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -14,18 +15,6 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    Timer(Duration(seconds: 3),
-        () =>Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    Login())));//InterventionRequest()),
-
-  }
-
 
 
 

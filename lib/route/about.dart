@@ -15,13 +15,18 @@ class ChiSiamo extends StatelessWidget {
           fit: BoxFit.fitWidth, alignment: Alignment.topCenter),
       ListView(children: <Widget>[
         Stack(children: <Widget>[
+
+
           Container(
               color: Theme.of(context).primaryColor,
               margin: EdgeInsets.only(top: 180.0),
               //alignment: Alignment.bottomCenter,
-              child: Card(
+    ),
+
+
+              Card(
                   margin: EdgeInsets.only(
-                      bottom: 10.0, left: 10.0, right: 10.0, top: 10.0),
+                      bottom: 10.0, left: 10.0, right: 10.0, top: 200.0),
                   elevation: 6.0,
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -50,11 +55,12 @@ class ChiSiamo extends StatelessWidget {
                               Padding(
                                 padding: EdgeInsets.symmetric(vertical: 10.0),
                                 child: Text(
-                                  "Cosa facciamo",
+                                  "COSA FACCIAMO",
                                   textAlign: TextAlign.left,
                                   textScaleFactor: 1.4,
                                   style: TextStyle(
                                       fontWeight: FontWeight.w700,
+
                                       ),
                                 ),
                               ),
@@ -86,7 +92,7 @@ class ChiSiamo extends StatelessWidget {
                               Padding(
                                   padding: EdgeInsets.symmetric(vertical: 10.0),
                                   child: Text(
-                                    "La nostra mission",
+                                    "LA NOSTRA MISSION",
                                     textAlign: TextAlign.left,
                                     textScaleFactor: 1.4,
                                     style: TextStyle(
@@ -141,8 +147,14 @@ class ChiSiamo extends StatelessWidget {
                             textColor: Colors.white,
                           ),
                         ),
-                      ])))
+                      ]))
+
+
+
+
         ]),
+
+
         Container(
             alignment: Alignment.center,
             color: Colors.grey[900],
@@ -217,6 +229,8 @@ class ChiSiamo extends StatelessWidget {
                             ]))
                           ])),
                 ]))
+
+
       ]),
     ]));
   }

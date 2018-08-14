@@ -198,7 +198,7 @@ class FormPrivateState extends State<FormPrivate> {
                         child: RaisedButton(
                           padding: const EdgeInsets.symmetric(
                               vertical: 20.0, horizontal: 50.0),
-                          color: Theme.of(context).primaryColor,
+                          color: Theme.of(context).accentColor,
                           onPressed: onSubmitData,
                           child: Text('INVIA',
                               style: TextStyle(color: Colors.white)),
@@ -209,7 +209,7 @@ class FormPrivateState extends State<FormPrivate> {
                           child: RaisedButton(
                             padding: const EdgeInsets.symmetric(
                                 vertical: 20.0, horizontal: 50.0),
-                            color: Theme.of(context).accentColor,
+                            color: Colors.black54,
                             onPressed: _resetForm,
                             child: Text('RESET',
                                 style: TextStyle(color: Colors.white)),
