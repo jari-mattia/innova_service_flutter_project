@@ -1,17 +1,16 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:innova_service_flutter_project/main.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:innova_service_flutter_project/model/user.dart';
-import 'package:innova_service_flutter_project/data_controller/functions.dart';
+import 'package:innova_service_flutter_project/login_controller/splash_screen.dart';
 import 'package:innova_service_flutter_project/route/router.dart';
 
 User currentUser;
 FirebaseAuth fireAuth = FirebaseAuth.instance;
 FirebaseUser fireUser;
 GoogleSignIn googleSignIn = new GoogleSignIn();
-GoogleSignInAccount googleUser;
+GoogleSignInAccount googleCurrentUser;
 
 class Login extends StatefulWidget {
   @override
@@ -21,15 +20,20 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  final GlobalKey<FormState> _loginFormKey = new GlobalKey<FormState>();
-  TextEditingController _emailController = new TextEditingController();
-  TextEditingController _passwordController = new TextEditingController();
-  String _message;
 
   @override
   void initState() {
-    _message = '';
+    // TODO: implement initState
     super.initState();
+      googleSignIn.onCurrentUserChanged
+          .listen((GoogleSignInAccount googleCurrentUser) {
+        if (googleCurrentUser != null) {
+          return new Router();
+        }
+      });
+    googleSignIn.signInSilently();
+
+
   }
 
   @override
@@ -42,94 +46,101 @@ class _LoginState extends State<Login> {
         child: Container(
           color: Theme.of(context).primaryColor,
           child: Center(
-            child: new ListView(
-              children: <Widget>[
-                Card(
-                    margin: EdgeInsets.all(60.0),
-                    child: Padding(
-                  padding: EdgeInsets.all(20.0),
-                  child: Form(
-                      key: this._loginFormKey,
-                      child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          mainAxisSize: MainAxisSize.max,
-                          children: <Widget>[
-                        Padding(
+            child: SingleChildScrollView(
+              child: Card(
+                  margin: EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Padding(
+                    padding: EdgeInsets.all(20.0),
+                    child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        mainAxisSize: MainAxisSize.max,
+                        children: <Widget>[
+                          Padding(
+                              padding: const EdgeInsets.all(20.0),
+                              child: Icon(
+                                Icons.lock_outline,
+                                size: 50.0,
+                                color: Colors.grey,
+                              )),
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.max,
+                              children: <Widget>[
+                                Expanded(
+                                    child: Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 8.0),
+                                  child: RaisedButton(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 60.0, vertical: 20.0),
+                                      color: Theme.of(context).accentColor,
+                                      onPressed: () {
+                                        _authenticateWithGoogle()
+                                            .then((fireUser) =>
+                                                createUserFromFirebaseUser(
+                                                    fireUser))
+                                            .then((user) {
+                                              currentUser = user;
+                                              currentUser.logged = true;
+                                            })
+                                            .whenComplete(() => Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        Router())));
+                                      },
+                                      child: Text(
+                                        'ACCEDI',
+                                        style: TextStyle(color: Colors.white),
+                                      )),
+                                )),
+                              ]),
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.max,
+                              children: <Widget>[
+                                Expanded(
+                                    child: Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 8.0),
+                                  child: RaisedButton(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 60.0, vertical: 20.0),
+                                      color: Colors.black54,
+                                      onPressed: () {
+                                        _signOut()
+                                            .whenComplete(() =>
+                                                currentUser.logged = false)
+                                            .whenComplete(() => print(
+                                                'utente non più loggato , logged : ${currentUser.logged}'));
+                                      },
+                                      child: Text(
+                                        'ESCI',
+                                        style: TextStyle(color: Colors.white),
+                                      )),
+                                ))
+                              ]),
+                          Padding(
                             padding: const EdgeInsets.all(20.0),
-                            child: Icon(
-                              Icons.lock_outline,
-                              size: 50.0,
-                              color: Colors.grey,
-                            )),
-                        Padding(
-                          padding: const EdgeInsets.all(0.0),
-                          child: RaisedButton(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 60.0, vertical: 20.0),
-                              color: Theme.of(context).accentColor,
-                              onPressed: () {
-                                _authenticateWithGoogle()
-                                    .then((fireUser) =>
-                                        createUserFromFirebaseUser(fireUser))
-                                    .then((user) => currentUser = user)
-                                    .whenComplete(() => setState(() {
-                                          _message =
-                                              'questo è un nuovo utente User ${currentUser.email}';
-                                        }));
-                                /*.whenComplete(() => Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      Router())));*/
-                              },
-                              child: Text(
-                                'ACCEDI',
-                                style: TextStyle(color: Colors.white),
-                              )),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(20.0),
-                          child: RaisedButton(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 60.0, vertical: 20.0),
-                              color: Colors.black54,
-                              onPressed: () {
-                                _signOut().whenComplete(() => setState(() {
-                                      _message = '';
-                                    }));
-                              },
-                              child: Text(
-                                'LOGOUT',
-                                style: TextStyle(color: Colors.white),
-                              )),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(20.0),
-                          child:
-                              Image.asset('asset/images/logo.png', width: 80.0),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 20.0, vertical: 20.0),
-                          child: Text(
-                            _message,
-                            softWrap: true,
-                            textAlign: TextAlign.center,
-                            textScaleFactor: 1.5,
+                            child: Image.asset('asset/images/logo.png',
+                                width: 80.0),
                           ),
-                        ),
-                      ])),
-                    ))],
-              ),
+                        ]),
+                  )),
             ),
           ),
         ),
-      );
-
+      ),
+    );
   }
 
   Future<FirebaseUser> _authenticateWithGoogle() async {
     GoogleSignInAccount googleUser;
+    if (googleUser == null) {
+      googleUser = await googleSignIn.signInSilently();
+    }
     if (googleUser == null) {
       // Force the user to interactively sign in
       try {
@@ -138,7 +149,9 @@ class _LoginState extends State<Login> {
         print(error);
       }
     }
-
+     setState(() {
+       googleCurrentUser = googleUser;
+     });
     final GoogleSignInAuthentication googleAuth =
         await googleUser.authentication;
 
@@ -155,7 +168,7 @@ class _LoginState extends State<Login> {
   }
 
   Future<Null> _signOut() async {
-    if (googleUser != null) await googleSignIn.signOut();
+    if (googleCurrentUser != null) await googleSignIn.signOut();
     if (fireUser != null) await fireAuth.signOut();
   }
 }
@@ -165,6 +178,7 @@ Future<User> createUserFromFirebaseUser(FirebaseUser fireUser) async {
   assert(user != null);
   return user;
 }
+
 /*
   Future<Null> _addUserWithEmailAndPassword(
       String email, String password) async {

@@ -23,6 +23,14 @@
           }
         },
         {
+          "client_id": "775439105293-mcmo5d1g8l0adjv2h6a81baamsdne53t.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.innovaserviceflutterproject",
+            "certificate_hash": "7fa1a6318e3cf6ba56eaad35cd3f7968f7901c3f"
+          }
+        },
+        {
           "client_id": "775439105293-aa6eomc9m070v609sv6u95bskfs7plqd.apps.googleusercontent.com",
           "client_type": 3
         }

@@ -26,7 +26,7 @@ class _MyAppState extends State<MyApp> {
           fontFamily: 'Montserrat',
           primaryColor: Colors.blue,
           accentColor: Colors.cyan),
-      home: Login(),//HandleCurrentScreen()
+      home: SplashScreen(),//HandleCurrentScreen()
     );
   }
 }
