@@ -22,7 +22,6 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     googleSignIn.onCurrentUserChanged
         .listen((GoogleSignInAccount googleCurrentUser) {
@@ -30,13 +29,16 @@ class _LoginState extends State<Login> {
         return new Router();
       }
     });
-    _authenticateWithGoogleSilently(googleCurrentUser)
-        .then(createUserFromFirebaseUser)
-        .then((user) {
+      _authenticateWithGoogleSilently(googleCurrentUser).then((user) => fireUser = user);
+        if(fireUser != null)
+        createUserFromFirebaseUser(fireUser).then((user) {
       currentUser = user;
       currentUser.logged = true;
-    }).whenComplete(() => Navigator.push(
-            context, MaterialPageRoute(builder: (context) => Router())));
+    });
+    if (currentUser != null) {
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => Router()));
+    }
   }
 
   @override
@@ -180,14 +182,14 @@ class _LoginState extends State<Login> {
     return user;
   }
 
-  Future<FirebaseUser> _authenticateWithGoogleSilently(
+  Future<FirebaseUser> _authenticateWithGoogleSilently (
       GoogleSignInAccount googleUser) async {
     if (googleUser == null) {
       googleUser = await googleSignIn.signInSilently();
     }
-    setState(() {
+    if(googleUser != null){
       googleCurrentUser = googleUser;
-    });
+
     final GoogleSignInAuthentication googleAuth =
         await googleUser.authentication;
 
@@ -200,7 +202,8 @@ class _LoginState extends State<Login> {
     assert(fireUser.displayName != null);
     assert(!fireUser.isAnonymous);
     assert(await fireUser.getIdToken() != null);
-    return fireUser;
+    return fireUser;}
+    return null;
   }
 }
 /*

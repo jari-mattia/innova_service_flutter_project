@@ -43,8 +43,10 @@ class _RouterState extends State<Router> {
           primaryColor: Colors.blue,
           accentColor: Colors.cyan),
       home: Scaffold(
+
         body: currentPage,
         bottomNavigationBar: BottomNavigationBar(
+          fixedColor: Colors.black54,
           currentIndex: currentTab,
           onTap: (int index) {
             setState(() {

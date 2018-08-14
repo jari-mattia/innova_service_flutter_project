@@ -23,10 +23,11 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: 'Innova Service',
       theme: ThemeData(
+
           fontFamily: 'Montserrat',
           primaryColor: Colors.blue,
           accentColor: Colors.cyan),
-      home: SplashScreen(),//HandleCurrentScreen()
+      home: Login(),//HandleCurrentScreen()
     );
   }
 }
