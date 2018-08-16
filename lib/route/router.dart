@@ -1,11 +1,15 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:innova_service_flutter_project/model/user.dart';
 
 import 'package:innova_service_flutter_project/route/about.dart';
 import 'package:innova_service_flutter_project/route/contacts.dart';
 import 'package:innova_service_flutter_project/route/home_page.dart';
 import 'package:innova_service_flutter_project/route/services_page_view.dart';
 
-void main() => runApp(new Router());
+
+
 
 class Router extends StatefulWidget {
   @override
@@ -46,7 +50,7 @@ class _RouterState extends State<Router> {
 
         body: currentPage,
         bottomNavigationBar: BottomNavigationBar(
-          fixedColor: Colors.black54,
+        fixedColor: Theme.of(context).primaryColor,
           currentIndex: currentTab,
           onTap: (int index) {
             setState(() {
@@ -54,16 +58,16 @@ class _RouterState extends State<Router> {
               currentPage = pages[index];
             });
           },
-          type: BottomNavigationBarType.fixed,
+type: BottomNavigationBarType.shifting,
           items: [
             BottomNavigationBarItem(
-                icon: Icon(Icons.home), title: Text('Home')),
+                icon: Icon(Icons.home,color: Colors.white,), title: Text('Home'),backgroundColor: Colors.black54),
             BottomNavigationBarItem(
-                icon: Icon(Icons.build), title: Text('Servizi')),
+                icon: Icon(Icons.build, color :Colors.white), title: Text('Servizi'),backgroundColor: Colors.black54),
             BottomNavigationBarItem(
-                icon: Icon(Icons.group), title: Text('Chi Siamo')),
+                icon: Icon(Icons.group,color: Colors.white), title: Text('Chi Siamo'),backgroundColor: Colors.black54),
             BottomNavigationBarItem(
-                icon: Icon(Icons.email), title: Text('Contatti')),
+                icon: Icon(Icons.email, color :  Colors.white), title: Text('Contatti'),backgroundColor: Colors.black54),
           ],
         ),
       ),

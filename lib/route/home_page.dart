@@ -11,13 +11,37 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
- String _welcome = '';
+  String _welcome = '';
   @override
   void initState() {
     if (currentUser != null) {
-      _welcome = 'Salve , ${currentUser.name}';
+      _welcome = '${currentUser.name}';
     }
     super.initState();
+  }
+
+  Widget _loggedWelcome() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: <Widget>[
+          Padding(
+              padding: EdgeInsets.only(bottom: 8.0),
+              child: Text(
+                'Salve',
+                textAlign: TextAlign.end,
+              )),
+          Padding(
+              padding: EdgeInsets.only(bottom: 8.0),
+              child: Text(
+                '${_welcome}',
+                textAlign: TextAlign.end,
+                style: TextStyle(fontWeight: FontWeight.w600),
+              )),
+          Padding(
+              padding: EdgeInsets.only(bottom: 8.0,left: 3.0),
+              child: Icon(Icons.person_outline,color: Theme.of(context).primaryColor))
+      ],
+    );
   }
 
   @override
@@ -35,26 +59,25 @@ class _MyHomePageState extends State<MyHomePage> {
                   color: Color(0xDDFFFFFF),
                   margin: EdgeInsets.only(top: 6.0, left: 15.0, right: 15.0),
                   child: Container(
-                    padding: EdgeInsets.only(bottom: 15.0, left: 30.0, right: 30.0, top: 8.0),
+                    padding: EdgeInsets.only(
+                        bottom: 15.0, left: 30.0, right: 30.0, top: 8.0),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       mainAxisSize: MainAxisSize.max,
-                      children: <Widget>[
-                        Padding(
-                          padding: EdgeInsets.only(bottom: 8.0),
-                          child: Text('${_welcome}',textAlign: TextAlign.end,style: TextStyle(fontWeight: FontWeight.w500),)
-                        ),
+                      children: <Widget>[Container(
+                       child : (currentUser == null) ? Row() : _loggedWelcome()),
                         Divider(),
                         Container(
                           margin: EdgeInsets.symmetric(vertical: 16.0),
                           padding: EdgeInsets.symmetric(horizontal: 50.0),
-                          child: Image.asset('asset/images/logo.png',width: 20.0,),
-
+                          child: Image.asset(
+                            'asset/images/logo.png',
+                            width: 20.0,
+                          ),
                         ),
                         Container(
-                          margin: EdgeInsets.symmetric(
-                              vertical: 12.0),
+                          margin: EdgeInsets.symmetric(vertical: 12.0),
                           padding: EdgeInsets.symmetric(
                               horizontal: 20.0, vertical: 20.0),
                           child: Text(
@@ -65,25 +88,24 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                         ),
                         Container(
-                          margin: EdgeInsets.symmetric(
-                              vertical: 8.0),
+                          margin: EdgeInsets.symmetric(vertical: 8.0),
                           child: RaisedButton(
                             padding: EdgeInsets.symmetric(vertical: 20.0),
                             color: Theme.of(context).primaryColor,
                             onPressed: () {
                               Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => Login()) //InterventionRequest()),
-                              );
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          Login()) //InterventionRequest()),
+                                  );
                             },
                             child: Text("RICHIEDI INTERVENTO"),
                             textColor: Colors.white,
                           ),
                         ),
                         Container(
-                          margin: EdgeInsets.symmetric(
-                              vertical: 8.0),
+                          margin: EdgeInsets.symmetric(vertical: 8.0),
                           child: RaisedButton(
                             padding: EdgeInsets.symmetric(vertical: 20.0),
                             color: Theme.of(context).accentColor,
@@ -99,23 +121,27 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                         ),
                         Container(
-                          margin: EdgeInsets.symmetric(
-                              vertical: 8.0),
+                          margin: EdgeInsets.symmetric(vertical: 8.0),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
-                            children : <Widget>[
-                              Text.rich(TextSpan(style: TextStyle(fontSize: 12.0),text:"INVIACI")),
+                            children: <Widget>[
+                              Text.rich(TextSpan(
+                                  style: TextStyle(fontSize: 12.0),
+                                  text: "INVIACI")),
                               Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 10.0),
+                                  padding:
+                                      EdgeInsets.symmetric(horizontal: 10.0),
                                   child: FloatingActionButton(
-                                    onPressed:() => getImage(context),
+                                    onPressed: () => getImage(context),
                                     child: Icon(
                                       Icons.camera_alt,
-                                      color:Colors.white,
+                                      color: Colors.white,
                                     ),
                                     backgroundColor: Colors.black54,
                                   )),
-                              Text.rich(TextSpan(style: TextStyle(fontSize: 12.0),text:"UNA FOTO"))
+                              Text.rich(TextSpan(
+                                  style: TextStyle(fontSize: 12.0),
+                                  text: "UNA FOTO"))
                             ],
                           ),
                         )
@@ -133,11 +159,13 @@ class _MyHomePageState extends State<MyHomePage> {
             children: <Widget>[
               Image.asset('asset/images/home_bg.png', fit: BoxFit.cover),
               SingleChildScrollView(
-                child : Card(
+                child: Card(
                   color: Color(0xCCFFFFFF),
-                  margin: EdgeInsets.only(top: 20.0,bottom: 15.0, left: 15.0, right: 15.0),
+                  margin: EdgeInsets.only(
+                      top: 20.0, bottom: 15.0, left: 15.0, right: 15.0),
                   child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 40.0),
+                    padding:
+                        EdgeInsets.symmetric(vertical: 15.0, horizontal: 40.0),
                     child: Row(children: <Widget>[
                       Expanded(
                         child: Column(
@@ -171,12 +199,15 @@ class _MyHomePageState extends State<MyHomePage> {
                             children: <Widget>[
                               Padding(
                                   padding: EdgeInsets.only(bottom: 8.0),
-                                  child: Text('${_welcome}',textAlign: TextAlign.end,style: TextStyle(fontWeight: FontWeight.w500),)
-                              ),
+                                  child: Text(
+                                    '${_welcome}',
+                                    textAlign: TextAlign.end,
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.w500),
+                                  )),
                               Divider(),
                               Container(
-                                margin: EdgeInsets.symmetric(
-                                    vertical: 8.0),
+                                margin: EdgeInsets.symmetric(vertical: 8.0),
                                 child: RaisedButton(
                                   padding: EdgeInsets.symmetric(vertical: 20.0),
                                   color: Theme.of(context).primaryColor,
@@ -184,7 +215,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) => InterventionRequest()),
+                                          builder: (context) =>
+                                              InterventionRequest()),
                                     );
                                   },
                                   child: Text("RICHIEDI INTERVENTO"),
@@ -192,8 +224,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 ),
                               ),
                               Container(
-                                margin: EdgeInsets.symmetric(
-                                    vertical: 8.0),
+                                margin: EdgeInsets.symmetric(vertical: 8.0),
                                 child: RaisedButton(
                                   padding: EdgeInsets.symmetric(vertical: 20.0),
                                   color: Theme.of(context).accentColor,
@@ -209,22 +240,24 @@ class _MyHomePageState extends State<MyHomePage> {
                                 ),
                               ),
                               Container(
-                                margin: EdgeInsets.symmetric(
-                                    vertical: 8.0),
+                                margin: EdgeInsets.symmetric(vertical: 8.0),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
-                                  children : <Widget>[
-                                    Text.rich(TextSpan(style: TextStyle(fontSize: 12.0),text:"INVIACI UNA FOTO")),
+                                  children: <Widget>[
+                                    Text.rich(TextSpan(
+                                        style: TextStyle(fontSize: 12.0),
+                                        text: "INVIACI UNA FOTO")),
                                     Padding(
-                                      padding: EdgeInsets.symmetric(horizontal: 10.0),
-                                    child: FloatingActionButton(
-                                      onPressed:() => getImage(context),
-                                      child: Icon(
-                                        Icons.camera_alt,
-                                        color:Colors.white,
-                                      ),
-                                      backgroundColor: Colors.black54,
-                                    )),
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 10.0),
+                                        child: FloatingActionButton(
+                                          onPressed: () => getImage(context),
+                                          child: Icon(
+                                            Icons.camera_alt,
+                                            color: Colors.white,
+                                          ),
+                                          backgroundColor: Colors.black54,
+                                        )),
                                   ],
                                 ),
                               ),

@@ -7,15 +7,48 @@ import 'package:innova_service_flutter_project/login_controller/login_test.dart'
 import 'package:innova_service_flutter_project/model/user.dart';
 import 'package:innova_service_flutter_project/route/router.dart';
 
-GoogleSignIn googleSignIn = new GoogleSignIn();
-
 class SplashScreen extends StatefulWidget {
   @override
   _SplashScreenState createState() => new _SplashScreenState();
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    if (googleCurrentUser == null)
+      _authenticateWithGoogleSilently().then((fireUser) => (fireUser == null)
+          ? Navigator.push(
+              context, MaterialPageRoute(builder: (context) => Router()))
+          : User
+              .instance(fireUser)
+              .then((user) => currentUser = user)
+              .whenComplete(() => Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => Router()))));
+  }
 
+  Future<FirebaseUser> _authenticateWithGoogleSilently() async {
+    if (googleCurrentUser == null) {
+      googleCurrentUser = await googleSignIn.signInSilently();
+    }
+    if (googleCurrentUser != null) {
+      final GoogleSignInAuthentication googleAuth =
+          await googleCurrentUser.authentication;
+
+      fireUser = await fireAuth.signInWithGoogle(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      assert(fireUser.email != null);
+      assert(fireUser.displayName != null);
+      assert(!fireUser.isAnonymous);
+      assert(await fireUser.getIdToken() != null);
+      return fireUser;
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {

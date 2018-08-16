@@ -26,7 +26,7 @@ class User {
    _currentUser.phoneNumber = user.phoneNumber;
    _currentUser.providerId = user.providerId;
    _currentUser.providerData = user.providerData;
-   _currentUser.logged = false;
+   _currentUser.logged = true;
    assert(_currentUser != null);
    assert(_currentUser.email != null);
    assert(_currentUser.uid != null);
@@ -35,6 +35,11 @@ class User {
    assert(_currentUser.providerData != null);
    assert(_currentUser.providerId != null);
    assert(_currentUser.logged != null);
+    return _currentUser;
+  }
+
+  Future<User> signOut() async {
+    User _currentUser = null;
     return _currentUser;
   }
 }

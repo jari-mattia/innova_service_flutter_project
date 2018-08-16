@@ -5,12 +5,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:innova_service_flutter_project/model/user.dart';
 import 'package:innova_service_flutter_project/login_controller/splash_screen.dart';
 import 'package:innova_service_flutter_project/route/router.dart';
-
-User currentUser;
-FirebaseAuth fireAuth = FirebaseAuth.instance;
-FirebaseUser fireUser;
-GoogleSignIn googleSignIn = new GoogleSignIn();
-GoogleSignInAccount googleCurrentUser;
+import 'package:innova_service_flutter_project/main.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -20,25 +15,70 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  @override
-  void initState() {
-    super.initState();
-    googleSignIn.onCurrentUserChanged
-        .listen((GoogleSignInAccount googleCurrentUser) {
-      if (googleCurrentUser != null) {
-        return new Router();
-      }
-    });
-      _authenticateWithGoogleSilently(googleCurrentUser).then((user) => fireUser = user);
-        if(fireUser != null)
-        createUserFromFirebaseUser(fireUser).then((user) {
-      currentUser = user;
-      currentUser.logged = true;
-    });
-    if (currentUser != null) {
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => Router()));
+//FUNCTIONS
+
+  Future<FirebaseUser> _authenticateWithGoogle() async {
+    GoogleSignInAccount googleUser;
+    if (googleUser == null) {
+      googleUser = await googleSignIn.signInSilently();
     }
+    if (googleUser == null) {
+      try {
+        googleUser = await googleSignIn.signIn();
+      } catch (error) {
+        print(error);
+      }
+    }
+    setState(() {
+      googleCurrentUser = googleUser;
+    });
+    final GoogleSignInAuthentication googleAuth =
+        await googleUser.authentication;
+
+    fireUser = await fireAuth.signInWithGoogle(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    assert(fireUser.email != null);
+    assert(fireUser.displayName != null);
+    assert(!fireUser.isAnonymous);
+    assert(await fireUser.getIdToken() != null);
+    return fireUser;
+  }
+
+  Future<FirebaseUser> _authenticateWithGoogleSilently() async {
+    if (googleCurrentUser == null) {
+      googleCurrentUser = await googleSignIn.signInSilently();
+    }
+    if (googleCurrentUser != null) {
+      final GoogleSignInAuthentication googleAuth =
+          await googleCurrentUser.authentication;
+
+      fireUser = await fireAuth.signInWithGoogle(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      assert(fireUser.email != null);
+      assert(fireUser.displayName != null);
+      assert(!fireUser.isAnonymous);
+      assert(await fireUser.getIdToken() != null);
+      return fireUser;
+    }
+    return null;
+  }
+
+  Future<User> createUserFromFirebaseUser(FirebaseUser fireUser) async {
+    User user = await User.instance(fireUser);
+    assert(user != null);
+    return user;
+  }
+
+  Future<Null> _signOut() async {
+    if (currentUser != null) await currentUser.signOut();
+    if (fireUser != null) await fireAuth.signOut();
+    if (googleCurrentUser != null) await googleSignIn.signOut();
   }
 
   @override
@@ -114,12 +154,9 @@ class _LoginState extends State<Login> {
                                           horizontal: 60.0, vertical: 20.0),
                                       color: Colors.black54,
                                       onPressed: () {
-                                        _signOut()
-                                            .whenComplete(() =>
-                                                currentUser.logged = false)
-                                            .whenComplete(() => print(
-                                                'utente non più loggato , logged : ${currentUser.logged}'));
-                                      },
+                                        _signOut().whenComplete(() => new Router());
+                                        },
+
                                       child: Text(
                                         'ESCI',
                                         style: TextStyle(color: Colors.white),
@@ -139,98 +176,4 @@ class _LoginState extends State<Login> {
       ),
     );
   }
-
-  Future<FirebaseUser> _authenticateWithGoogle() async {
-    GoogleSignInAccount googleUser;
-    if (googleUser == null) {
-      googleUser = await googleSignIn.signInSilently();
-    }
-    if (googleUser == null) {
-      // Force the user to interactively sign in
-      try {
-        googleUser = await googleSignIn.signIn();
-      } catch (error) {
-        print(error);
-      }
-    }
-    setState(() {
-      googleCurrentUser = googleUser;
-    });
-    final GoogleSignInAuthentication googleAuth =
-        await googleUser.authentication;
-
-    fireUser = await fireAuth.signInWithGoogle(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
-    );
-
-    assert(fireUser.email != null);
-    assert(fireUser.displayName != null);
-    assert(!fireUser.isAnonymous);
-    assert(await fireUser.getIdToken() != null);
-    return fireUser;
-  }
-
-  Future<Null> _signOut() async {
-    if (googleCurrentUser != null) await googleSignIn.signOut();
-    if (fireUser != null) await fireAuth.signOut();
-  }
-
-  Future<User> createUserFromFirebaseUser(FirebaseUser fireUser) async {
-    User user = await User.instance(fireUser);
-    assert(user != null);
-    return user;
-  }
-
-  Future<FirebaseUser> _authenticateWithGoogleSilently (
-      GoogleSignInAccount googleUser) async {
-    if (googleUser == null) {
-      googleUser = await googleSignIn.signInSilently();
-    }
-    if(googleUser != null){
-      googleCurrentUser = googleUser;
-
-    final GoogleSignInAuthentication googleAuth =
-        await googleUser.authentication;
-
-    fireUser = await fireAuth.signInWithGoogle(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
-    );
-
-    assert(fireUser.email != null);
-    assert(fireUser.displayName != null);
-    assert(!fireUser.isAnonymous);
-    assert(await fireUser.getIdToken() != null);
-    return fireUser;}
-    return null;
-  }
 }
-/*
-  Future<Null> _addUserWithEmailAndPassword(
-      String email, String password) async {
-    fireUser = await fireAuth.createUserWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
-    User user = User.instance(fireUser);
-    setState(() {
-      currentUser = user;
-      currentUser.logged = true;
-      _message = 'questo è un nuovo utente ${currentUser.email}';
-    });
-  }
-
-  Future<Null> _loginWithEmailAndPassword(String email, String password) async {
-    fireUser = await fireAuth.signInWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
-    User user = User.instance(fireUser);
-    setState(() {
-      currentUser = user;
-      currentUser.logged = true;
-      _message = 'bentornato ${currentUser.email}';
-    });
-  }
-*/

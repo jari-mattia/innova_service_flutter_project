@@ -4,9 +4,14 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:innova_service_flutter_project/login_controller/login_test.dart';
 import 'package:innova_service_flutter_project/login_controller/splash_screen.dart';
 import 'package:innova_service_flutter_project/model/user.dart';
+import 'package:innova_service_flutter_project/route/router.dart';
 
 
-
+User currentUser;
+FirebaseAuth fireAuth = FirebaseAuth.instance;
+FirebaseUser fireUser;
+GoogleSignIn googleSignIn = new GoogleSignIn();
+GoogleSignInAccount googleCurrentUser;
 
 void main() => runApp(new MyApp());
 
@@ -27,7 +32,7 @@ class _MyAppState extends State<MyApp> {
           fontFamily: 'Montserrat',
           primaryColor: Colors.blue,
           accentColor: Colors.cyan),
-      home: Login(),//HandleCurrentScreen()
+      home: SplashScreen(),//HandleCurrentScreen()
     );
   }
 }
