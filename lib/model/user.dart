@@ -38,8 +38,9 @@ class User {
     return _currentUser;
   }
 
-  Future<User> signOut() async {
-    User _currentUser = null;
+  static Future<User>  signOut(User _currentUser) async {
+     if(_currentUser != null)
+       _currentUser = null;
     return _currentUser;
   }
 }

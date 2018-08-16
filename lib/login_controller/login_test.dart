@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:innova_service_flutter_project/common_doc/privacy_policy.dart';
 import 'package:innova_service_flutter_project/model/user.dart';
 import 'package:innova_service_flutter_project/login_controller/splash_screen.dart';
 import 'package:innova_service_flutter_project/route/router.dart';
@@ -15,8 +17,15 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-//FUNCTIONS
+  bool privacyConsent = false;
 
+  Widget _errorText(){
+    if(privacyConsent){
+      return UnCheckedPrivacyText();
+    }
+  }
+
+//FUNCTIONS
   Future<FirebaseUser> _authenticateWithGoogle() async {
     GoogleSignInAccount googleUser;
     if (googleUser == null) {
@@ -75,16 +84,14 @@ class _LoginState extends State<Login> {
     return user;
   }
 
-  Future<Null> _signOut() async {
-    if (currentUser != null) await currentUser.signOut();
-    if (fireUser != null) await fireAuth.signOut();
-    if (googleCurrentUser != null) await googleSignIn.signOut();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(centerTitle: true, title: Text('LogIn')),
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text('LogIn'),
+        actions: <Widget>[],
+      ),
       body: SafeArea(
         bottom: false,
         top: false,
@@ -121,58 +128,92 @@ class _LoginState extends State<Login> {
                                           horizontal: 60.0, vertical: 20.0),
                                       color: Theme.of(context).accentColor,
                                       onPressed: () {
-                                        _authenticateWithGoogle()
-                                            .then((fireUser) =>
-                                                createUserFromFirebaseUser(
-                                                    fireUser))
-                                            .then((user) {
-                                          currentUser = user;
-                                          currentUser.logged = true;
-                                        }).whenComplete(() => Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        Router())));
+                                        if (privacyConsent == true) {
+                                          _authenticateWithGoogle()
+                                              .then((fireUser) =>
+                                                  createUserFromFirebaseUser(
+                                                      fireUser))
+                                              .then((user) {
+                                            currentUser = user;
+                                            currentUser.logged = true;
+                                          }).whenComplete(() => Navigator.pop(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          Router())));
+                                        }
                                       },
                                       child: Text(
                                         'ACCEDI',
                                         style: TextStyle(color: Colors.white),
                                       )),
                                 )),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                  child: Row(
+                                    children: <Widget>[
+                                      _errorText()
+                                    ],
+                                  ),
+                                ),
                               ]),
-                          Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.max,
-                              children: <Widget>[
-                                Expanded(
-                                    child: Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 8.0),
-                                  child: RaisedButton(
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 60.0, vertical: 20.0),
-                                      color: Colors.black54,
-                                      onPressed: () {
-                                        _signOut().whenComplete(() => new Router());
-                                        },
 
-                                      child: Text(
-                                        'ESCI',
-                                        style: TextStyle(color: Colors.white),
-                                      )),
-                                ))
-                              ]),
                           Padding(
                             padding: const EdgeInsets.all(20.0),
                             child: Image.asset('asset/images/logo.png',
                                 width: 80.0),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: CheckboxListTile(
+                              subtitle:
+                                  Text('ai sensi del Regolamento UE 2016/679'),
+                              onChanged: (bool value) {
+                                setState(() => privacyConsent = value);
+                                print(privacyConsent);
+                              },
+                              value: privacyConsent,
+                              title: Text.rich(TextSpan(
+                                text:
+                                    'Ho letto e Acconsento al Trattamento dei dati personali',
+                                style: new TextStyle(
+                                    color: Colors.blue,
+                                    fontSize: 14.0,
+                                    decoration: TextDecoration.underline),
+                                recognizer: new TapGestureRecognizer()
+                                  ..onTap = () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                PrivacyPolicy()));
+                                  },
+                              )),
+                            ),
                           ),
                         ]),
                   )),
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class UnCheckedPrivacyText extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 5.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisSize: MainAxisSize.max,
+        children: <Widget>[
+          Text.rich(TextSpan(
+              text: 'devi acconsentire ai dati personali per continuare',
+              style: TextStyle(color: Colors.redAccent)))
+        ],
       ),
     );
   }

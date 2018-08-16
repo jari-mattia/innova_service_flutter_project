@@ -154,10 +154,9 @@ class ChiSiamo extends StatelessWidget {
 
         ]),
 
-
         Container(
             alignment: Alignment.center,
-            color: Colors.grey[900],
+            color: Colors.black87,
             padding: EdgeInsets.symmetric(vertical: 30.0, horizontal: 30.0),
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,

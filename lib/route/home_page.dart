@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:innova_service_flutter_project/main.dart';
 import 'package:innova_service_flutter_project/data_controller/intervention.dart';
 import 'package:innova_service_flutter_project/login_controller/login_test.dart';
 import 'package:innova_service_flutter_project/data_controller/quote.dart';
 import 'package:innova_service_flutter_project/data_controller/functions.dart';
+import 'package:innova_service_flutter_project/model/user.dart';
 
 class MyHomePage extends StatefulWidget {
   @override
@@ -11,39 +14,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  String _welcome = '';
-  @override
-  void initState() {
-    if (currentUser != null) {
-      _welcome = '${currentUser.name}';
-    }
-    super.initState();
-  }
-
-  Widget _loggedWelcome() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: <Widget>[
-          Padding(
-              padding: EdgeInsets.only(bottom: 8.0),
-              child: Text(
-                'Salve',
-                textAlign: TextAlign.end,
-              )),
-          Padding(
-              padding: EdgeInsets.only(bottom: 8.0),
-              child: Text(
-                '${_welcome}',
-                textAlign: TextAlign.end,
-                style: TextStyle(fontWeight: FontWeight.w600),
-              )),
-          Padding(
-              padding: EdgeInsets.only(bottom: 8.0,left: 3.0),
-              child: Icon(Icons.person_outline,color: Theme.of(context).primaryColor))
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,7 +27,7 @@ class _MyHomePageState extends State<MyHomePage> {
               SingleChildScrollView(
                 child: Card(
                   color: Color(0xDDFFFFFF),
-                  margin: EdgeInsets.only(top: 6.0, left: 15.0, right: 15.0),
+                  margin: EdgeInsets.only(top: 6.0,bottom: 6.0, left: 15.0, right: 15.0),
                   child: Container(
                     padding: EdgeInsets.only(
                         bottom: 15.0, left: 30.0, right: 30.0, top: 8.0),
@@ -65,8 +35,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       mainAxisSize: MainAxisSize.max,
-                      children: <Widget>[Container(
-                       child : (currentUser == null) ? Row() : _loggedWelcome()),
+                      children: <Widget>[
+                        Container(child: WelcomeText()),
                         Divider(),
                         Container(
                           margin: EdgeInsets.symmetric(vertical: 16.0),
@@ -199,12 +169,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             children: <Widget>[
                               Padding(
                                   padding: EdgeInsets.only(bottom: 8.0),
-                                  child: Text(
-                                    '${_welcome}',
-                                    textAlign: TextAlign.end,
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.w500),
-                                  )),
+                                  child: WelcomeText()),
                               Divider(),
                               Container(
                                 margin: EdgeInsets.symmetric(vertical: 8.0),
@@ -274,5 +239,96 @@ class _MyHomePageState extends State<MyHomePage> {
         }
       }),
     );
+  }
+}
+
+class WelcomeText extends StatefulWidget {
+  @override
+  _WelcomeTextState createState() => _WelcomeTextState();
+}
+
+class _WelcomeTextState extends State<WelcomeText> {
+  String _welcome = '';
+
+  Future<User> _signOut() async {
+    User.signOut(currentUser).then((user) => currentUser = user);
+    if (fireUser != null) await fireAuth.signOut();
+    if (googleCurrentUser != null) await googleSignIn.signOut();
+    return currentUser;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    setState(() {
+      if (currentUser != null) _welcome = '${currentUser.name}';
+    });
+    if (currentUser != null) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: <Widget>[
+          Padding(
+              padding: EdgeInsets.only(bottom: 8.0, right: 3.0),
+              child: Icon(Icons.person_outline,
+                  color: Theme.of(context).accentColor)),
+          Padding(
+              padding: EdgeInsets.only(bottom: 8.0, right: 3.0),
+              child: Text(
+                'Salve ',
+                textAlign: TextAlign.end,
+              )),
+          Padding(
+              padding: EdgeInsets.only(bottom: 8.0, right: 3.0),
+              child: Text(
+                '${_welcome}',
+                textAlign: TextAlign.end,
+                style: TextStyle(fontWeight: FontWeight.w600),
+              )),
+          Padding(
+              padding: EdgeInsets.only(bottom: 8.0, left: 3.0),
+              child: OutlineButton(
+                borderSide: BorderSide(color: Theme.of(context).primaryColor),
+                textColor: Theme.of(context).primaryColor,
+                onPressed: () {
+                  _signOut().then((user) => setState(() {
+                        currentUser = user;
+                      }));
+                },
+                child: Text(
+                  'Logout ',
+                  textAlign: TextAlign.end,
+                ),
+              ))
+        ],
+      );
+    } else {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: <Widget>[
+          Padding(
+              padding: EdgeInsets.only(bottom: 8.0, left: 3.0),
+              child: OutlineButton(
+                borderSide: BorderSide(color: Theme.of(context).primaryColor),
+                textColor: Theme.of(context).primaryColor,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => Login()),
+                  );
+                },
+                child: Text(
+                  'Login',
+                  textAlign: TextAlign.end,
+                ),
+              ))
+        ],
+      );
+    }
+  }
+}
+
+class LoginDialog extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return null;
   }
 }
