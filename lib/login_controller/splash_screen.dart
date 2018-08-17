@@ -3,9 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:innova_service_flutter_project/main.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:innova_service_flutter_project/login_controller/login_test.dart';
 import 'package:innova_service_flutter_project/model/user.dart';
-import 'package:innova_service_flutter_project/route/router.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -15,17 +13,24 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+    startTime();
+
+  }
+
+
+  startTime() async {
+    var _duration = new Duration(seconds: 2);
+    return new Timer(_duration, navigationPage);
+  }
+  void navigationPage() {
     if (googleCurrentUser == null)
       _authenticateWithGoogleSilently().then((fireUser) => (fireUser == null)
-          ? Navigator.push(
-              context, MaterialPageRoute(builder: (context) => Router()))
+          ? Navigator.of(context).pushReplacementNamed('/home')
           : User
-              .instance(fireUser)
-              .then((user) => currentUser = user)
-              .whenComplete(() => Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => Router()))));
+          .instance(fireUser)
+          .then((user) => currentUser = user)
+          .whenComplete(() => Navigator.of(context).pushReplacementNamed('/home')));
   }
 
   Future<FirebaseUser> _authenticateWithGoogleSilently() async {
@@ -53,68 +58,64 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        fit: StackFit.expand,
-        children: <Widget>[
-          Container(
-            decoration: BoxDecoration(color: Theme.of(context).primaryColor),
-          ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.start,
+            body : Stack(
+            fit: StackFit.expand,
             children: <Widget>[
-              Expanded(
-                flex: 2,
-                child: Container(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      CircleAvatar(
-                        backgroundColor: Colors.white,
-                        radius: 50.0,
-                        child: Icon(
-                          Icons.cloud_download,
-                          color: Theme.of(context).accentColor,
-                          size: 50.0,
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(top: 10.0),
-                      ),
-                      Text(
-                        'innova',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 24.0),
-                      )
-                    ],
-                  ),
-                ),
+              Container(
+                decoration: BoxDecoration(color: Colors.blue),
               ),
-              Expanded(
-                flex: 1,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    CircularProgressIndicator(),
-                    Padding(
-                      padding: EdgeInsets.only(top: 20.0),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  Expanded(
+                    flex: 2,
+                    child: Container(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          CircleAvatar(
+                            backgroundColor: Colors.white,
+                            radius: 90.0,
+                            child:  Container(
+                              margin: EdgeInsets.symmetric(vertical: 4.0),
+                              padding: EdgeInsets.symmetric(horizontal: 10.0),
+                              child: Image.asset(
+                                'asset/images/logo.png',
+                                width: 130.0,
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(top: 10.0),
+                          ),
+                        ],
+                      ),
                     ),
-                    Text(
-                      'waiting',
-                      softWrap: true,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18.0,
-                          color: Colors.white),
-                    )
-                  ],
-                ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        CircularProgressIndicator(),
+                        Padding(
+                          padding: EdgeInsets.only(top: 20.0),
+                        ),
+                        Text(
+                          'loading',
+                          softWrap: true,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18.0,
+                              color: Colors.white),
+                        )
+                      ],
+                    ),
+                  )
+                ],
               )
             ],
-          )
-        ],
       ),
     );
   }

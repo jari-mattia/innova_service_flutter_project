@@ -27,7 +27,7 @@ class _MyHomePageState extends State<MyHomePage> {
               SingleChildScrollView(
                 child: Card(
                   color: Color(0xDDFFFFFF),
-                  margin: EdgeInsets.only(top: 6.0,bottom: 6.0, left: 15.0, right: 15.0),
+                  margin: EdgeInsets.only(left: 15.0, right: 15.0),
                   child: Container(
                     padding: EdgeInsets.only(
                         bottom: 15.0, left: 30.0, right: 30.0, top: 8.0),
@@ -49,7 +49,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         Container(
                           margin: EdgeInsets.symmetric(vertical: 12.0),
                           padding: EdgeInsets.symmetric(
-                              horizontal: 20.0, vertical: 20.0),
+                              horizontal: 20.0, vertical: 15.0),
                           child: Text(
                             "Facility Management \n a servizio di imprese e cittadini",
                             softWrap: true,
@@ -63,12 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             padding: EdgeInsets.symmetric(vertical: 20.0),
                             color: Theme.of(context).primaryColor,
                             onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          Login()) //InterventionRequest()),
-                                  );
+                              currentUser.add();
                             },
                             child: Text("RICHIEDI INTERVENTO"),
                             textColor: Colors.white,
@@ -136,101 +131,123 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: Container(
                     padding:
                         EdgeInsets.symmetric(vertical: 15.0, horizontal: 40.0),
-                    child: Row(children: <Widget>[
-                      Expanded(
-                        child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisSize: MainAxisSize.max,
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0,vertical: 8.0),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.end,
                             children: <Widget>[
-                              Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 40.0),
-                                child: Image.asset(
-                                  'asset/images/logo.png',
-                                ),
+                              Expanded(
+                                    child: WelcomeText(),
                               ),
-                              Padding(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 10.0, vertical: 10.0),
-                                child: Text(
-                                  "Facility Management \n a servizio di imprese e cittadini",
-                                  softWrap: true,
-                                  textAlign: TextAlign.center,
-                                  textScaleFactor: 1.1,
-                                ),
-                              ),
-                            ]),
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 20.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: <Widget>[
-                              Padding(
-                                  padding: EdgeInsets.only(bottom: 8.0),
-                                  child: WelcomeText()),
                               Divider(),
-                              Container(
-                                margin: EdgeInsets.symmetric(vertical: 8.0),
-                                child: RaisedButton(
-                                  padding: EdgeInsets.symmetric(vertical: 20.0),
-                                  color: Theme.of(context).primaryColor,
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              InterventionRequest()),
-                                    );
-                                  },
-                                  child: Text("RICHIEDI INTERVENTO"),
-                                  textColor: Colors.white,
-                                ),
-                              ),
-                              Container(
-                                margin: EdgeInsets.symmetric(vertical: 8.0),
-                                child: RaisedButton(
-                                  padding: EdgeInsets.symmetric(vertical: 20.0),
-                                  color: Theme.of(context).accentColor,
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => QuoteRequest()),
-                                    );
-                                  },
-                                  child: Text("FAI UN PREVENTIVO"),
-                                  textColor: Colors.white,
-                                ),
-                              ),
-                              Container(
-                                margin: EdgeInsets.symmetric(vertical: 8.0),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: <Widget>[
-                                    Text.rich(TextSpan(
-                                        style: TextStyle(fontSize: 12.0),
-                                        text: "INVIACI UNA FOTO")),
-                                    Padding(
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 10.0),
-                                        child: FloatingActionButton(
-                                          onPressed: () => getImage(context),
-                                          child: Icon(
-                                            Icons.camera_alt,
-                                            color: Colors.white,
-                                          ),
-                                          backgroundColor: Colors.black54,
-                                        )),
-                                  ],
-                                ),
-                              ),
                             ],
                           ),
                         ),
-                      ),
-                    ]),
+                        Row(children: <Widget>[
+                          Expanded(
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 40.0),
+                                    child: Image.asset(
+                                      'asset/images/logo.png',
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 10.0, vertical: 10.0),
+                                    child: Text(
+                                      "Facility Management \n a servizio di imprese e cittadini",
+                                      softWrap: true,
+                                      textAlign: TextAlign.center,
+                                      textScaleFactor: 1.1,
+                                    ),
+                                  ),
+                                ]),
+                          ),
+                          Expanded(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 20.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: <Widget>[
+                                  Container(
+                                    margin: EdgeInsets.symmetric(vertical: 8.0),
+                                    child: RaisedButton(
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 20.0),
+                                      color: Theme.of(context).primaryColor,
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  InterventionRequest()),
+                                        );
+                                      },
+                                      child: Text("RICHIEDI INTERVENTO"),
+                                      textColor: Colors.white,
+                                    ),
+                                  ),
+                                  Container(
+                                    margin: EdgeInsets.symmetric(vertical: 8.0),
+                                    child: RaisedButton(
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 20.0),
+                                      color: Theme.of(context).accentColor,
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  QuoteRequest()),
+                                        );
+                                      },
+                                      child: Text("FAI UN PREVENTIVO"),
+                                      textColor: Colors.white,
+                                    ),
+                                  ),
+                                  Container(
+                                    margin: EdgeInsets.symmetric(vertical: 8.0),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: <Widget>[
+                                        Text.rich(TextSpan(
+                                            style: TextStyle(fontSize: 12.0),
+                                            text: "INVIACI UNA FOTO")),
+                                        Padding(
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 10.0),
+                                            child: FloatingActionButton(
+                                              onPressed: () =>
+                                                  getImage(context),
+                                              child: Icon(
+                                                Icons.camera_alt,
+                                                color: Colors.white,
+                                              ),
+                                              backgroundColor: Colors.black54,
+                                            )),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ]),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -279,7 +296,7 @@ class _WelcomeTextState extends State<WelcomeText> {
           Padding(
               padding: EdgeInsets.only(bottom: 8.0, right: 3.0),
               child: Text(
-                '${_welcome}',
+                _welcome,
                 textAlign: TextAlign.end,
                 style: TextStyle(fontWeight: FontWeight.w600),
               )),

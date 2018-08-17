@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:innova_service_flutter_project/data_controller/functions.dart';
 import 'package:innova_service_flutter_project/data_controller/quote.dart';
 
-class ChiSiamo extends StatelessWidget {
+class About extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
