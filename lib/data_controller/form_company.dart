@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:innova_service_flutter_project/data_controller/functions.dart';
+import 'package:innova_service_flutter_project/main.dart';
+import 'package:intl/intl.dart';
 
 class FormCompany extends StatefulWidget {
   @override
@@ -59,11 +61,10 @@ class FormCompanyState extends State<FormCompany> {
 
       Firestore.instance.runTransaction((Transaction transaction) async {
         DocumentReference document =
-            Firestore.instance.document('richieste/privato');
+            Firestore.instance.document('utenti/${currentUser.name}/richieste/${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll('/', '-')}');
         await document
-            .collection('${_data.pIva}')
-            .document('${DateTime.now().toUtc().toString()}')
             .setData(<String, String>{
+              'cliente' : 'azienda',
               'nome': _data.nome,
               'email': _data.email,
               'partita iva': _data.pIva,
@@ -75,6 +76,7 @@ class FormCompanyState extends State<FormCompany> {
                   duration: Duration(seconds: 4),
                 )))
             .whenComplete(_resetForm)
+            .whenComplete(() => setState(() => ++richieste))
             .catchError((e) => print(e));
       });
     } else {

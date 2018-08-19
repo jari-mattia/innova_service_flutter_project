@@ -1,13 +1,20 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:innova_service_flutter_project/main.dart';
 import 'package:innova_service_flutter_project/data_controller/intervention.dart';
 import 'package:innova_service_flutter_project/login_controller/login_test.dart';
 import 'package:innova_service_flutter_project/data_controller/quote.dart';
 import 'package:innova_service_flutter_project/data_controller/functions.dart';
+import 'package:innova_service_flutter_project/model/profile_page.dart';
 import 'package:innova_service_flutter_project/model/user.dart';
 
+/*
+*
+* Home Page
+*
+* */
 class MyHomePage extends StatefulWidget {
   @override
   _MyHomePageState createState() => new _MyHomePageState();
@@ -17,6 +24,31 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: (currentUser != null)
+          ? Drawer(
+              child: ListView(
+                children: <Widget>[
+                  UserAccountsDrawerHeader(
+                    currentAccountPicture: GoogleUserCircleAvatar(
+                      identity: googleCurrentUser,
+                    ),
+                    accountName: Text('${currentUser.name}',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    accountEmail: Text('${currentUser.email}'),
+                  ),
+                  ListView(
+                    shrinkWrap: true,
+                    children: <Widget>[
+                      ListTile(
+                        title: (richieste == 0) ? Text('non hai ancora effettuato richiese'): Text('hai effettuato ${richieste} richieste'),
+                      ),
+                      Divider()
+                    ],
+                  ),
+                ],
+              ),
+            )
+          : null,
       appBar: AppBar(),
       body: OrientationBuilder(builder: (context, orientation) {
         if (orientation == Orientation.portrait) {
@@ -57,29 +89,39 @@ class _MyHomePageState extends State<MyHomePage> {
                             textScaleFactor: 1.5,
                           ),
                         ),
+
+                        // Intervento button
                         Container(
                           margin: EdgeInsets.symmetric(vertical: 8.0),
                           child: RaisedButton(
                             padding: EdgeInsets.symmetric(vertical: 20.0),
                             color: Theme.of(context).primaryColor,
                             onPressed: () {
-                              currentUser.add();
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ProfilePage()),
+                              );
                             },
                             child: Text("RICHIEDI INTERVENTO"),
                             textColor: Colors.white,
                           ),
                         ),
+
+                        // Preventivo Button
                         Container(
                           margin: EdgeInsets.symmetric(vertical: 8.0),
                           child: RaisedButton(
                             padding: EdgeInsets.symmetric(vertical: 20.0),
                             color: Theme.of(context).accentColor,
                             onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => QuoteRequest()),
-                              );
+                              (currentUser != null)
+                                  ? Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => QuoteRequest()),
+                                    )
+                                  : _showDialog(context);
                             },
                             child: Text("FAI UN PREVENTIVO"),
                             textColor: Colors.white,
@@ -136,14 +178,15 @@ class _MyHomePageState extends State<MyHomePage> {
                       mainAxisSize: MainAxisSize.max,
                       children: <Widget>[
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20.0,vertical: 8.0),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20.0, vertical: 8.0),
                           child: Row(
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.end,
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: <Widget>[
                               Expanded(
-                                    child: WelcomeText(),
+                                child: WelcomeText(),
                               ),
                               Divider(),
                             ],
@@ -259,6 +302,11 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
+/*
+*
+* Login / Logout mechanism in the home
+*
+* */
 class WelcomeText extends StatefulWidget {
   @override
   _WelcomeTextState createState() => _WelcomeTextState();
@@ -267,11 +315,15 @@ class WelcomeText extends StatefulWidget {
 class _WelcomeTextState extends State<WelcomeText> {
   String _welcome = '';
 
-  Future<User> _signOut() async {
-    User.signOut(currentUser).then((user) => currentUser = user);
+ /*
+ *  Logout
+ */
+  Future<void> _signOut() async {
+    await User
+        .signOut(currentUser)
+        .then((user) => setState(() => currentUser = user));
     if (fireUser != null) await fireAuth.signOut();
     if (googleCurrentUser != null) await googleSignIn.signOut();
-    return currentUser;
   }
 
   @override
@@ -306,9 +358,7 @@ class _WelcomeTextState extends State<WelcomeText> {
                 borderSide: BorderSide(color: Theme.of(context).primaryColor),
                 textColor: Theme.of(context).primaryColor,
                 onPressed: () {
-                  _signOut().then((user) => setState(() {
-                        currentUser = user;
-                      }));
+                  _signOut();
                 },
                 child: Text(
                   'Logout ',
@@ -343,9 +393,32 @@ class _WelcomeTextState extends State<WelcomeText> {
   }
 }
 
-class LoginDialog extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return null;
-  }
+/*
+ *
+ *        AlertDialog
+ *
+ * */
+void _showDialog(BuildContext context) {
+  // flutter defined function
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      // return object of type Dialog
+      return AlertDialog(
+        title: new Text("Devi accedere per proseguire"),
+        actions: <Widget>[
+          // usually buttons at the bottom of the dialog
+          new FlatButton(
+            child: new Text("ACCEDI",
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            onPressed: () {
+              Navigator.pushReplacement(
+                  context, MaterialPageRoute(builder: (context) => Login()));
+            },
+          ),
+        ],
+      );
+    },
+  );
 }
+

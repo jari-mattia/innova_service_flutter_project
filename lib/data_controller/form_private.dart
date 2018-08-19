@@ -1,9 +1,10 @@
 import 'dart:async';
+import 'package:intl/intl.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:innova_service_flutter_project/data_controller/functions.dart';
-
+import 'package:innova_service_flutter_project/main.dart';
 
 class FormPrivate extends StatefulWidget {
   @override
@@ -23,7 +24,6 @@ class _DataPrivate {
 }
 
 class FormPrivateState extends State<FormPrivate> {
-
   final _formKey = GlobalKey<FormState>();
   _DataPrivate _data = new _DataPrivate();
   bool _autoValidate = false;
@@ -52,19 +52,17 @@ class FormPrivateState extends State<FormPrivate> {
     });
   }
 
-
   void onSubmitData() {
     if (_formKey.currentState.validate()) {
 //    If all data are correct then save data to out variables
       _formKey.currentState.save();
 
       Firestore.instance.runTransaction((Transaction transaction) async {
-        DocumentReference document =
-            Firestore.instance.document('richieste/privato');
+        DocumentReference document = Firestore.instance.document(
+            'utenti/${currentUser.name}/richieste/${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll('/', '-')}');
         await document
-            .collection('${_data.fiscalCode}')
-            .document('${DateTime.now().toUtc().toString()}')
             .setData(<String, String>{
+              'cliente': 'privato',
               'nome': _data.firstName,
               'cognome': _data.lastName,
               'email': _data.email,
@@ -73,10 +71,12 @@ class FormPrivateState extends State<FormPrivate> {
               'richiesta': _data.request
             })
             .whenComplete(() => Scaffold.of(context).showSnackBar(SnackBar(
-                  content: Text("""Grazie per averci inviato la richiesta \nTi ricontatteremo al più presto """),
+                  content: Text(
+                      """Grazie per averci inviato la richiesta \nTi ricontatteremo al più presto """),
                   duration: Duration(seconds: 4),
                 )))
             .whenComplete(_resetForm)
+            .whenComplete(() => setState(() => ++richieste))
             .catchError((e) => print(e));
       });
     } else {

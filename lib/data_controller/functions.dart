@@ -6,6 +6,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_launch/flutter_launch.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 
@@ -23,7 +24,7 @@ Future getImage(BuildContext context) async {
         .ref();
     StorageUploadTask uploadImage = storage
         .child('utente')
-        .child('${DateTime.now().toUtc().toString()}')
+        .child('${DateFormat.yMd().add_jm().format(DateTime.now())}')
         .putFile(_image);
     await uploadImage.future
         .whenComplete(() => Scaffold.of(context).showSnackBar(SnackBar(

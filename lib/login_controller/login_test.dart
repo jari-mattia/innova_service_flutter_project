@@ -8,6 +8,11 @@ import 'package:innova_service_flutter_project/model/user.dart';
 import 'package:innova_service_flutter_project/route/router.dart';
 import 'package:innova_service_flutter_project/main.dart';
 
+/*
+*
+*     Login Page
+*
+*/
 class Login extends StatefulWidget {
   @override
   _LoginState createState() {
@@ -24,46 +29,6 @@ class _LoginState extends State<Login> {
     privacyConsent = false;
     enableUnCheckedPrivacy = false;
     super.initState();
-  }
-
-
-
-
-//FUNCTIONS
-  Future<FirebaseUser> _authenticateWithGoogle() async {
-    GoogleSignInAccount googleUser;
-    if (googleUser == null) {
-      googleUser = await googleSignIn.signInSilently();
-    }
-    if (googleUser == null) {
-      try {
-        googleUser = await googleSignIn.signIn();
-      } catch (error) {
-        print(error);
-      }
-    }
-    setState(() {
-      googleCurrentUser = googleUser;
-    });
-    final GoogleSignInAuthentication googleAuth =
-        await googleUser.authentication;
-
-    fireUser = await fireAuth.signInWithGoogle(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
-    );
-
-    assert(fireUser.email != null);
-    assert(fireUser.displayName != null);
-    assert(!fireUser.isAnonymous);
-    assert(await fireUser.getIdToken() != null);
-    return fireUser;
-  }
-
-  Future<User> createUserFromFireUser(FirebaseUser fireUser) async {
-    User user = await User.instance(fireUser);
-    assert(user != null);
-    return user;
   }
 
   @override
@@ -186,8 +151,59 @@ class _LoginState extends State<Login> {
       ),
     );
   }
+
+  //FUNCTIONS
+  /*
+  *   Google Auth
+  */
+  Future<FirebaseUser> _authenticateWithGoogle() async {
+
+    GoogleSignInAccount googleUser;
+
+    if (googleUser == null) {
+        googleUser = await googleSignIn.signInSilently();
+    }
+    if (googleUser == null) {
+        googleUser = await googleSignIn.signIn();
+    }
+
+    setState(() {
+      googleCurrentUser = googleUser;
+    });
+
+      final GoogleSignInAuthentication googleAuth =
+      await googleUser.authentication;
+
+      fireUser = await fireAuth.signInWithGoogle(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+    assert(fireUser.email != null);
+    assert(fireUser.displayName != null);
+    assert(!fireUser.isAnonymous);
+    assert(await fireUser.getIdToken() != null);
+    return fireUser;
+  }
+
+  /*
+  *   Create User
+  */
+  Future<User> createUserFromFireUser(FirebaseUser fireUser) async {
+    User user = await User.instance(fireUser);
+    assert(user != null);
+    return user;
+  }
+
 }
 
+
+
+/*
+*
+*     Privacy Police Checkbox Class
+*
+*/
 class UnCheckedPrivacyText extends StatelessWidget {
   final bool check;
   final bool enable;
