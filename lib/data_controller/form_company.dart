@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:innova_service_flutter_project/data_controller/functions.dart';
 import 'package:innova_service_flutter_project/main.dart';
+import 'package:innova_service_flutter_project/route/router.dart';
 import 'package:intl/intl.dart';
 
 class FormCompany extends StatefulWidget {
@@ -21,13 +22,11 @@ class _CompanyData {
 }
 
 class FormCompanyState extends State<FormCompany> {
-
   final _formKey = GlobalKey<FormState>();
   bool _autoValidate = false;
   _CompanyData _data = new _CompanyData();
   List<DropdownMenuItem<String>> _dropDownMenuItems;
   String _currentCat;
-
 
   List<String> _items = [
     "Pulizie ",
@@ -36,8 +35,6 @@ class FormCompanyState extends State<FormCompany> {
     "Disinfestazioni",
     "Edilizia"
   ];
-
-
 
   @override
   void initState() {
@@ -60,11 +57,13 @@ class FormCompanyState extends State<FormCompany> {
       _formKey.currentState.save();
 
       Firestore.instance.runTransaction((Transaction transaction) async {
-        DocumentReference document =
-            Firestore.instance.document('utenti/${currentUser.name}/richieste/${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll('/', '-')}');
+        DocumentReference document = Firestore.instance.document(
+            'utenti/${currentUser.name}/richieste/${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll('/', '-')}');
         await document
             .setData(<String, String>{
-              'cliente' : 'azienda',
+              'data':
+                  '${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll('/', '-')}',
+              'cliente': 'azienda',
               'nome': _data.nome,
               'email': _data.email,
               'partita iva': _data.pIva,
@@ -72,11 +71,14 @@ class FormCompanyState extends State<FormCompany> {
               'richiesta': _data.request
             })
             .whenComplete(() => Scaffold.of(context).showSnackBar(SnackBar(
-                  content: Text("""Grazie per averci inviato la richiesta \nTi ricontatteremo al più presto """),
+                  content: Text(
+                      """Grazie per averci inviato la richiesta \nTi ricontatteremo al più presto """),
                   duration: Duration(seconds: 4),
                 )))
             .whenComplete(_resetForm)
-            .whenComplete(() => setState(() => ++richieste))
+            .whenComplete(() => setState(() => ++requests))
+            .whenComplete(() => Navigator.push(
+                context, MaterialPageRoute(builder: (context) => Router())))
             .catchError((e) => print(e));
       });
     } else {

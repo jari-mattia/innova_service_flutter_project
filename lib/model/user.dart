@@ -20,10 +20,8 @@ class User {
   User(this.user);
 
   /*
-*
 *   new User instance
-*
-* */
+*/
   static Future<User> instance(FirebaseUser user) async {
     User _currentUser = new User(user);
     _currentUser.email = user.email;
@@ -35,6 +33,7 @@ class User {
     _currentUser.providerId = user.providerId;
     _currentUser.providerData = user.providerData;
     _currentUser.logged = true;
+    requests = await _currentUser.getRequestsCount();
     //await _currentUser.setProfile();
     assert(_currentUser != null);
     assert(_currentUser.email != null);
@@ -51,7 +50,9 @@ class User {
   *   Logout
   */
   static Future<User> signOut(User _currentUser) async {
-    if (_currentUser != null) _currentUser = null;
+    if (_currentUser != null) {
+      _currentUser = null;
+    }
     return _currentUser;
   }
 
@@ -65,7 +66,7 @@ class User {
         'email ': '${this.email}',
         'telefono ': '${this.phoneNumber}',
         'uid ': '${this.uid}',
-        'n° richieste' : '${richieste}'
+        'n° richieste': '$requests'
       };
       await Firestore.instance
           .document('utenti/${this.name}')
@@ -95,7 +96,6 @@ class User {
   /*
   *   get User data
   */
-
   Future<DocumentSnapshot> get() async {
     DocumentSnapshot userData;
     await Firestore.instance
@@ -131,5 +131,36 @@ class User {
     this.profileData.removeWhere((k, v) => k.startsWith('uid'));
     this.profileData.removeWhere((k, v) => v.toString().startsWith('null'));
     print(this.profileData);
+  }
+
+  /*
+  *   return a list of request
+  */
+  Future<List<DocumentSnapshot>> getRequestsList() async {
+    List<DocumentSnapshot> requestsList;
+    final QuerySnapshot requestsQuery = await Firestore.instance
+        .collection('utenti/${this.name}/richieste')
+        .getDocuments();
+    requestsList = requestsQuery.documents;
+    return requestsList;
+  }
+
+  /*
+  *   return a single request
+  */
+  Map<String, dynamic> getRequest(
+      List<DocumentSnapshot> requestsList, int index) {
+    Map<String, dynamic> request;
+    request = requestsList.elementAt(index).data;
+    return request;
+  }
+
+  /*
+  *   number of request
+  */
+  Future<int> getRequestsCount() async {
+    List<DocumentSnapshot> requestsList = await this.getRequestsList();
+    int count = requestsList.length;
+    return count;
   }
 }

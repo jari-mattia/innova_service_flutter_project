@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:innova_service_flutter_project/common_doc/privacy_policy.dart';
 import 'package:innova_service_flutter_project/model/user.dart';
+import 'package:innova_service_flutter_project/route/home_page.dart';
 import 'package:innova_service_flutter_project/route/router.dart';
 import 'package:innova_service_flutter_project/main.dart';
 
@@ -25,7 +26,7 @@ class _LoginState extends State<Login> {
   bool enableUnCheckedPrivacy;
 
   @override
-  initState(){
+  initState() {
     privacyConsent = false;
     enableUnCheckedPrivacy = false;
     super.initState();
@@ -84,9 +85,11 @@ class _LoginState extends State<Login> {
                                                   createUserFromFireUser(
                                                       fireUser))
                                               .then((user) {
-                                            currentUser = user;
-                                            currentUser.logged = true;
-                                            currentUser.add();
+                                            setState(() {
+                                              currentUser = user;
+                                              currentUser.logged = true;
+                                              currentUser.add();
+                                            });
                                           }).whenComplete(() => Navigator.pop(
                                                   context,
                                                   MaterialPageRoute(
@@ -99,17 +102,16 @@ class _LoginState extends State<Login> {
                                         style: TextStyle(color: Colors.white),
                                       )),
                                 )),
-
                               ]),
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 8.0),
                             child: Row(
                               children: <Widget>[
-                                UnCheckedPrivacyText(privacyConsent, enableUnCheckedPrivacy)
+                                UnCheckedPrivacyText(
+                                    privacyConsent, enableUnCheckedPrivacy)
                               ],
                             ),
                           ),
-
                           Padding(
                             padding: const EdgeInsets.all(20.0),
                             child: Image.asset('asset/images/logo.png',
@@ -157,27 +159,26 @@ class _LoginState extends State<Login> {
   *   Google Auth
   */
   Future<FirebaseUser> _authenticateWithGoogle() async {
-
     GoogleSignInAccount googleUser;
 
     if (googleUser == null) {
-        googleUser = await googleSignIn.signInSilently();
+      googleUser = await googleSignIn.signInSilently();
     }
     if (googleUser == null) {
-        googleUser = await googleSignIn.signIn();
+      googleUser = await googleSignIn.signIn();
     }
 
     setState(() {
       googleCurrentUser = googleUser;
     });
 
-      final GoogleSignInAuthentication googleAuth =
-      await googleUser.authentication;
+    final GoogleSignInAuthentication googleAuth =
+        await googleUser.authentication;
 
-      fireUser = await fireAuth.signInWithGoogle(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
+    fireUser = await fireAuth.signInWithGoogle(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
 
     assert(fireUser.email != null);
     assert(fireUser.displayName != null);
@@ -194,10 +195,7 @@ class _LoginState extends State<Login> {
     assert(user != null);
     return user;
   }
-
 }
-
-
 
 /*
 *
@@ -209,40 +207,38 @@ class UnCheckedPrivacyText extends StatelessWidget {
   final bool enable;
 
   final String _blankMessage = '';
-  final String _alertMessage = 'devi acconsentire \nai dati personali per continuare';
+  final String _alertMessage =
+      'devi acconsentire \nai dati personali per continuare';
   UnCheckedPrivacyText(this.check, this.enable);
 
   @override
   Widget build(BuildContext context) {
-    if(enable)
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 5.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        mainAxisSize: MainAxisSize.max,
-        children: <Widget>[
-          Text.rich(TextSpan(
-              text: _textControl(check),
-              style: TextStyle(color: Colors.redAccent)))
-        ],
-      ),
-    );else{
+    if (enable)
       return Container(
         padding: EdgeInsets.symmetric(vertical: 5.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           mainAxisSize: MainAxisSize.max,
           children: <Widget>[
-            Text('')
+            Text.rich(TextSpan(
+                text: _textControl(check),
+                style: TextStyle(color: Colors.redAccent)))
           ],
+        ),
+      );
+    else {
+      return Container(
+        padding: EdgeInsets.symmetric(vertical: 5.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisSize: MainAxisSize.max,
+          children: <Widget>[Text('')],
         ),
       );
     }
   }
 
-  String _textControl(bool check){
-
-    return (check == true)? _blankMessage : _alertMessage;
+  String _textControl(bool check) {
+    return (check == true) ? _blankMessage : _alertMessage;
   }
-
 }

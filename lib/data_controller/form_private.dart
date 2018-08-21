@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:innova_service_flutter_project/route/router.dart';
 import 'package:intl/intl.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -62,6 +63,8 @@ class FormPrivateState extends State<FormPrivate> {
             'utenti/${currentUser.name}/richieste/${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll('/', '-')}');
         await document
             .setData(<String, String>{
+              'data':
+                  '${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll('/', '-')}',
               'cliente': 'privato',
               'nome': _data.firstName,
               'cognome': _data.lastName,
@@ -76,7 +79,9 @@ class FormPrivateState extends State<FormPrivate> {
                   duration: Duration(seconds: 4),
                 )))
             .whenComplete(_resetForm)
-            .whenComplete(() => setState(() => ++richieste))
+            .whenComplete(() => setState(() => ++requests))
+            .whenComplete(() => Navigator.push(
+                context, MaterialPageRoute(builder: (context) => Router())))
             .catchError((e) => print(e));
       });
     } else {
@@ -92,10 +97,6 @@ class FormPrivateState extends State<FormPrivate> {
       _autoValidate = false;
       _currentService = null;
     });
-  }
-
-  Future<void> resetForm() async {
-    _resetForm();
   }
 
   @override

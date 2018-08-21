@@ -11,7 +11,7 @@ FirebaseAuth fireAuth = FirebaseAuth.instance;
 FirebaseUser fireUser;
 GoogleSignIn googleSignIn = new GoogleSignIn();
 GoogleSignInAccount googleCurrentUser;
-int richieste = 0;
+int requests = 0;
 
 void main() => runApp(new MyApp());
 
