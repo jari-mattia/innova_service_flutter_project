@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:innova_service_flutter_project/data_controller/send_image.dart';
 import 'package:innova_service_flutter_project/main.dart';
 import 'package:innova_service_flutter_project/data_controller/intervention.dart';
 import 'package:innova_service_flutter_project/login_controller/login_test.dart';
@@ -244,7 +245,10 @@ class _HomeScaffoldState extends State<HomeScaffold> {
                             child: FloatingActionButton(
                               onPressed: () {
                                 (currentUser != null)
-                                    ? getImage(context)
+                                    ? Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => SendImage()))
                                     : _showDialog(context);
                               },
                               child: Icon(
@@ -379,7 +383,10 @@ class _HomeScaffoldState extends State<HomeScaffold> {
                                       child: FloatingActionButton(
                                         onPressed: () {
                                           (currentUser != null)
-                                              ? getImage(context)
+                                              ? Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) => SendImage()))
                                               : _showDialog(context);
                                         },
                                         child: Icon(
@@ -408,7 +415,10 @@ class _HomeScaffoldState extends State<HomeScaffold> {
   Widget _scaffold() {
     return Scaffold(
 
-      appBar: AppBar(),
+      appBar: AppBar(
+         title: Text('Innova Service'),
+        centerTitle: true,
+      ),
       body: OrientationBuilder(builder: (context, orientation) {
         if (orientation == Orientation.portrait) {
           return _portraitPage();

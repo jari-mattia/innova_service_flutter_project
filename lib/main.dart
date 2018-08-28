@@ -9,7 +9,12 @@ import 'package:innova_service_flutter_project/route/router.dart';
 User currentUser;
 FirebaseAuth fireAuth = FirebaseAuth.instance;
 FirebaseUser fireUser;
-GoogleSignIn googleSignIn = new GoogleSignIn();
+GoogleSignIn googleSignIn = new GoogleSignIn(
+  scopes: <String>[
+    'https://www.googleapis.com/auth/gmail.send',
+    'https://www.googleapis.com/auth/gmail.compose',
+
+],);
 GoogleSignInAccount googleCurrentUser;
 int requests = 0;
 
