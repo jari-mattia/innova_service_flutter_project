@@ -1,7 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:innova_service_flutter_project/route/router.dart';
 import 'package:intl/intl.dart';
-
+import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:innova_service_flutter_project/data_controller/functions.dart';
@@ -29,6 +30,7 @@ class FormPrivateState extends State<FormPrivate> {
   _DataPrivate _data = new _DataPrivate();
   bool _autoValidate = false;
   String _currentService;
+  bool error;
   List<String> _items = [
     "Pulizie ",
     "Aree Verdi",
@@ -43,6 +45,7 @@ class FormPrivateState extends State<FormPrivate> {
   void initState() {
     _dropDownMenuItems = getDropDownMenuItems(_items);
     _currentService = null;
+    error = false;
     super.initState();
   }
 
@@ -53,16 +56,99 @@ class FormPrivateState extends State<FormPrivate> {
     });
   }
 
+  Future<Null> testingEmail(String userId, Map header) async {
+    header['Accept'] = 'application/json';
+    header['Content-type'] = 'application/json';
+
+    var from = userId;
+    var to = userId;
+    var subject =
+        'richiesta preventivo da ${googleSignIn.currentUser.displayName}';
+    //var message = 'worked!!!';
+    var message =
+        """${googleSignIn.currentUser.displayName} ti ha inviato una richiesta di preventivo   
+        \n puoi rispndere all'indirizzo ${userId}
+        \n\n questo è il contenuto della richiesta : 
+        \n      'data': '${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll('/', '-')}'
+        \n      'cliente': privato,
+        \n      'nome': ${_data.firstName},
+        \n      'cognome': ${_data.lastName},
+        \n      'email': ${_data.email},
+        \n      'codice_fiscale': ${_data.fiscalCode},
+        \n      'servizio': ${_data.service},
+        \n      'richiesta': ${_data.request} """;
+    var content = '''
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+to: ${to}
+from: ${from}
+subject: ${subject}
+
+${message}''';
+
+    var bytes = utf8.encode(content);
+    var base64 = base64Encode(bytes);
+    var body = json.encode({'raw': base64});
+
+    String url = 'https://www.googleapis.com/gmail/v1/users/' +
+        userId +
+        '/messages/send';
+
+    final http.Response response =
+        await http.post(url, headers: header, body: body);
+    if (response.statusCode != 200) {
+      setState(() {
+        print('error: ' + response.statusCode.toString());
+        this.error = true;
+      });
+      return;
+    }
+    final Map<String, dynamic> data = json.decode(response.body);
+    setState(() {
+      print('ok: ' + response.statusCode.toString());
+      this.error = false;
+      print(data);
+    });
+  }
+
+  sendMail() async {
+    await googleSignIn.currentUser.authHeaders.then((result) {
+      var header = {
+        'Authorization': result['Authorization'],
+        'X-Goog-AuthUser': result['X-Goog-AuthUser']
+      };
+      testingEmail(googleSignIn.currentUser.email, header);
+    });
+  }
+
+  void _resultMessage(BuildContext context) {
+    String successMessage =
+        'Grazie per averci inviato la richiesta \nTi ricontatteremo al più presto';
+    String errorMessage =
+        'Non è stato possibile inviare la richiesta. \nVerifichi di essere connesso alla rete';
+
+    if (this.error == false) {
+      Scaffold.of(context).showSnackBar(SnackBar(
+          content: Text(successMessage), duration: Duration(seconds: 4)));
+    } else if (this.error == true) {
+      Scaffold.of(context).showSnackBar(SnackBar(
+          content: Text(errorMessage), duration: Duration(seconds: 4)));
+    } else if (error == null) {
+      print('error è null');
+    }
+  }
+
   void onSubmitData() {
     if (_formKey.currentState.validate()) {
 //    If all data are correct then save data to out variables
       _formKey.currentState.save();
 
-      Firestore.instance.runTransaction((Transaction transaction) async {
-        DocumentReference document = Firestore.instance.document(
-            'utenti/${currentUser.name}/richieste/${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll('/', '-')}');
-        await document
-            .setData(<String, String>{
+      Firestore.instance
+          .runTransaction((Transaction transaction) async {
+            DocumentReference document = Firestore.instance.document(
+                'utenti/${currentUser.name}/richieste/${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll('/', '-')}');
+            await document.setData(<String, String>{
               'data':
                   '${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll('/', '-')}',
               'cliente': 'privato',
@@ -72,18 +158,15 @@ class FormPrivateState extends State<FormPrivate> {
               'codice_fiscale': _data.fiscalCode,
               'servizio': _data.service,
               'richiesta': _data.request
-            })
-            .whenComplete(() => Scaffold.of(context).showSnackBar(SnackBar(
-                  content: Text(
-                      """Grazie per averci inviato la richiesta \nTi ricontatteremo al più presto """),
-                  duration: Duration(seconds: 4),
-                )))
-            .whenComplete(_resetForm)
-            .whenComplete(() => setState(() => ++requests))
-            .whenComplete(() => Navigator.push(
-                context, MaterialPageRoute(builder: (context) => Router())))
-            .catchError((e) => print(e));
-      });
+            });
+          })
+          .whenComplete(() => sendMail())
+          .whenComplete(() => _resultMessage(context))
+          .whenComplete(_resetForm)
+          .whenComplete(() => setState(() => ++requests))
+          .whenComplete(() => Navigator.push(
+              context, MaterialPageRoute(builder: (context) => Router())))
+          .catchError((e) => print(e));
     } else {
       setState(() {
         _autoValidate = true;

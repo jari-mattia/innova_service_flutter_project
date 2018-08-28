@@ -7,7 +7,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:innova_service_flutter_project/main.dart';
-import 'package:innova_service_flutter_project/route/router.dart';
 import 'package:intl/intl.dart';
 
 class SendImage extends StatefulWidget {
@@ -18,20 +17,12 @@ class SendImage extends StatefulWidget {
 class _SendImageState extends State<SendImage> {
   File image;
   bool send;
+  bool error;
 
-//  To use Gallery or File Manager to pick Image
-//  Comment Line No. 19 and uncomment Line number 20
-  picker() async {
-    print('Picker is called');
-    double height = 1000.0;
-    double width = 1000.0;
-    File img = await ImagePicker.pickImage(
-        source: ImageSource.camera, maxHeight: height, maxWidth: width);
-//    File img = await ImagePicker.pickImage(source: ImageSource.gallery);
-    if (img != null) {
-      image = img;
-      setState(() {});
-    }
+  @override
+  initState() {
+    this.error = false;
+    super.initState();
   }
 
   Future<UploadTaskSnapshot> sendImage() async {
@@ -47,32 +38,22 @@ class _SendImageState extends State<SendImage> {
     return await uploadImage.future;
   }
 
-  pickAndSend() async {
+  Future<Null> _pickAndSend() async {
     await picker();
-    sendImage()
-        .then((value) => value.downloadUrl)
-        .then((uri) => sendMail(uri))
-        .whenComplete(() => Navigator.push(
-            context, MaterialPageRoute(builder: (context) => Router())));
+    sendImage().then((value) => value.downloadUrl).then((uri) => sendMail(uri));
   }
 
-sendMail(Uri uri) async {
-  await googleSignIn.currentUser.authHeaders.then((result) {
-    var header = {'Authorization': result['Authorization'], 'X-Goog-AuthUser': result['X-Goog-AuthUser']};
-    testingEmail(googleSignIn.currentUser.email, header, uri);
-  });
-      }
-
   Future<Null> testingEmail(String userId, Map header, Uri uri) async {
-
     header['Accept'] = 'application/json';
     header['Content-type'] = 'application/json';
 
     var from = userId;
     var to = userId;
-    var subject = 'richiesta preventivo da ${googleSignIn.currentUser.displayName}';
+    var subject =
+        'richiesta preventivo da ${googleSignIn.currentUser.displayName}';
     //var message = 'worked!!!';
-    var message = "${googleSignIn.currentUser.displayName} ti ha inviato una richiesta di preventivo tramite un immagine\n\n  ${uri.toString()}\n\n puoi rispndere all'indirizzo ${userId}";
+    var message =
+        "${googleSignIn.currentUser.displayName} ti ha inviato una richiesta di preventivo tramite un immagine\n\n  ${uri.toString()}\n\n puoi rispndere all'indirizzo ${userId}";
     var content = '''
 Content-Type: text/html; charset="us-ascii"
 MIME-Version: 1.0
@@ -87,32 +68,66 @@ ${message}''';
     var base64 = base64Encode(bytes);
     var body = json.encode({'raw': base64});
 
-    String url = 'https://www.googleapis.com/gmail/v1/users/' + userId + '/messages/send';
+    String url = 'https://www.googleapis.com/gmail/v1/users/' +
+        userId +
+        '/messages/send';
 
-    final http.Response response = await http.post(
-        url,
-        headers: header,
-        body: body
-    );
+    final http.Response response =
+        await http.post(url, headers: header, body: body);
     if (response.statusCode != 200) {
       setState(() {
         print('error: ' + response.statusCode.toString());
+        this.error = true;
       });
-      Scaffold.of(context).showSnackBar(SnackBar(
-          content: Text(
-              """Non è stato possibile inviare la richiesta. \nVerifichi di essere connesso alla rete """),
-          duration: Duration(seconds: 4)));
       return;
     }
     final Map<String, dynamic> data = json.decode(response.body);
-    print('ok: ' + response.statusCode.toString());
-    print(data);
-    Scaffold.of(context).showSnackBar(SnackBar(
-        content: Text(
-        """Grazie per averci inviato la richiesta \nTi ricontatteremo al più presto """),
-    duration: Duration(seconds: 4)));
+    setState(() {
+      print('ok: ' + response.statusCode.toString());
+      this.error = false;
+      print(data);
+    });
   }
 
+  sendMail(Uri uri) async {
+    await googleSignIn.currentUser.authHeaders.then((result) {
+      var header = {
+        'Authorization': result['Authorization'],
+        'X-Goog-AuthUser': result['X-Goog-AuthUser']
+      };
+      testingEmail(googleSignIn.currentUser.email, header, uri);
+    });
+  }
+
+  picker() async {
+    print('Picker is called');
+    double height = 1000.0;
+    double width = 1000.0;
+    File img = await ImagePicker.pickImage(
+        source: ImageSource.camera, maxHeight: height, maxWidth: width);
+//    File img = await ImagePicker.pickImage(source: ImageSource.gallery);
+    if (img != null) {
+      image = img;
+      setState(() {});
+    }
+  }
+
+  void _resultMessage(BuildContext context) {
+    String successMessage =
+        'Grazie per averci inviato la richiesta \nTi ricontatteremo al più presto';
+    String errorMessage =
+        'Non è stato possibile inviare la richiesta. \nVerifichi di essere connesso alla rete';
+
+    if (this.error == false) {
+      Scaffold.of(context).showSnackBar(SnackBar(
+          content: Text(successMessage), duration: Duration(seconds: 4)));
+    } else if (this.error == true) {
+      Scaffold.of(context).showSnackBar(SnackBar(
+          content: Text(errorMessage), duration: Duration(seconds: 4)));
+    } else if (error == null) {
+      print('error è null');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -128,12 +143,13 @@ ${message}''';
                 : new Image.file(image),
           ),
         ),
-        floatingActionButton: new FloatingActionButton(
-          onPressed: () {
-            pickAndSend();
-          },
-          child: new Icon(Icons.camera_alt),
-        ),
+        floatingActionButton: Builder(
+            builder: (context) => new FloatingActionButton(
+                  onPressed: () {
+                    _pickAndSend().whenComplete(() => _resultMessage(context));
+                  },
+                  child: new Icon(Icons.camera_alt),
+                )),
       ),
     );
   }
