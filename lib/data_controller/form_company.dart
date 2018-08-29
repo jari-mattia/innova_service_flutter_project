@@ -189,7 +189,7 @@ ${message}''';
           'richiesta': '${this.request}'
         };
       });
-      await _pickAndSend();
+      await _pickAndSend().whenComplete(() => _resetForm());
     } else {
 //    If all data are not valid then start auto validation.
       setState(() {

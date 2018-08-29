@@ -188,7 +188,7 @@ ${message}''';
               'richiesta': '${this.request}'
             };
           });
-      await _pickAndSend();
+      await _pickAndSend().whenComplete(() => _resetForm());
     } else {
       setState(() {
         _autoValidate = true;
