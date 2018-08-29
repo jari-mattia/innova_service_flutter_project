@@ -148,18 +148,27 @@ ${message}''';
     await document.setData(this.data);
   }
 
-  void _resultMessage(BuildContext context) {
-    String successMessage =
-        'Grazie per averci inviato la richiesta \nTi ricontatteremo al più presto';
-    String errorMessage =
-        'Non è stato possibile inviare la richiesta. \nVerifichi di essere connesso alla rete';
+  Future<void> _resultMessage(BuildContext context) async {
+    String successMessage = 'Invio Riuscito. Grazie!';
+    String errorMessage = 'Ops, Invio Fallito !';
 
     if (this.error == false) {
       Scaffold.of(context).showSnackBar(SnackBar(
-          content: Text(successMessage), duration: Duration(seconds: 4)));
+        content: Text(successMessage),
+        duration: Duration(seconds: 5),
+        action: SnackBarAction(
+          label: 'OK',
+          onPressed: () => Navigator.push(
+              context, MaterialPageRoute(builder: (context) => Router())),
+        ),
+      ));
     } else if (this.error == true) {
       Scaffold.of(context).showSnackBar(SnackBar(
-          content: Text(errorMessage), duration: Duration(seconds: 4)));
+        content: Text(errorMessage),
+        duration: Duration(seconds: 5),
+        action: SnackBarAction(
+            label: 'RIPROVA', onPressed: () => _pickAndSend()),
+      ));
     } else if (error == null) {
       print('error è null');
     }

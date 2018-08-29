@@ -7,6 +7,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:innova_service_flutter_project/main.dart';
+import 'package:innova_service_flutter_project/route/router.dart';
 import 'package:intl/intl.dart';
 
 class SendImage extends StatefulWidget {
@@ -18,6 +19,7 @@ class _SendImageState extends State<SendImage> {
   File image;
   bool send;
   bool error;
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   initState() {
@@ -112,18 +114,29 @@ ${message}''';
     }
   }
 
-  void _resultMessage(BuildContext context) {
+  void _resultMessage() {
     String successMessage =
         'Grazie per averci inviato la richiesta \nTi ricontatteremo al più presto';
     String errorMessage =
         'Non è stato possibile inviare la richiesta. \nVerifichi di essere connesso alla rete';
 
     if (this.error == false) {
-      Scaffold.of(context).showSnackBar(SnackBar(
-          content: Text(successMessage), duration: Duration(seconds: 4)));
+    _scaffoldKey.currentState.showSnackBar(SnackBar(
+            content: Text(successMessage),
+            duration: Duration(seconds: 5),
+            action: SnackBarAction(
+                label: 'OK',
+                onPressed: () {
+                  Navigator.popAndPushNamed(context, '/home');
+                }),
+          ));
     } else if (this.error == true) {
-      Scaffold.of(context).showSnackBar(SnackBar(
-          content: Text(errorMessage), duration: Duration(seconds: 4)));
+      _scaffoldKey.currentState.showSnackBar(SnackBar(
+            content: Text(errorMessage),
+            duration: Duration(seconds: 5),
+            action: SnackBarAction(
+                label: 'RIPROVA', onPressed: () => _pickAndSend()),
+          ));
     } else if (error == null) {
       print('error è null');
     }
@@ -132,7 +145,12 @@ ${message}''';
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
+
+      routes: <String, WidgetBuilder>{
+        '/home': (BuildContext context) => new Router()
+      },//HandleCurrentScreen()
       home: new Scaffold(
+        key: _scaffoldKey,
         appBar: new AppBar(
           title: new Text('Inviaci una Foto'),
         ),
@@ -143,10 +161,13 @@ ${message}''';
                 : new Image.file(image),
           ),
         ),
+
         floatingActionButton: Builder(
             builder: (context) => new FloatingActionButton(
                   onPressed: () {
-                    _pickAndSend().whenComplete(() => _resultMessage(context));
+
+                    _pickAndSend()
+                        .whenComplete(() => _resultMessage());
                   },
                   child: new Icon(Icons.camera_alt),
                 )),
