@@ -16,21 +16,18 @@ class FormCompany extends StatefulWidget {
   }
 }
 
-class _CompanyData {
-  static String clientType = 'azienda';
-  String nome = '';
+class FormCompanyState extends State<FormCompany> {
+  final _formKey = GlobalKey<FormState>();
+  String clientType = 'azienda';
+  String date = '';
+  String name = '';
   String email = '';
   String pIva = '';
   String request = '';
   String service = '';
-}
-
-class FormCompanyState extends State<FormCompany> {
-  final _formKey = GlobalKey<FormState>();
   bool _autoValidate = false;
-  _CompanyData _data = new _CompanyData();
   List<DropdownMenuItem<String>> _dropDownMenuItems;
-  String _currentCat;
+  String _currentService;
   bool error;
 
   List<String> _items = [
@@ -40,24 +37,28 @@ class FormCompanyState extends State<FormCompany> {
     "Disinfestazioni",
     "Edilizia"
   ];
+  Map<String, dynamic> data = new Map<String, dynamic>();
+
+  DocumentReference document = Firestore.instance.document(
+      'utenti/${currentUser.name}/richieste/${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll('/', '-')}');
 
   @override
   void initState() {
     _dropDownMenuItems = getDropDownMenuItems(_items);
-    _currentCat = null;
-    error = false;
+    _currentService = null;
+    this.error = false;
     super.initState();
   }
 
   void changedDropDownItem(String selectedCat) {
     print("Selected city $selectedCat, we are going to refresh the UI");
     setState(() {
-      _currentCat = selectedCat;
-      _data.service = selectedCat;
+      _currentService = selectedCat;
+      this.service = selectedCat;
     });
   }
 
-  Future<Null> testingEmail(String userId, Map header) async {
+  Future<void> _testingEmail(String userId, Map header) async {
     header['Accept'] = 'application/json';
     header['Content-type'] = 'application/json';
 
@@ -72,11 +73,11 @@ class FormCompanyState extends State<FormCompany> {
             " \n\n questo è il contenuto della richiesta : " +
             " \n data: ${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll('/', '-')}," +
             " \n cliente : azienda," +
-            " \n nome : ${_data.nome}," +
-            " \n email : ${_data.email}," +
-            " \n partita iva : ${_data.pIva}," +
-            " \n servizio : ${_data.service}," +
-            " \n richiesta : ${_data.request}";
+            " \n nome : ${this.name}," +
+            " \n email : ${this.email}," +
+            " \n partita iva : ${this.pIva}," +
+            " \n servizio : ${this.service}," +
+            " \n richiesta : ${this.request}";
     var content = '''
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
@@ -98,31 +99,59 @@ ${message}''';
     final http.Response response =
         await http.post(url, headers: header, body: body);
     if (response.statusCode != 200) {
+      print('error: ' + response.statusCode.toString());
+
       setState(() {
-        print('error: ' + response.statusCode.toString());
         this.error = true;
       });
       return;
-    }
-    final Map<String, dynamic> data = json.decode(response.body);
-    setState(() {
+    } else {
+      final Map<String, dynamic> data = json.decode(response.body);
+
       print('ok: ' + response.statusCode.toString());
-      this.error = false;
+
       print(data);
-    });
+      setState(() {
+        this.error = false;
+      });
+    }
   }
 
   sendMail() async {
-    await googleSignIn.currentUser.authHeaders.then((result) {
+    await googleSignIn.currentUser.authHeaders.then((result) async {
       var header = {
         'Authorization': result['Authorization'],
         'X-Goog-AuthUser': result['X-Goog-AuthUser']
       };
-      testingEmail(googleSignIn.currentUser.email, header);
+      await _testingEmail(googleSignIn.currentUser.email, header);
     });
   }
 
-  void _resultMessage(BuildContext context) {
+  Future<void> _pickAndSend() async {
+    await sendOnFireStore();
+    DocumentSnapshot snapshot = await this.document.get();
+    if (snapshot.exists) {
+      print('transazione effettuata');
+
+      setState(() {
+        this.error = false;
+      });
+      await sendMail();
+    } else {
+      print('transazione fallita');
+
+      setState(() {
+        this.error = true;
+      });
+    }
+    await _resultMessage(context);
+  }
+
+  Future<void> sendOnFireStore() async {
+    await document.setData(this.data);
+  }
+
+  Future<void> _resultMessage(BuildContext context) async {
     String successMessage =
         'Grazie per averci inviato la richiesta \nTi ricontatteremo al più presto';
     String errorMessage =
@@ -139,37 +168,33 @@ ${message}''';
     }
   }
 
-  void onSubmitData() {
+  Future<void> onSubmitData(BuildContext context) async {
     if (_formKey.currentState.validate()) {
 //    If all data are correct then save data to out variables
       _formKey.currentState.save();
-
-      Firestore.instance
-          .runTransaction((Transaction transaction) async {
-            DocumentReference document = Firestore.instance.document(
-                'utenti/${currentUser.name}/richieste/${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll('/', '-')}');
-            await document.setData(<String, String>{
-              'data':
-                  '${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll('/', '-')}',
-              'cliente': 'azienda',
-              'nome': _data.nome,
-              'email': _data.email,
-              'partita iva': _data.pIva,
-              'servizio': _data.service,
-              'richiesta': _data.request
-            });
-          })
-          .whenComplete(() => sendMail())
-          .whenComplete(() => _resultMessage(context))
-          .whenComplete(_resetForm)
-          .whenComplete(() => setState(() => ++requests))
-          .whenComplete(() => Navigator.push(
-              context, MaterialPageRoute(builder: (context) => Router())))
-          .catchError((e) => print(e));
+      setState(() {
+        this.date = '${DateFormat
+            .yMd()
+            .add_jm()
+            .format(DateTime.now())
+            .replaceAll('/', '-')
+            .toString()}';
+        this.data = {
+          'data': '${this.date}',
+          'cliente': '${this.clientType}',
+          'nome': '${this.name}',
+          'email': '${this.email}',
+          'partita iva': '${this.pIva}',
+          'servizio': '${this.service}',
+          'richiesta': '${this.request}'
+        };
+      });
+      await _pickAndSend();
     } else {
 //    If all data are not valid then start auto validation.
       setState(() {
         _autoValidate = true;
+        this.error = true;
       });
     }
   }
@@ -178,7 +203,7 @@ ${message}''';
     _formKey.currentState.reset();
     setState(() {
       _autoValidate = false;
-      _currentCat = null;
+      _currentService = null;
     });
   }
 
@@ -208,7 +233,7 @@ ${message}''';
                           child: DropdownButtonHideUnderline(
                             child: DropdownButton(
                               hint: Text('Scegli tra i servizi'),
-                              value: _currentCat,
+                              value: _currentService,
                               items: _dropDownMenuItems,
                               onChanged: changedDropDownItem,
                             ),
@@ -220,7 +245,9 @@ ${message}''';
                   TextFormField(
                     onSaved: (String value) {
                       value = sanitizeTextField(value);
-                      this._data.nome = value;
+                      setState(() {
+                        this.name = value;
+                      });
                     },
                     onFieldSubmitted: validateFirstName,
                     maxLength: 24,
@@ -232,7 +259,9 @@ ${message}''';
                   TextFormField(
                       onSaved: (String value) {
                         value = sanitizePIva(value);
-                        this._data.pIva = value;
+                        setState(() {
+                          this.pIva = value;
+                        });
                       },
                       maxLength: 11,
                       decoration: InputDecoration(
@@ -243,7 +272,9 @@ ${message}''';
                   TextFormField(
                       onSaved: (String value) {
                         value = sanitizeTextField(value);
-                        this._data.email = value;
+                        setState(() {
+                          this.email = value;
+                        });
                       },
                       maxLength: 256,
                       decoration: InputDecoration(
@@ -253,7 +284,9 @@ ${message}''';
 
                   TextFormField(
                     onSaved: (String value) {
-                      this._data.request = value;
+                      setState(() {
+                        this.request = value;
+                      });
                     },
                     maxLength: 1000,
                     decoration: InputDecoration(
@@ -271,7 +304,9 @@ ${message}''';
                           padding: const EdgeInsets.symmetric(
                               vertical: 20.0, horizontal: 50.0),
                           color: Theme.of(context).accentColor,
-                          onPressed: onSubmitData,
+                          onPressed: () async {
+                            await onSubmitData(context);
+                          },
                           child: Text('INVIA',
                               style: TextStyle(color: Colors.white)),
                         ),

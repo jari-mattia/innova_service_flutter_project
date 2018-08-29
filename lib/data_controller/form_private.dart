@@ -15,22 +15,21 @@ class FormPrivate extends StatefulWidget {
   }
 }
 
-class _DataPrivate {
-  static String clientType = 'privato';
+class FormPrivateState extends State<FormPrivate> {
+  final _formKey = GlobalKey<FormState>();
+  String clientType = 'privato';
+  String date = '';
   String firstName = '';
   String lastName = '';
   String email = '';
   String fiscalCode = '';
   String request = '';
   String service = '';
-}
-
-class FormPrivateState extends State<FormPrivate> {
-  final _formKey = GlobalKey<FormState>();
-  _DataPrivate _data = new _DataPrivate();
   bool _autoValidate = false;
+  List<DropdownMenuItem<String>> _dropDownMenuItems;
   String _currentService;
   bool error;
+
   List<String> _items = [
     "Pulizie ",
     "Aree Verdi",
@@ -39,20 +38,23 @@ class FormPrivateState extends State<FormPrivate> {
     "Edilizia"
   ];
 
-  List<DropdownMenuItem<String>> _dropDownMenuItems;
+  Map<String, dynamic> data = new Map<String, dynamic>();
+
+  DocumentReference document = Firestore.instance.document(
+      'utenti/${currentUser.name}/richieste/${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll('/', '-')}');
 
   @override
   void initState() {
     _dropDownMenuItems = getDropDownMenuItems(_items);
     _currentService = null;
-    error = false;
+    this.error = false;
     super.initState();
   }
 
   void changedDropDownItem(String selectedCat) {
     setState(() {
       _currentService = selectedCat;
-      _data.service = selectedCat;
+      this.service = selectedCat;
     });
   }
 
@@ -69,14 +71,14 @@ class FormPrivateState extends State<FormPrivate> {
         """${googleSignIn.currentUser.displayName} ti ha inviato una richiesta di preventivo   
         \n puoi rispndere all'indirizzo ${userId}
         \n\n questo è il contenuto della richiesta : 
-        \n      'data': '${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll('/', '-')}'
-        \n      'cliente': privato,
-        \n      'nome': ${_data.firstName},
-        \n      'cognome': ${_data.lastName},
-        \n      'email': ${_data.email},
-        \n      'codice_fiscale': ${_data.fiscalCode},
-        \n      'servizio': ${_data.service},
-        \n      'richiesta': ${_data.request} """;
+        \n       data : '${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll('/', '-')}'
+        \n       client : privato,
+        \n       nome : ${this.firstName},
+        \n       cognome : ${this.lastName},
+        \n       email : ${this.email},
+        \n       codice_fiscale : ${this.fiscalCode},
+        \n       servizio : ${this.service},
+        \n       richiesta : ${this.request} """;
     var content = '''
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
@@ -122,6 +124,30 @@ ${message}''';
     });
   }
 
+  Future<void> _pickAndSend() async {
+    await sendOnFireStore();
+    DocumentSnapshot snapshot = await this.document.get();
+    if (snapshot.exists) {
+      print('transazione effettuata');
+
+      setState(() {
+        this.error = false;
+      });
+      await sendMail();
+    } else {
+      print('transazione fallita');
+
+      setState(() {
+        this.error = true;
+      });
+    }
+    await _resultMessage(context);
+  }
+
+  Future<void> sendOnFireStore() async {
+    await document.setData(this.data);
+  }
+
   void _resultMessage(BuildContext context) {
     String successMessage =
         'Grazie per averci inviato la richiesta \nTi ricontatteremo al più presto';
@@ -139,37 +165,34 @@ ${message}''';
     }
   }
 
-  void onSubmitData() {
+  Future<void> onSubmitData(BuildContext context) async {
     if (_formKey.currentState.validate()) {
 //    If all data are correct then save data to out variables
       _formKey.currentState.save();
 
-      Firestore.instance
-          .runTransaction((Transaction transaction) async {
-            DocumentReference document = Firestore.instance.document(
-                'utenti/${currentUser.name}/richieste/${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll('/', '-')}');
-            await document.setData(<String, String>{
-              'data':
-                  '${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll('/', '-')}',
-              'cliente': 'privato',
-              'nome': _data.firstName,
-              'cognome': _data.lastName,
-              'email': _data.email,
-              'codice_fiscale': _data.fiscalCode,
-              'servizio': _data.service,
-              'richiesta': _data.request
-            });
-          })
-          .whenComplete(() => sendMail())
-          .whenComplete(() => _resultMessage(context))
-          .whenComplete(_resetForm)
-          .whenComplete(() => setState(() => ++requests))
-          .whenComplete(() => Navigator.push(
-              context, MaterialPageRoute(builder: (context) => Router())))
-          .catchError((e) => print(e));
+      setState(() {
+        this.date = '${DateFormat
+            .yMd()
+            .add_jm()
+            .format(DateTime.now())
+            .replaceAll('/', '-')
+            .toString()}';
+        this.data = {
+              'data': '${this.date}',
+              'cliente': '${this.clientType}',
+              'nome': '${this.firstName}',
+              'cognome': '${this.lastName}',
+              'email': '${this.email}',
+              'codice_fiscale': '${this.fiscalCode}',
+              'servizio': '${this.service}',
+              'richiesta': '${this.request}'
+            };
+          });
+      await _pickAndSend();
     } else {
       setState(() {
         _autoValidate = true;
+        this.error = true;
       });
     }
   }
@@ -220,7 +243,7 @@ ${message}''';
                   TextFormField(
                     onSaved: (String value) {
                       value = sanitizeTextField(value);
-                      this._data.firstName = value;
+                      this.firstName = value;
                     },
                     onFieldSubmitted: validateFirstName,
                     maxLength: 24,
@@ -232,7 +255,7 @@ ${message}''';
                   TextFormField(
                     onSaved: (String value) {
                       value = sanitizeTextField(value);
-                      this._data.lastName = value;
+                      this.lastName = value;
                     },
                     onFieldSubmitted: validateLastName,
                     maxLength: 24,
@@ -244,7 +267,7 @@ ${message}''';
                   TextFormField(
                       onSaved: (String value) {
                         value = sanitizeFiscalCode(value);
-                        this._data.fiscalCode = value;
+                        this.fiscalCode = value;
                       },
                       maxLength: 16,
                       decoration: InputDecoration(
@@ -255,7 +278,7 @@ ${message}''';
                   TextFormField(
                       onSaved: (String value) {
                         value = sanitizeTextField(value);
-                        this._data.email = value;
+                        this.email = value;
                       },
                       maxLength: 256,
                       decoration: InputDecoration(
@@ -265,7 +288,7 @@ ${message}''';
 
                   TextFormField(
                     onSaved: (String value) {
-                      this._data.request = value;
+                      this.request = value;
                     },
                     maxLength: 1000,
                     decoration: InputDecoration(
@@ -283,7 +306,9 @@ ${message}''';
                           padding: const EdgeInsets.symmetric(
                               vertical: 20.0, horizontal: 50.0),
                           color: Theme.of(context).accentColor,
-                          onPressed: onSubmitData,
+                          onPressed: () async {
+                            await onSubmitData(context);
+                          },
                           child: Text('INVIA',
                               style: TextStyle(color: Colors.white)),
                         ),

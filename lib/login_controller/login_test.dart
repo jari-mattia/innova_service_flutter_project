@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:innova_service_flutter_project/common_doc/privacy_policy.dart';
 import 'package:innova_service_flutter_project/model/user.dart';
-import 'package:innova_service_flutter_project/route/home_page.dart';
 import 'package:innova_service_flutter_project/route/router.dart';
 import 'package:innova_service_flutter_project/main.dart';
 
