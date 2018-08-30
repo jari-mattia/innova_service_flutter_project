@@ -68,16 +68,16 @@ class FormCompanyState extends State<FormCompany> {
         'richiesta preventivo da ${googleSignIn.currentUser.displayName}';
     //var message = 'worked!!!';
     var message =
-        "${googleSignIn.currentUser.displayName} ti ha inviato una richiesta di preventivo" +
-            " \n puoi rispondere all'indirizzo ${userId}" +
-            " \n\n questo è il contenuto della richiesta : " +
-            " \n data: ${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll('/', '-')}," +
-            " \n cliente : azienda," +
-            " \n nome : ${this.name}," +
-            " \n email : ${this.email}," +
-            " \n partita iva : ${this.pIva}," +
-            " \n servizio : ${this.service}," +
-            " \n richiesta : ${this.request}";
+        """${googleSignIn.currentUser.displayName} ti ha inviato una richiesta di preventivo
+            \n puoi rispondere all'indirizzo ${userId}
+            \n\n questo è il contenuto della richiesta : 
+            \n data: ${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll('/', '-')},
+            \n cliente : azienda,
+            \n nome : ${this.name},
+            \n email : ${this.email},
+            \n partita iva : ${this.pIva},
+            \n servizio : ${this.service},
+            \n richiesta : ${this.request}""";
     var content = '''
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
@@ -158,7 +158,6 @@ ${message}''';
     if (this.error == false) {
       Scaffold.of(context).showSnackBar(SnackBar(
             content: Text(successMessage),
-            duration: Duration(seconds: 5),
             action: SnackBarAction(
               label: 'OK',
               onPressed: () => Navigator.push(
@@ -168,7 +167,6 @@ ${message}''';
     } else if (this.error == true) {
       Scaffold.of(context).showSnackBar(SnackBar(
             content: Text(errorMessage),
-            duration: Duration(seconds: 5),
             action: SnackBarAction(
                 label: 'RIPROVA', onPressed: () => _pickAndSend()),
           ));

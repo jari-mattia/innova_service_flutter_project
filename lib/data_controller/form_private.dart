@@ -155,7 +155,6 @@ ${message}''';
     if (this.error == false) {
       Scaffold.of(context).showSnackBar(SnackBar(
         content: Text(successMessage),
-        duration: Duration(seconds: 5),
         action: SnackBarAction(
           label: 'OK',
           onPressed: () => Navigator.push(
@@ -165,7 +164,6 @@ ${message}''';
     } else if (this.error == true) {
       Scaffold.of(context).showSnackBar(SnackBar(
         content: Text(errorMessage),
-        duration: Duration(seconds: 5),
         action: SnackBarAction(
             label: 'RIPROVA', onPressed: () => _pickAndSend()),
       ));

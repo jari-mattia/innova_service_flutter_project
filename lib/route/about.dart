@@ -156,7 +156,7 @@ class About extends StatelessWidget {
 
         Container(
             alignment: Alignment.center,
-            color: Colors.black87,
+            color: Theme.of(context).primaryColor,
             padding: EdgeInsets.symmetric(vertical: 30.0, horizontal: 30.0),
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -28,16 +29,19 @@ class _SendImageState extends State<SendImage> {
   }
 
   Future<UploadTaskSnapshot> sendImage() async {
+    UploadTaskSnapshot uploadImage;
     StorageReference storage = FirebaseStorage(
             app: FirebaseApp.instance,
             storageBucket: 'gs://innova-servicve.appspot.com')
         .ref();
-    StorageUploadTask uploadImage = storage
-        .child('${currentUser.name} - ${currentUser.email}')
-        .child('${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll(
+      uploadImage = await storage
+          .child('${currentUser.name} - ${currentUser.email}')
+          .child('${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll(
         '/', '-')}')
-        .putFile(image);
-    return await uploadImage.future;
+          .putFile(image)
+          .future;
+
+    return uploadImage;
   }
 
   Future<Null> _pickAndSend() async {
@@ -57,13 +61,12 @@ class _SendImageState extends State<SendImage> {
     var message =
         "${googleSignIn.currentUser.displayName} ti ha inviato una richiesta di preventivo tramite un immagine\n\n  ${uri.toString()}\n\n puoi rispndere all'indirizzo ${userId}";
     var content = '''
-Content-Type: text/html; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 to: ${to}
 from: ${from}
 subject: ${subject}
-
 ${message}''';
 
     var bytes = utf8.encode(content);
@@ -76,7 +79,7 @@ ${message}''';
 
     final http.Response response =
         await http.post(url, headers: header, body: body);
-    if (response.statusCode != 200) {
+    if (response.statusCode != 200 || uri == null) {
       setState(() {
         print('error: ' + response.statusCode.toString());
         this.error = true;
@@ -121,22 +124,20 @@ ${message}''';
         'Non è stato possibile inviare la richiesta. \nVerifichi di essere connesso alla rete';
 
     if (this.error == false) {
-    _scaffoldKey.currentState.showSnackBar(SnackBar(
-            content: Text(successMessage),
-            duration: Duration(seconds: 5),
-            action: SnackBarAction(
-                label: 'OK',
-                onPressed: () {
-                  Navigator.popAndPushNamed(context, '/home');
-                }),
-          ));
+      _scaffoldKey.currentState.showSnackBar(SnackBar(
+        content: Text(successMessage),
+        action: SnackBarAction(
+            label: 'OK',
+            onPressed: () {
+              Navigator.popAndPushNamed(context, '/home');
+            }),
+      ));
     } else if (this.error == true) {
       _scaffoldKey.currentState.showSnackBar(SnackBar(
-            content: Text(errorMessage),
-            duration: Duration(seconds: 5),
-            action: SnackBarAction(
-                label: 'RIPROVA', onPressed: () => _pickAndSend()),
-          ));
+        content: Text(errorMessage),
+        action:
+            SnackBarAction(label: 'RIPROVA', onPressed: () => _pickAndSend()),
+      ));
     } else if (error == null) {
       print('error è null');
     }
@@ -145,10 +146,9 @@ ${message}''';
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
-
       routes: <String, WidgetBuilder>{
         '/home': (BuildContext context) => new Router()
-      },//HandleCurrentScreen()
+      }, //HandleCurrentScreen()
       home: new Scaffold(
         key: _scaffoldKey,
         appBar: new AppBar(
@@ -161,13 +161,10 @@ ${message}''';
                 : new Image.file(image),
           ),
         ),
-
         floatingActionButton: Builder(
             builder: (context) => new FloatingActionButton(
                   onPressed: () {
-
-                    _pickAndSend()
-                        .whenComplete(() => _resultMessage());
+                    _pickAndSend().whenComplete(() => _resultMessage());
                   },
                   child: new Icon(Icons.camera_alt),
                 )),

@@ -162,8 +162,8 @@ class _HomeScaffoldState extends State<HomeScaffold> {
       fit: StackFit.expand,
       children: <Widget>[
         Image.asset('asset/images/home_bg.png', fit: BoxFit.cover),
-        SingleChildScrollView(
-          child: Card(
+        Column(
+          children : <Widget>[ Card(
             color: Color(0xDDFFFFFF),
             margin: EdgeInsets.only(left: 15.0, right: 15.0),
             child: Container(
@@ -181,7 +181,7 @@ class _HomeScaffoldState extends State<HomeScaffold> {
                     padding: EdgeInsets.symmetric(horizontal: 50.0),
                     child: Image.asset(
                       'asset/images/logo.png',
-                      width: 20.0,
+                      width: 15.0,
                     ),
                   ),
                   Container(
@@ -192,7 +192,7 @@ class _HomeScaffoldState extends State<HomeScaffold> {
                       "Facility Management \n a servizio di imprese e cittadini",
                       softWrap: true,
                       textAlign: TextAlign.center,
-                      textScaleFactor: 1.5,
+                      textScaleFactor: 1.2,
                     ),
                   ),
 
@@ -266,7 +266,7 @@ class _HomeScaffoldState extends State<HomeScaffold> {
               ),
             ),
           ),
-        ),
+        ]),
       ],
     );
   }
