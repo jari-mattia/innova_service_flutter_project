@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_core/firebase_core.dart';
@@ -196,8 +197,16 @@ ${message}''';
         ),
         floatingActionButton: Builder(
             builder: (context) => new FloatingActionButton(
-                  onPressed: () {
-                    _pickAndSend();
+                  onPressed: () async{
+                    var connectivityResult = await (new Connectivity().checkConnectivity());
+                    if (connectivityResult == ConnectivityResult.none) {
+                      _scaffoldKey.currentState.showSnackBar(SnackBar(
+                          duration: Duration(seconds: 5),
+                    content: Text('Nessuna Connessione !')));
+                    } else  {
+                      _pickAndSend();
+                    }
+
                   },
                   child: new Icon(Icons.camera_alt),
                 )),

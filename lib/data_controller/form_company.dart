@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:connectivity/connectivity.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -314,7 +315,14 @@ ${message}''';
                               vertical: 20.0, horizontal: 50.0),
                           color: Theme.of(context).accentColor,
                           onPressed: () async {
-                            await onSubmitData(context);
+                            var connectivityResult = await (new Connectivity().checkConnectivity());
+                            if (connectivityResult == ConnectivityResult.none) {
+                              Scaffold.of(context).showSnackBar(SnackBar(
+                                  duration: Duration(seconds: 5),
+                                  content: Text('Nessuna Connessione !')));
+                            } else  {
+                              onSubmitData(context);
+                            }
                           },
                           child: Text('INVIA',
                               style: TextStyle(color: Colors.white)),
