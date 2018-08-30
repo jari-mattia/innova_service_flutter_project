@@ -25,7 +25,7 @@ class _InterventionState extends State<Intervention> {
                   children: <Widget>[
                     Card(
                         margin: EdgeInsets.only(
-                            bottom: 10.0, left: 10.0, right: 10.0, top: 30.0),
+                            left: 10.0, right: 10.0,),
                         child: Container(
                           padding: EdgeInsets.symmetric(horizontal: 15.0),
                           child: Column(
