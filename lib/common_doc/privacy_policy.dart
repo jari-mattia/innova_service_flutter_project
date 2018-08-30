@@ -35,7 +35,7 @@ E-mail: """),
                       ),
                       recognizer: new TapGestureRecognizer()
                         ..onTap = () {
-                          contactUs('info@innovaservice.eu');
+                          contactUs('info@innovaservice.eu', context);
                         },
                     ),
                     textAlign: TextAlign.start,

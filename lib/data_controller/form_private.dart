@@ -16,6 +16,7 @@ class FormPrivate extends StatefulWidget {
 }
 
 class FormPrivateState extends State<FormPrivate> {
+
   final _formKey = GlobalKey<FormState>();
   String clientType = 'privato';
   String date = '';
@@ -43,6 +44,7 @@ class FormPrivateState extends State<FormPrivate> {
   DocumentReference document = Firestore.instance.document(
       'utenti/${currentUser.name}/richieste/${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll('/', '-')}');
 
+
   @override
   void initState() {
     _dropDownMenuItems = getDropDownMenuItems(_items);
@@ -58,7 +60,11 @@ class FormPrivateState extends State<FormPrivate> {
     });
   }
 
-  Future<Null> testingEmail(String userId, Map header) async {
+  Future<void> sendOnFireStore() async {
+    await document.setData(this.data);
+  }
+
+  Future<void> testingEmail(String userId, Map header) async {
     header['Accept'] = 'application/json';
     header['Content-type'] = 'application/json';
 
@@ -114,7 +120,7 @@ ${message}''';
     });
   }
 
-  sendMail() async {
+  Future<void> sendMail() async {
     await googleSignIn.currentUser.authHeaders.then((result) {
       var header = {
         'Authorization': result['Authorization'],
@@ -122,6 +128,32 @@ ${message}''';
       };
       testingEmail(googleSignIn.currentUser.email, header);
     });
+  }
+
+  Future<void> _resultMessage(BuildContext context) async {
+    String successMessage = 'Invio Riuscito. Grazie!';
+    String errorMessage = 'Ops, Invio Fallito !';
+
+    if (this.error == false) {
+      Scaffold.of(context).showSnackBar(SnackBar(
+        duration: Duration(seconds: 10),
+        content: Text(successMessage),
+        action: SnackBarAction(
+          label: 'OK',
+          onPressed: () => Navigator.push(
+              context, MaterialPageRoute(builder: (context) => Router())),
+        ),
+      ));
+    } else if (this.error == true) {
+      Scaffold.of(context).showSnackBar(SnackBar(
+        duration: Duration(seconds: 10),
+        content: Text(errorMessage),
+        action: SnackBarAction(
+            label: 'RIPROVA', onPressed: () => _pickAndSend()),
+      ));
+    } else if (error == null) {
+      print('error è null');
+    }
   }
 
   Future<void> _pickAndSend() async {
@@ -144,32 +176,12 @@ ${message}''';
     await _resultMessage(context);
   }
 
-  Future<void> sendOnFireStore() async {
-    await document.setData(this.data);
-  }
-
-  Future<void> _resultMessage(BuildContext context) async {
-    String successMessage = 'Invio Riuscito. Grazie!';
-    String errorMessage = 'Ops, Invio Fallito !';
-
-    if (this.error == false) {
-      Scaffold.of(context).showSnackBar(SnackBar(
-        content: Text(successMessage),
-        action: SnackBarAction(
-          label: 'OK',
-          onPressed: () => Navigator.push(
-              context, MaterialPageRoute(builder: (context) => Router())),
-        ),
-      ));
-    } else if (this.error == true) {
-      Scaffold.of(context).showSnackBar(SnackBar(
-        content: Text(errorMessage),
-        action: SnackBarAction(
-            label: 'RIPROVA', onPressed: () => _pickAndSend()),
-      ));
-    } else if (error == null) {
-      print('error è null');
-    }
+  void _resetForm() {
+    _formKey.currentState.reset();
+    setState(() {
+      _autoValidate = false;
+      _currentService = null;
+    });
   }
 
   Future<void> onSubmitData(BuildContext context) async {
@@ -195,7 +207,9 @@ ${message}''';
               'richiesta': '${this.request}'
             };
           });
+
       await _pickAndSend().whenComplete(() => _resetForm());
+
     } else {
       setState(() {
         _autoValidate = true;
@@ -204,13 +218,6 @@ ${message}''';
     }
   }
 
-  void _resetForm() {
-    _formKey.currentState.reset();
-    setState(() {
-      _autoValidate = false;
-      _currentService = null;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {

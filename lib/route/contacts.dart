@@ -30,7 +30,7 @@ class _ContactsState extends State<Contacts> {
                         children: <Widget>[
                           ListTile(
                             onTap: () {
-                              contactUs('tel:+393391418005');
+                              contactUs('tel:+393391418005', context);
                             },
                             leading: Image.asset('asset/images/phone.png',
                                 width: 50.0),
@@ -43,7 +43,7 @@ class _ContactsState extends State<Contacts> {
                           Divider(),
                           ListTile(
                             onTap: () {
-                              contactUs('mailto:info@innovaservice.eu');
+                              contactUs('mailto:info@innovaservice.eu', context);
                             },
                             leading: Image.asset('asset/images/letter.png',
                                 width: 50.0),
@@ -56,7 +56,7 @@ class _ContactsState extends State<Contacts> {
                           Divider(),
                           ListTile(
                             onTap: () {
-                              whatsAppOpen();
+                              whatsAppOpen(context);
                             },
                             leading: Image.asset('asset/images/whatsapp.png',
                                 width: 50.0),
@@ -69,7 +69,7 @@ class _ContactsState extends State<Contacts> {
                           Divider(),
                           ListTile(
                             onTap: () {
-                              contactUs('http://www.facebook.com');
+                              contactUs('http://www.facebook.com', context);
                             },
                             leading: Image.asset('asset/images/facebook.png',
                                 width: 50.0),
@@ -82,7 +82,7 @@ class _ContactsState extends State<Contacts> {
                           Divider(),
                           ListTile(
                             onTap: () {
-                              contactUs('http://innovaservice.eu/');
+                              contactUs('http://innovaservice.eu/', context);
                             },
                             leading: Image.asset('asset/images/worldwide.png',
                                 width: 50.0),
@@ -110,7 +110,7 @@ class _ContactsState extends State<Contacts> {
                           children: <Widget>[
                             ListTile(
                               onTap: () {
-                                contactUs('tel:+393391418005');
+                                contactUs('tel:+393391418005', context);
                               },
                               leading: Image.asset('asset/images/phone.png',
                                   width: 50.0),
@@ -123,7 +123,7 @@ class _ContactsState extends State<Contacts> {
                             Divider(),
                             ListTile(
                               onTap: () {
-                                contactUs('mailto:info@innovaservice.eu');
+                                contactUs('mailto:info@innovaservice.eu', context);
                               },
                               leading: Image.asset('asset/images/letter.png',
                                   width: 50.0),
@@ -136,7 +136,7 @@ class _ContactsState extends State<Contacts> {
                             Divider(),
                             ListTile(
                               onTap: () {
-                                whatsAppOpen();
+                                whatsAppOpen(context);
                               },
                               leading: Image.asset('asset/images/whatsapp.png',
                                   width: 50.0),
@@ -149,7 +149,7 @@ class _ContactsState extends State<Contacts> {
                             Divider(),
                             ListTile(
                               onTap: () {
-                                contactUs('http://www.facebook.com');
+                                contactUs('http://www.facebook.com', context);
                               },
                               leading: Image.asset('asset/images/facebook.png',
                                   width: 50.0),
@@ -162,7 +162,7 @@ class _ContactsState extends State<Contacts> {
                             Divider(),
                             ListTile(
                               onTap: () {
-                                contactUs('http://innovaservice.eu/');
+                                contactUs('http://innovaservice.eu/', context);
                               },
                               leading: Image.asset('asset/images/worldwide.png',
                                   width: 50.0),

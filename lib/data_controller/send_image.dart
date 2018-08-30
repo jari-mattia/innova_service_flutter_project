@@ -21,6 +21,7 @@ class _SendImageState extends State<SendImage> {
   bool send;
   bool error;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  Uri _uploadedImageUri;
 
   @override
   initState() {
@@ -28,28 +29,45 @@ class _SendImageState extends State<SendImage> {
     super.initState();
   }
 
-  Future<UploadTaskSnapshot> sendImage() async {
+  picker() async {
+    print('Picker is called');
+    double height = 1000.0;
+    double width = 1000.0;
+    File img = await ImagePicker.pickImage(
+        source: ImageSource.camera, maxHeight: height, maxWidth: width);
+//    File img = await ImagePicker.pickImage(source: ImageSource.gallery);
+    if (img != null) {
+      image = img;
+      setState(() {});
+    }
+  }
+
+  Future<UploadTaskSnapshot> sendImageOnStorage() async {
     UploadTaskSnapshot uploadImage;
     StorageReference storage = FirebaseStorage(
             app: FirebaseApp.instance,
             storageBucket: 'gs://innova-servicve.appspot.com')
         .ref();
-      uploadImage = await storage
-          .child('${currentUser.name} - ${currentUser.email}')
-          .child('${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll(
+    uploadImage = await storage
+        .child('${currentUser.name} - ${currentUser.email}')
+        .child('${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll(
         '/', '-')}')
-          .putFile(image)
-          .future;
+        .putFile(image)
+        .future;
 
     return uploadImage;
   }
 
-  Future<Null> _pickAndSend() async {
-    await picker();
-    sendImage().then((value) => value.downloadUrl).then((uri) => sendMail(uri));
+  checkUri() async {
+    Uri _uri;
+    await sendImageOnStorage().then((uri) => _uri = uri.downloadUrl);
+    if (_uri == null) throw Exception;
+    setState(() {
+      this.error = true;
+    });
   }
 
-  Future<Null> testingEmail(String userId, Map header, Uri uri) async {
+  Future<void> testingEmail(String userId, Map header, Uri uri) async {
     header['Accept'] = 'application/json';
     header['Content-type'] = 'application/json';
 
@@ -94,7 +112,7 @@ ${message}''';
     });
   }
 
-  sendMail(Uri uri) async {
+  Future<void> sendMail(Uri uri) async {
     await googleSignIn.currentUser.authHeaders.then((result) {
       var header = {
         'Authorization': result['Authorization'],
@@ -104,20 +122,7 @@ ${message}''';
     });
   }
 
-  picker() async {
-    print('Picker is called');
-    double height = 1000.0;
-    double width = 1000.0;
-    File img = await ImagePicker.pickImage(
-        source: ImageSource.camera, maxHeight: height, maxWidth: width);
-//    File img = await ImagePicker.pickImage(source: ImageSource.gallery);
-    if (img != null) {
-      image = img;
-      setState(() {});
-    }
-  }
-
-  void _resultMessage() {
+  Future<void> _resultMessage() async {
     String successMessage =
         'Grazie per averci inviato la richiesta \nTi ricontatteremo al più presto';
     String errorMessage =
@@ -125,6 +130,7 @@ ${message}''';
 
     if (this.error == false) {
       _scaffoldKey.currentState.showSnackBar(SnackBar(
+        duration: Duration(seconds: 10),
         content: Text(successMessage),
         action: SnackBarAction(
             label: 'OK',
@@ -134,6 +140,7 @@ ${message}''';
       ));
     } else if (this.error == true) {
       _scaffoldKey.currentState.showSnackBar(SnackBar(
+        duration: Duration(seconds: 10),
         content: Text(errorMessage),
         action:
             SnackBarAction(label: 'RIPROVA', onPressed: () => _pickAndSend()),
@@ -143,9 +150,35 @@ ${message}''';
     }
   }
 
+  Future<void> _pickAndSend() async {
+    await picker();
+    try {
+      await sendImageOnStorage()
+              .then((snapshot) => _uploadedImageUri = snapshot.downloadUrl);
+    } catch (e) {
+      print('transazione fallita');
+    }
+    if (_uploadedImageUri != null) {
+      print('transazione effettuata');
+
+      setState(() {
+        this.error = false;
+      });
+      await sendMail(_uploadedImageUri);
+    } else {
+      print('transazione fallita');
+
+      setState(() {
+        this.error = true;
+      });
+    }
+    await _resultMessage();
+  }
+
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
+
       routes: <String, WidgetBuilder>{
         '/home': (BuildContext context) => new Router()
       }, //HandleCurrentScreen()
@@ -164,7 +197,7 @@ ${message}''';
         floatingActionButton: Builder(
             builder: (context) => new FloatingActionButton(
                   onPressed: () {
-                    _pickAndSend().whenComplete(() => _resultMessage());
+                    _pickAndSend();
                   },
                   child: new Icon(Icons.camera_alt),
                 )),

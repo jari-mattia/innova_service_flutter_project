@@ -169,7 +169,7 @@ class About extends StatelessWidget {
                         padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
                         child: GestureDetector(
                             onTap: () {
-                              contactUs('http://www.facebook.com');
+                              contactUs('http://www.facebook.com', context);
                             },
                             child: ImageIcon(
                               AssetImage(
@@ -181,7 +181,7 @@ class About extends StatelessWidget {
                         padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
                         child: GestureDetector(
                             onTap: () {
-                              contactUs('http://innovaservice.eu/');
+                              contactUs('http://innovaservice.eu/', context);
                             },
                             child: ImageIcon(
                               AssetImage('asset/images/internet.png'),

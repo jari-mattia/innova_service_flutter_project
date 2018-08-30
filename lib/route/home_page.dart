@@ -22,7 +22,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   @override
   Widget build(BuildContext context) {
     return HomeScaffold();
@@ -85,8 +84,8 @@ class _WelcomeTextState extends State<WelcomeText> {
               child: OutlineButton(
                 borderSide: BorderSide(color: Theme.of(context).primaryColor),
                 textColor: Theme.of(context).primaryColor,
-                onPressed: ()  async{
-                   await _signOut();
+                onPressed: () async {
+                  await _signOut();
                 },
                 child: Text(
                   'Logout ',
@@ -127,7 +126,6 @@ class HomeScaffold extends StatefulWidget {
 }
 
 class _HomeScaffoldState extends State<HomeScaffold> {
-
   /*
  *
  *        AlertDialog
@@ -163,110 +161,114 @@ class _HomeScaffoldState extends State<HomeScaffold> {
       children: <Widget>[
         Image.asset('asset/images/home_bg.png', fit: BoxFit.cover),
         Column(
-          children : <Widget>[ Card(
-            color: Color(0xDDFFFFFF),
-            margin: EdgeInsets.only(left: 15.0, right: 15.0),
-            child: Container(
-              padding: EdgeInsets.only(
-                  bottom: 15.0, left: 30.0, right: 30.0, top: 8.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisSize: MainAxisSize.max,
-                children: <Widget>[
-                  Container(child: WelcomeText()),
-                  Divider(),
-                  Container(
-                    margin: EdgeInsets.symmetric(vertical: 16.0),
-                    padding: EdgeInsets.symmetric(horizontal: 50.0),
-                    child: Image.asset(
-                      'asset/images/logo.png',
-                      width: 15.0,
-                    ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.symmetric(vertical: 12.0),
-                    padding:
-                    EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
-                    child: Text(
-                      "Facility Management \n a servizio di imprese e cittadini",
-                      softWrap: true,
-                      textAlign: TextAlign.center,
-                      textScaleFactor: 1.2,
-                    ),
-                  ),
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.max,
+            children: <Widget>[
+              Card(
+                color: Color(0xDDFFFFFF),
+                margin: EdgeInsets.only(left: 15.0, right: 15.0),
+                child: Container(
+                  padding: EdgeInsets.only(
+                      bottom: 15.0, left: 30.0, right: 30.0, top: 8.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisSize: MainAxisSize.max,
+                    children: <Widget>[
+                      Container(child: WelcomeText()),
+                      Divider(),
+                      Container(
+                        margin: EdgeInsets.symmetric(vertical: 16.0),
+                        padding: EdgeInsets.symmetric(horizontal: 50.0),
+                        child: Image.asset(
+                          'asset/images/logo.png',
+                          width: 15.0,
+                        ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.symmetric(vertical: 12.0),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 20.0, vertical: 15.0),
+                        child: Text(
+                          "Facility Management \n a servizio di imprese e cittadini",
+                          softWrap: true,
+                          textAlign: TextAlign.center,
+                          textScaleFactor: 1.2,
+                        ),
+                      ),
 
-                  // Intervento button
-                  Container(
-                    margin: EdgeInsets.symmetric(vertical: 8.0),
-                    child: RaisedButton(
-                      padding: EdgeInsets.symmetric(vertical: 20.0),
-                      color: Theme.of(context).primaryColor,
-                      onPressed: () async {
-                        final List<DocumentSnapshot> requestsList =
-                        await currentUser.getRequestsList();
-                        Map<String, dynamic> requests =
-                            requestsList.elementAt(2).data;
-                        requests.forEach((k,v) => print(k+' : '+v) );
-                      },
-                      child: Text("RICHIEDI INTERVENTO"),
-                      textColor: Colors.white,
-                    ),
-                  ),
+                      // Intervento button
+                      Container(
+                        margin: EdgeInsets.symmetric(vertical: 8.0),
+                        child: RaisedButton(
+                          padding: EdgeInsets.symmetric(vertical: 20.0),
+                          color: Theme.of(context).primaryColor,
+                          onPressed: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => Intervention()),
+                              ),
+                          child: Text("RICHIEDI INTERVENTO"),
+                          textColor: Colors.white,
+                        ),
+                      ),
 
-                  // Preventivo Button
-                  Container(
-                    margin: EdgeInsets.symmetric(vertical: 8.0),
-                    child: RaisedButton(
-                      padding: EdgeInsets.symmetric(vertical: 20.0),
-                      color: Theme.of(context).accentColor,
-                      onPressed: () {
-                        (currentUser != null)
-                            ? Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => QuoteRequest()),
-                        )
-                            : _showDialog(context);
-                      },
-                      child: Text("FAI UN PREVENTIVO"),
-                      textColor: Colors.white,
-                    ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.symmetric(vertical: 8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Text.rich(TextSpan(
-                            style: TextStyle(fontSize: 12.0), text: "INVIACI")),
-                        Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 10.0),
-                            child: FloatingActionButton(
-                              onPressed: () {
-                                (currentUser != null)
-                                    ? Navigator.push(
+                      // Preventivo Button
+                      Container(
+                        margin: EdgeInsets.symmetric(vertical: 8.0),
+                        child: RaisedButton(
+                          padding: EdgeInsets.symmetric(vertical: 20.0),
+                          color: Theme.of(context).accentColor,
+                          onPressed: () {
+                            (currentUser != null)
+                                ? Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => SendImage()))
-                                    : _showDialog(context);
-                              },
-                              child: Icon(
-                                Icons.camera_alt,
-                                color: Colors.white,
-                              ),
-                              backgroundColor: Colors.black54,
-                            )),
-                        Text.rich(TextSpan(
-                            style: TextStyle(fontSize: 12.0), text: "UNA FOTO"))
-                      ],
-                    ),
-                  )
-                ],
+                                        builder: (context) => QuoteRequest()),
+                                  )
+                                : _showDialog(context);
+                          },
+                          child: Text("FAI UN PREVENTIVO"),
+                          textColor: Colors.white,
+                        ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.symmetric(vertical: 8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Text.rich(TextSpan(
+                                style: TextStyle(fontSize: 12.0),
+                                text: "INVIACI")),
+                            Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 10.0),
+                                child: FloatingActionButton(
+                                  onPressed: () {
+                                    (currentUser != null)
+                                        ? Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    SendImage()))
+                                        : _showDialog(context);
+                                  },
+                                  child: Icon(
+                                    Icons.camera_alt,
+                                    color: Colors.white,
+                                  ),
+                                  backgroundColor: Colors.black54,
+                                )),
+                            Text.rich(TextSpan(
+                                style: TextStyle(fontSize: 12.0),
+                                text: "UNA FOTO"))
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ),
-        ]),
+            ]),
       ],
     );
   }
@@ -344,7 +346,7 @@ class _HomeScaffoldState extends State<HomeScaffold> {
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) =>
-                                            InterventionRequest()),
+                                            Intervention()),
                                   );
                                 },
                                 child: Text("RICHIEDI INTERVENTO"),
@@ -359,10 +361,11 @@ class _HomeScaffoldState extends State<HomeScaffold> {
                                 onPressed: () {
                                   (currentUser != null)
                                       ? Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => QuoteRequest()),
-                                  )
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  QuoteRequest()),
+                                        )
                                       : _showDialog(context);
                                 },
                                 child: Text("FAI UN PREVENTIVO"),
@@ -384,9 +387,10 @@ class _HomeScaffoldState extends State<HomeScaffold> {
                                         onPressed: () {
                                           (currentUser != null)
                                               ? Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) => SendImage()))
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          SendImage()))
                                               : _showDialog(context);
                                         },
                                         child: Icon(
@@ -414,9 +418,8 @@ class _HomeScaffoldState extends State<HomeScaffold> {
 
   Widget _scaffold() {
     return Scaffold(
-
       appBar: AppBar(
-         title: Text('Innova Service'),
+        title: Text('Innova Service'),
         centerTitle: true,
       ),
       body: OrientationBuilder(builder: (context, orientation) {
@@ -434,4 +437,3 @@ class _HomeScaffoldState extends State<HomeScaffold> {
     return _scaffold();
   }
 }
-

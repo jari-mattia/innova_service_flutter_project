@@ -35,20 +35,26 @@ Future getImage(BuildContext context) async {
   }
 }
 
-Future contactUs(url) async {
+Future contactUs(url, BuildContext context) async {
   if (await canLaunch(url)) {
     await launch(url);
   } else {
-    throw 'non è possibile sul tuo dispositivo';
+    Scaffold.of(context).showSnackBar(SnackBar(
+        duration: Duration(seconds: 5),
+        content: Text("Whatsapp non è installato")));
+    print("Whatsapp non è installato");
   }
 }
 
-void whatsAppOpen() async {
+void whatsAppOpen(BuildContext context) async {
   bool hasWhatsApp = await FlutterLaunch.hasApp(name: "whatsapp");
 
   if (hasWhatsApp) {
     await FlutterLaunch.launchWathsApp(phone: "+393755070555", message: "");
   } else {
+    Scaffold.of(context).showSnackBar(SnackBar(
+        duration: Duration(seconds: 5),
+  content: Text("Whatsapp non è installato")));
     print("Whatsapp non è installato");
   }
 }

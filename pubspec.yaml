@@ -80,6 +80,7 @@ flutter:
   - asset/images/internet.png
   - asset/images/intervento_bg.png
   - asset/images/preventivo_bg.png
+  - asset/images/sms.png
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
