@@ -169,7 +169,7 @@ class _HomeScaffoldState extends State<HomeScaffold> {
                 margin: EdgeInsets.only(left: 15.0, right: 15.0),
                 child: Container(
                   padding: EdgeInsets.only(
-                      bottom: 15.0, left: 30.0, right: 30.0, top: 8.0),
+                      bottom: 5.0, left: 30.0, right: 30.0, top: 5.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     crossAxisAlignment: CrossAxisAlignment.stretch,

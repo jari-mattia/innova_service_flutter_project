@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_launch/flutter_launch.dart';
+//import 'package:flutter_launch/flutter_launch.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -47,7 +47,7 @@ Future contactUs(url, BuildContext context) async {
 }
 
 void whatsAppOpen(BuildContext context) async {
-  bool hasWhatsApp = await FlutterLaunch.hasApp(name: "whatsapp");
+  /*bool hasWhatsApp = await FlutterLaunch.hasApp(name: "whatsapp");
 
   if (hasWhatsApp) {
     await FlutterLaunch.launchWathsApp(phone: "+393755070555", message: "");
@@ -56,7 +56,16 @@ void whatsAppOpen(BuildContext context) async {
         duration: Duration(seconds: 5),
   content: Text("Whatsapp non è installato")));
     print("Whatsapp non è installato");
+  }*/
+  if (await canLaunch("whatsapp://send?phone=+393755070555")) {
+    await launch("whatsapp://send?phone=+393755070555");
+  } else {
+    Scaffold.of(context).showSnackBar(SnackBar(
+        duration: Duration(seconds: 5),
+        content: Text("Whatsapp non è installato")));
+    print("Whatsapp non è installato");
   }
+
 }
 
 /*  VALIDATOR */
