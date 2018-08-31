@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:innova_service_flutter_project/data_controller/functions.dart';
+import 'package:innova_service_flutter_project/main.dart';
 
 class Intervention extends StatefulWidget {
   @override
@@ -34,14 +35,14 @@ class _InterventionState extends State<Intervention> {
                               Divider(),
                               ListTile(
                                 onTap: () {
-                                  contactUs('tel:+393391418005', context);
+                                  contactUs('tel:$phoneNumber', context);
                                 },
                                 leading: Image.asset('asset/images/phone.png',
                                     width: 50.0),
                                 title: Text(
                                   "Chiamaci",
                                 ),
-                                subtitle: Text("3391418005",
+                                subtitle: Text("$phoneNumber",
                                     style: TextStyle(color: Color(0xFFCCCCCC))),
                               ),
                               Divider(),
@@ -61,7 +62,7 @@ class _InterventionState extends State<Intervention> {
                               Divider(),
                               ListTile(
                                 onTap: () {
-                                  contactUs('sms:+393391418005', context);
+                                  contactUs('sms:$phoneNumber', context);
                                 },
                                 leading: Image.asset('asset/images/sms.png',
                                     width: 50.0),

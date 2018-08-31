@@ -18,11 +18,13 @@ class _SplashScreenState extends State<SplashScreen> {
 
   }
 
-
+  // the starting point of App.. call a timer , try for login and routes to home
   startTime() async {
     var _duration = new Duration(seconds: 2);
     return new Timer(_duration, navigationPage);
   }
+
+  // try for silently login then routes to home
   void navigationPage() {
     if (googleCurrentUser == null)
       _authenticateWithGoogleSilently().then((fireUser) => (fireUser == null)
@@ -33,6 +35,7 @@ class _SplashScreenState extends State<SplashScreen> {
           .whenComplete(() => Navigator.of(context).pushReplacementNamed('/home')));
   }
 
+  // silently login
   Future<FirebaseUser> _authenticateWithGoogleSilently() async {
     if (googleCurrentUser == null) {
       googleCurrentUser = await googleSignIn.signInSilently();

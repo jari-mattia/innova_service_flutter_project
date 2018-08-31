@@ -3,14 +3,14 @@ import 'package:innova_service_flutter_project/data_controller/quote.dart';
 
 class MyServicesPage extends StatefulWidget {
   MyServicesPage(
-      Key key, this.av, this.bg, this.title, this.desc, this.color, this.arrow)
+      Key key, this._av, this._bg, this._title, this._desc, this._color, this._arrow)
       : super(key: key);
-  final String av;
-  final String bg;
-  final String title;
-  final String desc;
-  final Color color;
-  final Widget arrow;
+  final String _av;
+  final String _bg;
+  final String _title;
+  final String _desc;
+  final Color _color;
+  final Widget _arrow;
 
   @override
   _MyServicesPageState createState() => new _MyServicesPageState();
@@ -21,9 +21,9 @@ class _MyServicesPageState extends State<MyServicesPage> {
     return OrientationBuilder(builder: (context, orientation) {
       if (orientation == Orientation.portrait) {
         return Scaffold(
-          backgroundColor: widget.color,
+          backgroundColor: widget._color,
           appBar: AppBar(
-            backgroundColor: widget.color,
+            backgroundColor: widget._color,
             title: Text("Servizi"),
             centerTitle: true,
           ),
@@ -33,7 +33,7 @@ class _MyServicesPageState extends State<MyServicesPage> {
                 key: Key("page_bg"),
                 foregroundDecoration: BoxDecoration(color: Color(0x22000000)),
                 child: Image.asset(
-                  "asset/images/${widget.bg}",
+                  "asset/images/${widget._bg}",
                   alignment: Alignment.topCenter,
                 ),
               ),
@@ -62,7 +62,7 @@ class _MyServicesPageState extends State<MyServicesPage> {
                                     Padding(
                                       padding: EdgeInsets.only(bottom: 10.0),
                                       child: Text(
-                                        "${widget.title}",
+                                        "${widget._title}",
                                         textAlign: TextAlign.center,
                                         textScaleFactor: 1.4,
                                         style: TextStyle(
@@ -70,7 +70,7 @@ class _MyServicesPageState extends State<MyServicesPage> {
                                       ),
                                     ),
                                     Text(
-                                      "${widget.desc}",
+                                      "${widget._desc}",
                                       softWrap: true,
                                       textAlign: TextAlign.justify,
                                     ),
@@ -79,7 +79,7 @@ class _MyServicesPageState extends State<MyServicesPage> {
                                       child: RaisedButton(
                                         padding: EdgeInsets.symmetric(
                                             vertical: 20.0, horizontal: 60.0),
-                                        color: widget.color,
+                                        color: widget._color,
                                         onPressed: () {
                                           Navigator.push(
                                             context,
@@ -114,7 +114,7 @@ class _MyServicesPageState extends State<MyServicesPage> {
                             alignment: Alignment.center,
                             child: CircleAvatar(
                               backgroundImage:
-                                  AssetImage("asset/images/${widget.av}"),
+                                  AssetImage("asset/images/${widget._av}"),
                               radius: 80.0,
                             ),
                           ),
@@ -124,15 +124,15 @@ class _MyServicesPageState extends State<MyServicesPage> {
                   ),
                 ],
               ),
-              widget.arrow,
+              widget._arrow,
             ],
           ),
         );
       } else
         return Scaffold(
-          backgroundColor: widget.color,
+          backgroundColor: widget._color,
           appBar: AppBar(
-              backgroundColor: widget.color, title: Text("Innova Service")),
+              backgroundColor: widget._color, title: Text("Innova Service")),
           body: Stack(
             fit: StackFit.expand,
             children: <Widget>[
@@ -140,7 +140,7 @@ class _MyServicesPageState extends State<MyServicesPage> {
                 key: Key("page_bg"),
                 foregroundDecoration: BoxDecoration(color: Color(0x22000000)),
                 child: Image.asset(
-                  "asset/images/${widget.bg}",
+                  "asset/images/${widget._bg}",
                   fit: BoxFit.cover,
                 ),
               ),
@@ -169,7 +169,7 @@ class _MyServicesPageState extends State<MyServicesPage> {
                                     Padding(
                                       padding: EdgeInsets.only(bottom: 10.0),
                                       child: Text(
-                                        "${widget.title}",
+                                        "${widget._title}",
                                         textAlign: TextAlign.center,
                                         textScaleFactor: 1.4,
                                         style: TextStyle(
@@ -177,7 +177,7 @@ class _MyServicesPageState extends State<MyServicesPage> {
                                       ),
                                     ),
                                     Text(
-                                      "${widget.desc}",
+                                      "${widget._desc}",
                                       softWrap: true,
                                       textAlign: TextAlign.justify,
                                     ),
@@ -186,7 +186,7 @@ class _MyServicesPageState extends State<MyServicesPage> {
                                       child: RaisedButton(
                                         padding: EdgeInsets.symmetric(
                                             vertical: 20.0, horizontal: 200.0),
-                                        color: widget.color,
+                                        color: widget._color,
                                         onPressed: () {
                                           Navigator.push(
                                             context,
@@ -221,7 +221,7 @@ class _MyServicesPageState extends State<MyServicesPage> {
                             alignment: Alignment.center,
                             child: CircleAvatar(
                               backgroundImage:
-                                  AssetImage("asset/images/${widget.av}"),
+                                  AssetImage("asset/images/${widget._av}"),
                               radius: 80.0,
                             ),
                           ),
@@ -231,7 +231,7 @@ class _MyServicesPageState extends State<MyServicesPage> {
                   ),
                 ],
               ),
-              widget.arrow,
+              widget._arrow,
             ],
           ),
         );

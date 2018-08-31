@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:innova_service_flutter_project/data_controller/functions.dart';
+import 'package:innova_service_flutter_project/main.dart';
 
 class Contacts extends StatefulWidget {
   @override
@@ -30,27 +31,27 @@ class _ContactsState extends State<Contacts> {
                         children: <Widget>[
                           ListTile(
                             onTap: () {
-                              contactUs('tel:+393391418005', context);
+                              contactUs('tel:$phoneNumber', context);
                             },
                             leading: Image.asset('asset/images/phone.png',
                                 width: 50.0),
                             title: Text(
                               "Chiamaci",
                             ),
-                            subtitle: Text("3391418005",
+                            subtitle: Text("$phoneNumber",
                                 style: TextStyle(color: Color(0xFFCCCCCC))),
                           ),
                           Divider(),
                           ListTile(
                             onTap: () {
-                              contactUs('mailto:info@innovaservice.eu', context);
+                              contactUs('mailto:$emailAddress', context);
                             },
                             leading: Image.asset('asset/images/letter.png',
                                 width: 50.0),
                             title: Text(
                               "Email",
                             ),
-                            subtitle: Text("info@innovaservice.eu",
+                            subtitle: Text("$emailAddress",
                                 style: TextStyle(color: Color(0xFFCCCCCC))),
                           ),
                           Divider(),
@@ -69,7 +70,7 @@ class _ContactsState extends State<Contacts> {
                           Divider(),
                           ListTile(
                             onTap: () {
-                              contactUs('http://www.facebook.com', context);
+                              contactUs('$facebook', context);
                             },
                             leading: Image.asset('asset/images/facebook.png',
                                 width: 50.0),
@@ -82,12 +83,12 @@ class _ContactsState extends State<Contacts> {
                           Divider(),
                           ListTile(
                             onTap: () {
-                              contactUs('http://innovaservice.eu/', context);
+                              contactUs('$www', context);
                             },
                             leading: Image.asset('asset/images/worldwide.png',
                                 width: 50.0),
                             title: Text(
-                              "www.innovaservice.eu",
+                              "$www",
                             ),
                             subtitle: Text("visita il nostro sito",
                                 style: TextStyle(color: Color(0xFFCCCCCC))),
@@ -110,27 +111,27 @@ class _ContactsState extends State<Contacts> {
                           children: <Widget>[
                             ListTile(
                               onTap: () {
-                                contactUs('tel:+393391418005', context);
+                                contactUs('tel:$phoneNumber', context);
                               },
                               leading: Image.asset('asset/images/phone.png',
                                   width: 50.0),
                               title: Text(
                                 "Chiamaci",
                               ),
-                              subtitle: Text("3391418005",
+                              subtitle: Text("$phoneNumber",
                                   style: TextStyle(color: Color(0xFFCCCCCC))),
                             ),
                             Divider(),
                             ListTile(
                               onTap: () {
-                                contactUs('mailto:info@innovaservice.eu', context);
+                                contactUs('mailto:$emailAddress', context);
                               },
                               leading: Image.asset('asset/images/letter.png',
                                   width: 50.0),
                               title: Text(
                                 "Email",
                               ),
-                              subtitle: Text("info@innovaservice.eu",
+                              subtitle: Text("$emailAddress",
                                   style: TextStyle(color: Color(0xFFCCCCCC))),
                             ),
                             Divider(),
@@ -149,7 +150,7 @@ class _ContactsState extends State<Contacts> {
                             Divider(),
                             ListTile(
                               onTap: () {
-                                contactUs('http://www.facebook.com', context);
+                                contactUs('$facebook', context);
                               },
                               leading: Image.asset('asset/images/facebook.png',
                                   width: 50.0),
@@ -162,12 +163,12 @@ class _ContactsState extends State<Contacts> {
                             Divider(),
                             ListTile(
                               onTap: () {
-                                contactUs('http://innovaservice.eu/', context);
+                                contactUs('$www', context);
                               },
                               leading: Image.asset('asset/images/worldwide.png',
                                   width: 50.0),
                               title: Text(
-                                "www.innovaservice.eu",
+                                "$www",
                               ),
                               subtitle: Text("visita il nostro sito",
                                   style: TextStyle(color: Color(0xFFCCCCCC))),

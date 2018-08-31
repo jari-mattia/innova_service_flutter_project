@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:innova_service_flutter_project/data_controller/functions.dart';
 import 'package:innova_service_flutter_project/data_controller/quote.dart';
+import 'package:innova_service_flutter_project/main.dart';
 
 class About extends StatelessWidget {
   @override
@@ -169,7 +170,7 @@ class About extends StatelessWidget {
                         padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
                         child: GestureDetector(
                             onTap: () {
-                              contactUs('http://www.facebook.com', context);
+                              contactUs('$facebook', context);
                             },
                             child: ImageIcon(
                               AssetImage(
@@ -181,7 +182,7 @@ class About extends StatelessWidget {
                         padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
                         child: GestureDetector(
                             onTap: () {
-                              contactUs('http://innovaservice.eu/', context);
+                              contactUs('$www', context);
                             },
                             child: ImageIcon(
                               AssetImage('asset/images/internet.png'),

@@ -7,7 +7,12 @@ class QuoteRequest extends StatefulWidget {
   QuoteRequestState createState() => new QuoteRequestState();
 }
 
+/* this class is a wrapper for forms
+*  it provide a radio button to select the form type
+* */
 class QuoteRequestState extends State<QuoteRequest> {
+
+  // a default value of radio button
   var _groupValue = 'azienda';
 
   Widget build(BuildContext context) {

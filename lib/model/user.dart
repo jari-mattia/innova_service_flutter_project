@@ -4,6 +4,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:innova_service_flutter_project/main.dart';
 import 'package:intl/intl.dart';
 
+
+/*
+*  a class that represent a logged user -- using a singleton pattern
+* */
+
 class User {
   final FirebaseUser user;
   String email;

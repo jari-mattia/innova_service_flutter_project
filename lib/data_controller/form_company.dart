@@ -18,19 +18,28 @@ class FormCompany extends StatefulWidget {
 }
 
 class FormCompanyState extends State<FormCompany> {
+  // access to the state of Widget
   final _formKey = GlobalKey<FormState>();
-  String clientType = 'azienda';
-  String date = '';
-  String name = '';
-  String email = '';
-  String pIva = '';
-  String request = '';
-  String service = '';
+
+  // Client Data to send
+  Map<String, dynamic> _clientData = new Map<String, dynamic>();
+  String _clientType = 'azienda';
+  String _date = '';
+  String _name = '';
+  String _email = '';
+  String _pIva = '';
+  String _request = '';
+  String _service = '';
+
+  // a controller for the validation of data
   bool _autoValidate = false;
+
+  // a controller for the state of transaction
+  bool _error;
+
+  // a UI component of dropdown
   List<DropdownMenuItem<String>> _dropDownMenuItems;
   String _currentService;
-  bool error;
-
   List<String> _items = [
     "Pulizie ",
     "Aree Verdi",
@@ -38,86 +47,89 @@ class FormCompanyState extends State<FormCompany> {
     "Disinfestazioni",
     "Edilizia"
   ];
-  Map<String, dynamic> data = new Map<String, dynamic>();
 
-  DocumentReference document = Firestore.instance.document(
+  // a FireStore document reference -- place where stores client data
+  DocumentReference _document = Firestore.instance.document(
       'utenti/${currentUser.name}/richieste/${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll('/', '-')}');
 
   @override
   void initState() {
     _dropDownMenuItems = getDropDownMenuItems(_items);
     _currentService = null;
-    this.error = false;
+    this._error = false;
     super.initState();
   }
 
+  //  set a two variable with the choice of Client
   void changedDropDownItem(String selectedCat) {
     print("Selected city $selectedCat, we are going to refresh the UI");
     setState(() {
       _currentService = selectedCat;
-      this.service = selectedCat;
+      this._service = selectedCat;
     });
   }
 
+  // prepare and send the data to mail
   Future<void> _testingEmail(String userId, Map header) async {
     header['Accept'] = 'application/json';
     header['Content-type'] = 'application/json';
 
-    var from = userId;
-    var to = userId;
-    var subject =
+    var _from = userId;
+    var _to = emailAddress;
+    var _subject =
         'richiesta preventivo da ${googleSignIn.currentUser.displayName}';
     //var message = 'worked!!!';
-    var message =
+    var _message =
         """${googleSignIn.currentUser.displayName} ti ha inviato una richiesta di preventivo
-            \n puoi rispondere all'indirizzo ${userId}
+            \n puoi rispondere all'indirizzo $userId
             \n\n questo è il contenuto della richiesta : 
             \n data: ${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll('/', '-')},
             \n cliente : azienda,
-            \n nome : ${this.name},
-            \n email : ${this.email},
-            \n partita iva : ${this.pIva},
-            \n servizio : ${this.service},
-            \n richiesta : ${this.request}""";
-    var content = '''
+            \n nome : ${this._name},
+            \n email : ${this._email},
+            \n partita iva : ${this._pIva},
+            \n servizio : ${this._service},
+            \n richiesta : ${this._request}""";
+    var _content = '''
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-to: ${to}
-from: ${from}
-subject: ${subject}
+to: $_to
+from: $_from
+subject: $_subject
 
-${message}''';
+$_message''';
 
-    var bytes = utf8.encode(content);
-    var base64 = base64Encode(bytes);
-    var body = json.encode({'raw': base64});
+    var _bytes = utf8.encode(_content);
+    var _base64 = base64Encode(_bytes);
+    var _body = json.encode({'raw': _base64});
 
-    String url = 'https://www.googleapis.com/gmail/v1/users/' +
+    String _url = 'https://www.googleapis.com/gmail/v1/users/' +
         userId +
         '/messages/send';
 
-    final http.Response response =
-        await http.post(url, headers: header, body: body);
-    if (response.statusCode != 200) {
-      print('error: ' + response.statusCode.toString());
+    final http.Response _response =
+        await http.post(_url, headers: header, body: _body);
+    if (_response.statusCode != 200) {
+      print('error: ' + _response.statusCode.toString());
 
       setState(() {
-        this.error = true;
+        this._error = true;
       });
       return;
     } else {
-      final Map<String, dynamic> data = json.decode(response.body);
+      final Map<String, dynamic> _data = json.decode(_response.body);
 
-      print('ok: ' + response.statusCode.toString());
+      print('ok: ' + _response.statusCode.toString());
 
-      print(data);
+      print(_data);
       setState(() {
-        this.error = false;
+        this._error = false;
       });
     }
   }
 
+  //prepare the header of mail and call _testingEmail()
   sendMail() async {
     await googleSignIn.currentUser.authHeaders.then((result) async {
       var header = {
@@ -128,87 +140,60 @@ ${message}''';
     });
   }
 
+  // store data on FireStore
+  Future<void> sendOnFireStore() async {
+    await _document.setData(this._clientData);
+  }
+
+  // show a Snackbar() with the result of transaction
+  Future<void> _resultMessage(BuildContext context) async {
+    String successMessage = 'Invio Riuscito. Grazie!';
+    String errorMessage = 'Ops, Invio Fallito !';
+
+    if (this._error == false) {
+      Scaffold.of(context).showSnackBar(SnackBar(
+        duration: Duration(seconds: 10),
+        content: Text(successMessage),
+        action: SnackBarAction(
+          label: 'OK',
+          onPressed: () => Navigator.push(
+              context, MaterialPageRoute(builder: (context) => Router())),
+        ),
+      ));
+    } else if (this._error == true) {
+      Scaffold.of(context).showSnackBar(SnackBar(
+        duration: Duration(seconds: 10),
+        content: Text(errorMessage),
+        action: SnackBarAction(
+            label: 'RIPROVA', onPressed: () => _pickAndSend()),
+      ));
+    } else if (_error == null) {
+      print('error è null');
+    }
+  }
+
+  // call sendOnFireStore and check the result -> then send mail and show result
   Future<void> _pickAndSend() async {
     await sendOnFireStore();
-    DocumentSnapshot snapshot = await this.document.get();
+    DocumentSnapshot snapshot = await this._document.get();
     if (snapshot.exists) {
       print('transazione effettuata');
 
       setState(() {
-        this.error = false;
+        this._error = false;
       });
       await sendMail();
     } else {
       print('transazione fallita');
 
       setState(() {
-        this.error = true;
+        this._error = true;
       });
     }
     await _resultMessage(context);
   }
 
-  Future<void> sendOnFireStore() async {
-    await document.setData(this.data);
-  }
-
-  Future<void> _resultMessage(BuildContext context) async {
-    String successMessage = 'Invio Riuscito. Grazie!';
-    String errorMessage = 'Ops, Invio Fallito !';
-
-    if (this.error == false) {
-      Scaffold.of(context).showSnackBar(SnackBar(
-            duration: Duration(seconds: 10),
-            content: Text(successMessage),
-            action: SnackBarAction(
-              label: 'OK',
-              onPressed: () => Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => Router())),
-            ),
-          ));
-    } else if (this.error == true) {
-      Scaffold.of(context).showSnackBar(SnackBar(
-            duration: Duration(seconds: 10),
-            content: Text(errorMessage),
-            action: SnackBarAction(
-                label: 'RIPROVA', onPressed: () => _pickAndSend()),
-          ));
-    } else if (error == null) {
-      print('error è null');
-    }
-  }
-
-  Future<void> onSubmitData(BuildContext context) async {
-    if (_formKey.currentState.validate()) {
-//    If all data are correct then save data to out variables
-      _formKey.currentState.save();
-      setState(() {
-        this.date = '${DateFormat
-            .yMd()
-            .add_jm()
-            .format(DateTime.now())
-            .replaceAll('/', '-')
-            .toString()}';
-        this.data = {
-          'data': '${this.date}',
-          'cliente': '${this.clientType}',
-          'nome': '${this.name}',
-          'email': '${this.email}',
-          'partita iva': '${this.pIva}',
-          'servizio': '${this.service}',
-          'richiesta': '${this.request}'
-        };
-      });
-      await _pickAndSend().whenComplete(() => _resetForm());
-    } else {
-//    If all data are not valid then start auto validation.
-      setState(() {
-        _autoValidate = true;
-        this.error = true;
-      });
-    }
-  }
-
+  // reset the State of Widget
   void _resetForm() {
     _formKey.currentState.reset();
     setState(() {
@@ -216,6 +201,42 @@ ${message}''';
       _currentService = null;
     });
   }
+
+  /* check the vaildate of Client data then call _pickAndSend and reset the State of Widget
+  *   if data aren't valid sets the autovalidate to true
+  * */
+  Future<void> onSubmitData(BuildContext context) async {
+    if (_formKey.currentState.validate()) {
+//    If all data are correct then save data to out variables
+      _formKey.currentState.save();
+      setState(() {
+        this._date = '${DateFormat
+            .yMd()
+            .add_jm()
+            .format(DateTime.now())
+            .replaceAll('/', '-')
+            .toString()}';
+        this._clientData = {
+          'data': '${this._date}',
+          'cliente': '${this._clientType}',
+          'nome': '${this._name}',
+          'email': '${this._email}',
+          'partita iva': '${this._pIva}',
+          'servizio': '${this._service}',
+          'richiesta': '${this._request}'
+        };
+      });
+      await _pickAndSend().whenComplete(() => _resetForm());
+    } else {
+//    If all data are not valid then start auto validation.
+      setState(() {
+        _autoValidate = true;
+        this._error = true;
+      });
+    }
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -256,7 +277,7 @@ ${message}''';
                     onSaved: (String value) {
                       value = sanitizeTextField(value);
                       setState(() {
-                        this.name = value;
+                        this._name = value;
                       });
                     },
                     onFieldSubmitted: validateFirstName,
@@ -270,7 +291,7 @@ ${message}''';
                       onSaved: (String value) {
                         value = sanitizePIva(value);
                         setState(() {
-                          this.pIva = value;
+                          this._pIva = value;
                         });
                       },
                       maxLength: 11,
@@ -283,7 +304,7 @@ ${message}''';
                       onSaved: (String value) {
                         value = sanitizeTextField(value);
                         setState(() {
-                          this.email = value;
+                          this._email = value;
                         });
                       },
                       maxLength: 256,
@@ -295,7 +316,7 @@ ${message}''';
                   TextFormField(
                     onSaved: (String value) {
                       setState(() {
-                        this.request = value;
+                        this._request = value;
                       });
                     },
                     maxLength: 1000,

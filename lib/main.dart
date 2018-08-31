@@ -5,11 +5,15 @@ import 'package:innova_service_flutter_project/login_controller/splash_screen.da
 import 'package:innova_service_flutter_project/model/user.dart';
 import 'package:innova_service_flutter_project/route/router.dart';
 
+final String emailAddress = 'clienti@innovaservice.eu';
+final String phoneNumber = '+393391418005';
+final String facebook = 'https://www.facebook.com/InnovaService.eu/';
+final String www = 'http://innovaservice.eu';
 
 User currentUser;
-FirebaseAuth fireAuth = FirebaseAuth.instance;
+final FirebaseAuth fireAuth = FirebaseAuth.instance;
 FirebaseUser fireUser;
-GoogleSignIn googleSignIn = new GoogleSignIn(
+final GoogleSignIn googleSignIn = new GoogleSignIn(
   scopes: <String>[
     'https://www.googleapis.com/auth/gmail.send',
     'https://www.googleapis.com/auth/gmail.compose',

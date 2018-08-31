@@ -17,21 +17,29 @@ class FormPrivate extends StatefulWidget {
 }
 
 class FormPrivateState extends State<FormPrivate> {
-
+  // access to the state of Widget
   final _formKey = GlobalKey<FormState>();
-  String clientType = 'privato';
-  String date = '';
-  String firstName = '';
-  String lastName = '';
-  String email = '';
-  String fiscalCode = '';
-  String request = '';
-  String service = '';
+
+  // Client Data to send
+  Map<String, dynamic> _clientData = new Map<String, dynamic>();
+  String _clientType = 'privato';
+  String _date = '';
+  String _firstName = '';
+  String _lastName = '';
+  String _email = '';
+  String _fiscalCode = '';
+  String _request = '';
+  String _service = '';
+
+  // a controller for the validation of data
   bool _autoValidate = false;
+
+  // a controller for the state of transaction
+  bool _error;
+
+  // a UI component of dropdown
   List<DropdownMenuItem<String>> _dropDownMenuItems;
   String _currentService;
-  bool error;
-
   List<String> _items = [
     "Pulizie ",
     "Aree Verdi",
@@ -40,87 +48,27 @@ class FormPrivateState extends State<FormPrivate> {
     "Edilizia"
   ];
 
-  Map<String, dynamic> data = new Map<String, dynamic>();
-
-  DocumentReference document = Firestore.instance.document(
+  // a FireStore document reference -- place where stores client data
+  DocumentReference _document = Firestore.instance.document(
       'utenti/${currentUser.name}/richieste/${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll('/', '-')}');
-
 
   @override
   void initState() {
     _dropDownMenuItems = getDropDownMenuItems(_items);
     _currentService = null;
-    this.error = false;
+    this._error = false;
     super.initState();
   }
 
+  //  set a two variable with the choice of Client
   void changedDropDownItem(String selectedCat) {
     setState(() {
       _currentService = selectedCat;
-      this.service = selectedCat;
+      this._service = selectedCat;
     });
   }
 
-  Future<void> sendOnFireStore() async {
-    await document.setData(this.data);
-  }
-
-  Future<void> testingEmail(String userId, Map header) async {
-    header['Accept'] = 'application/json';
-    header['Content-type'] = 'application/json';
-
-    var from = userId;
-    var to = userId;
-    var subject =
-        'richiesta preventivo da ${googleSignIn.currentUser.displayName}';
-    //var message = 'worked!!!';
-    var message =
-        """${googleSignIn.currentUser.displayName} ti ha inviato una richiesta di preventivo   
-        \n puoi rispndere all'indirizzo ${userId}
-        \n\n questo è il contenuto della richiesta : 
-        \n       data : '${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll('/', '-')}'
-        \n       client : privato,
-        \n       nome : ${this.firstName},
-        \n       cognome : ${this.lastName},
-        \n       email : ${this.email},
-        \n       codice_fiscale : ${this.fiscalCode},
-        \n       servizio : ${this.service},
-        \n       richiesta : ${this.request} """;
-    var content = '''
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-to: ${to}
-from: ${from}
-subject: ${subject}
-
-${message}''';
-
-    var bytes = utf8.encode(content);
-    var base64 = base64Encode(bytes);
-    var body = json.encode({'raw': base64});
-
-    String url = 'https://www.googleapis.com/gmail/v1/users/' +
-        userId +
-        '/messages/send';
-
-    final http.Response response =
-        await http.post(url, headers: header, body: body);
-    if (response.statusCode != 200) {
-      setState(() {
-        print('error: ' + response.statusCode.toString());
-        this.error = true;
-      });
-      return;
-    }
-    final Map<String, dynamic> data = json.decode(response.body);
-    setState(() {
-      print('ok: ' + response.statusCode.toString());
-      this.error = false;
-      print(data);
-    });
-  }
-
+  //prepare the header of mail and call _testingEmail()
   Future<void> sendMail() async {
     await googleSignIn.currentUser.authHeaders.then((result) {
       var header = {
@@ -131,11 +79,74 @@ ${message}''';
     });
   }
 
+  // prepare and send the data to mail
+  Future<void> testingEmail(String userId, Map header) async {
+    header['Accept'] = 'application/json';
+    header['Content-type'] = 'application/json';
+
+    var from = userId;
+    var to = emailAddress;
+    var subject =
+        'richiesta preventivo da ${googleSignIn.currentUser.displayName}';
+    //var message = 'worked!!!';
+    var message =
+    """${googleSignIn.currentUser.displayName} ti ha inviato una richiesta di preventivo   
+        \n puoi rispndere all'indirizzo $userId
+        \n\n questo è il contenuto della richiesta : 
+        \n       data : '${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll('/', '-')}'
+        \n       client : privato,
+        \n       nome : ${this._firstName},
+        \n       cognome : ${this._lastName},
+        \n       email : ${this._email},
+        \n       codice_fiscale : ${this._fiscalCode},
+        \n       servizio : ${this._service},
+        \n       richiesta : ${this._request} """;
+    var content = '''
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+to: $to
+from: $from
+subject: $subject
+
+$message''';
+
+    var bytes = utf8.encode(content);
+    var base64 = base64Encode(bytes);
+    var body = json.encode({'raw': base64});
+
+    String url = 'https://www.googleapis.com/gmail/v1/users/' +
+        userId +
+        '/messages/send';
+
+    final http.Response response =
+    await http.post(url, headers: header, body: body);
+    if (response.statusCode != 200) {
+      setState(() {
+        print('error: ' + response.statusCode.toString());
+        this._error = true;
+      });
+      return;
+    }
+    final Map<String, dynamic> data = json.decode(response.body);
+    setState(() {
+      print('ok: ' + response.statusCode.toString());
+      this._error = false;
+      print(data);
+    });
+  }
+
+  // store data on FireStore
+  Future<void> sendOnFireStore() async {
+    await _document.setData(this._clientData);
+  }
+
+  // show a snackbar with the result of transaction
   Future<void> _resultMessage(BuildContext context) async {
     String successMessage = 'Invio Riuscito. Grazie!';
     String errorMessage = 'Ops, Invio Fallito !';
 
-    if (this.error == false) {
+    if (this._error == false) {
       Scaffold.of(context).showSnackBar(SnackBar(
         duration: Duration(seconds: 10),
         content: Text(successMessage),
@@ -145,38 +156,40 @@ ${message}''';
               context, MaterialPageRoute(builder: (context) => Router())),
         ),
       ));
-    } else if (this.error == true) {
+    } else if (this._error == true) {
       Scaffold.of(context).showSnackBar(SnackBar(
         duration: Duration(seconds: 10),
         content: Text(errorMessage),
         action: SnackBarAction(
             label: 'RIPROVA', onPressed: () => _pickAndSend()),
       ));
-    } else if (error == null) {
+    } else if (_error == null) {
       print('error è null');
     }
   }
 
+  // call sendOnFireStore and check the result -> then send mail and show result
   Future<void> _pickAndSend() async {
     await sendOnFireStore();
-    DocumentSnapshot snapshot = await this.document.get();
+    DocumentSnapshot snapshot = await this._document.get();
     if (snapshot.exists) {
       print('transazione effettuata');
 
       setState(() {
-        this.error = false;
+        this._error = false;
       });
       await sendMail();
     } else {
       print('transazione fallita');
 
       setState(() {
-        this.error = true;
+        this._error = true;
       });
     }
     await _resultMessage(context);
   }
 
+  // reset the State of Widget
   void _resetForm() {
     _formKey.currentState.reset();
     setState(() {
@@ -185,27 +198,30 @@ ${message}''';
     });
   }
 
+  /* check the vaildate of Client data then call _pickAndSend and reset the State of Widget
+  *   if data aren't valid sets the autovalidate to true
+  * */
   Future<void> onSubmitData(BuildContext context) async {
     if (_formKey.currentState.validate()) {
 //    If all data are correct then save data to out variables
       _formKey.currentState.save();
 
       setState(() {
-        this.date = '${DateFormat
+        this._date = '${DateFormat
             .yMd()
             .add_jm()
             .format(DateTime.now())
             .replaceAll('/', '-')
             .toString()}';
-        this.data = {
-              'data': '${this.date}',
-              'cliente': '${this.clientType}',
-              'nome': '${this.firstName}',
-              'cognome': '${this.lastName}',
-              'email': '${this.email}',
-              'codice_fiscale': '${this.fiscalCode}',
-              'servizio': '${this.service}',
-              'richiesta': '${this.request}'
+        this._clientData = {
+              'data': '${this._date}',
+              'cliente': '${this._clientType}',
+              'nome': '${this._firstName}',
+              'cognome': '${this._lastName}',
+              'email': '${this._email}',
+              'codice_fiscale': '${this._fiscalCode}',
+              'servizio': '${this._service}',
+              'richiesta': '${this._request}'
             };
           });
 
@@ -214,10 +230,11 @@ ${message}''';
     } else {
       setState(() {
         _autoValidate = true;
-        this.error = true;
+        this._error = true;
       });
     }
   }
+
 
 
   @override
@@ -258,7 +275,7 @@ ${message}''';
                   TextFormField(
                     onSaved: (String value) {
                       value = sanitizeTextField(value);
-                      this.firstName = value;
+                      this._firstName = value;
                     },
                     onFieldSubmitted: validateFirstName,
                     maxLength: 24,
@@ -270,7 +287,7 @@ ${message}''';
                   TextFormField(
                     onSaved: (String value) {
                       value = sanitizeTextField(value);
-                      this.lastName = value;
+                      this._lastName = value;
                     },
                     onFieldSubmitted: validateLastName,
                     maxLength: 24,
@@ -282,7 +299,7 @@ ${message}''';
                   TextFormField(
                       onSaved: (String value) {
                         value = sanitizeFiscalCode(value);
-                        this.fiscalCode = value;
+                        this._fiscalCode = value;
                       },
                       maxLength: 16,
                       decoration: InputDecoration(
@@ -293,7 +310,7 @@ ${message}''';
                   TextFormField(
                       onSaved: (String value) {
                         value = sanitizeTextField(value);
-                        this.email = value;
+                        this._email = value;
                       },
                       maxLength: 256,
                       decoration: InputDecoration(
@@ -303,7 +320,7 @@ ${message}''';
 
                   TextFormField(
                     onSaved: (String value) {
-                      this.request = value;
+                      this._request = value;
                     },
                     maxLength: 1000,
                     decoration: InputDecoration(

@@ -1,91 +1,52 @@
 import 'dart:async';
-import 'dart:io';
-
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-//import 'package:flutter_launch/flutter_launch.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 
-
-File _image;
-
-Future getImage(BuildContext context) async {
-  var image = await ImagePicker.pickImage(source: ImageSource.camera);
-  if (image != null) {
-    _image = new File(image.path);
-
-    StorageReference storage = FirebaseStorage(
-            app: FirebaseApp.instance,
-            storageBucket: 'gs://innova-servicve.appspot.com')
-        .ref();
-    StorageUploadTask uploadImage = storage
-        .child('utente')
-        .child('${DateFormat.yMd().add_jm().format(DateTime.now())}')
-        .putFile(_image);
-    await uploadImage.future
-        .whenComplete(() => Scaffold.of(context).showSnackBar(SnackBar(
-              content: Text("""Grazie per averci inviato la richiesta \nTi ricontatteremo al più presto """),
-              duration: Duration(seconds: 4),
-            )))
-        .catchError((e) => print(e));
-  }
-}
-
+// launches an url
 Future contactUs(url, BuildContext context) async {
   if (await canLaunch(url)) {
     await launch(url);
   } else {
     Scaffold.of(context).showSnackBar(SnackBar(
         duration: Duration(seconds: 5),
-        content: Text("Whatsapp non è installato")));
-    print("Whatsapp non è installato");
+        content: Text("applicazione non trovata su questo dispositivo")));
   }
 }
 
+// launches WhatsApp
 void whatsAppOpen(BuildContext context) async {
-  /*bool hasWhatsApp = await FlutterLaunch.hasApp(name: "whatsapp");
-
-  if (hasWhatsApp) {
-    await FlutterLaunch.launchWathsApp(phone: "+393755070555", message: "");
-  } else {
-    Scaffold.of(context).showSnackBar(SnackBar(
-        duration: Duration(seconds: 5),
-  content: Text("Whatsapp non è installato")));
-    print("Whatsapp non è installato");
-  }*/
   if (await canLaunch("whatsapp://send?phone=+393755070555")) {
     await launch("whatsapp://send?phone=+393755070555");
   } else {
     Scaffold.of(context).showSnackBar(SnackBar(
         duration: Duration(seconds: 5),
         content: Text("Whatsapp non è installato")));
-    print("Whatsapp non è installato");
   }
 
 }
 
 /*  VALIDATOR */
 
+// trim the field and convert in lower case
 String sanitizeTextField(String value) {
   if (value.isNotEmpty) value = value.trim().toLowerCase();
   return value;
 }
 
+// trim the field and convert in Upper Case
 String sanitizeFiscalCode(String value) {
   if (value.isNotEmpty) value = value.trim().toUpperCase();
   return value;
 }
 
+// trim the field
 String sanitizePIva(String value) {
   if (value.isNotEmpty) value = value.trim();
   return value;
 }
 
-
+// field must have 3 char at least
 String validateFirstName(String value) {
   if (value.length < 3)
     return 'il nome deve contenere almeno 3 caratteri';
@@ -93,6 +54,7 @@ String validateFirstName(String value) {
     return null;
 }
 
+// field must have 3 char at least
 String validateLastName(String value) {
   if (value.length < 3)
     return 'il cognome deve contenere almeno 3 caratteri';
@@ -100,7 +62,7 @@ String validateLastName(String value) {
     return null;
 }
 
-
+// check for a valid email address through Reg Ex
 String validateEmail(String value) {
   Pattern pattern =
       r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
@@ -111,6 +73,8 @@ String validateEmail(String value) {
     return null;
 }
 
+// validate a password -- this method is never used after the introduction of Google  Sign in
+/*
 String validatePassword(String value) {
   Pattern pattern =
       r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{8,20}$';
@@ -120,7 +84,9 @@ String validatePassword(String value) {
   else
     return null;
 }
+*/
 
+// validates a Fiscal Code through a Reg Ex
 String validateFiscalCode(String value) {
   Pattern pattern =
       r'^[a-zA-Z]{6}[0-9]{2}[a-zA-Z][0-9]{2}[a-zA-Z][0-9]{3}[a-zA-Z]$';
@@ -131,6 +97,7 @@ String validateFiscalCode(String value) {
     return null;
 }
 
+// validates a Fiscal Code through a Reg Ex
 String validatePIva(String value) {
   Pattern pattern = r'^[0-9]{11}$';
   RegExp regex = new RegExp(pattern);
@@ -140,6 +107,7 @@ String validatePIva(String value) {
     return null;
 }
 
+// request cannot be empty
 String validateRequest(String value) {
   if (value.isEmpty)
     return 'inserisci la richiesta ';

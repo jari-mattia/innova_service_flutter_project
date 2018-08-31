@@ -4,9 +4,6 @@ import 'package:innova_service_flutter_project/route/contacts.dart';
 import 'package:innova_service_flutter_project/route/home_page.dart';
 import 'package:innova_service_flutter_project/route/services_page_view.dart';
 
-
-
-
 class Router extends StatefulWidget {
   @override
   _RouterState createState() => new _RouterState();
@@ -15,21 +12,21 @@ class Router extends StatefulWidget {
 class _RouterState extends State<Router> {
   int currentTab = 0;
 
-  MyHomePage home;
-  MyServicesPageView services;
-  About aboutUs;
-  Contacts contacts;
-  List<Widget> pages;
-  Widget currentPage;
+  MyHomePage _home;
+  MyServicesPageView _services;
+  About _aboutUs;
+  Contacts _contacts;
+  List<Widget> _pages;
+  Widget _currentPage;
 
   @override
   void initState() {
-    home = MyHomePage();
-    services = MyServicesPageView();
-    aboutUs = About();
-    contacts = Contacts();
-    pages = [home, services, aboutUs, contacts];
-    currentPage = home;
+    _home = MyHomePage();
+    _services = MyServicesPageView();
+    _aboutUs = About();
+    _contacts = Contacts();
+    _pages = [_home, _services, _aboutUs, _contacts];
+    _currentPage = _home;
     super.initState();
   }
 
@@ -37,14 +34,14 @@ class _RouterState extends State<Router> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: currentPage,
+        body: _currentPage,
         bottomNavigationBar: BottomNavigationBar(
         fixedColor: Theme.of(context).primaryColor,
           currentIndex: currentTab,
           onTap: (int index) {
             setState(() {
               currentTab = index;
-              currentPage = pages[index];
+              _currentPage = _pages[index];
             });
           },
 type: BottomNavigationBarType.shifting,

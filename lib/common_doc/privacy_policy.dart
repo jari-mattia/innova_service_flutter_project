@@ -1,7 +1,10 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:innova_service_flutter_project/data_controller/functions.dart';
+import 'package:innova_service_flutter_project/main.dart';
 
+
+/* A page that shows the privacy police */
 class PrivacyPolicy extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -29,13 +32,13 @@ Il Responsabile della protezione dei dati può essere contattato tramite
 E-mail: """),
                   Text.rich(
                     TextSpan(
-                      text: 'info@innovaservice.eu',
+                      text: '$emailAddress',
                       style: new TextStyle(
                         color: Colors.blue,
                       ),
                       recognizer: new TapGestureRecognizer()
                         ..onTap = () {
-                          contactUs('info@innovaservice.eu', context);
+                          contactUs(emailAddress, context);
                         },
                     ),
                     textAlign: TextAlign.start,
