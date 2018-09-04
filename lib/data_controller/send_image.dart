@@ -30,10 +30,13 @@ class _SendImageState extends State<SendImage> {
   // the Uri where stored the image
   Uri _uploadedImageUri;
 
+  bool _transactionIndicator;
+
   @override
   initState() {
     this._error = false;
     super.initState();
+    _transactionIndicator = false;
   }
 
   // get an image from camera
@@ -138,7 +141,7 @@ $message''';
         action: SnackBarAction(
             label: 'OK',
             onPressed: () {
-              Navigator.popAndPushNamed(context, '/home');
+              Navigator.pop(context);
             }),
       ));
     } else if (this._error == true) {
@@ -152,13 +155,29 @@ $message''';
       print('error è null');
     }
   }
+  _showDialog(BuildContext context) {
+    // flutter defined function
+    if(!_transactionIndicator)
+     showDialog(
+      context: context,
+      builder: (context) {
+        // return object of type Dialog
+        return AlertDialog(
+          content : new CircularProgressIndicator(),
+        );
+              },
+            );
+      }
 
   // call picker -> then sendImageOnStorage() and check the Uri result -> then send mail and show result
   Future<void> _pickAndSend() async {
     await picker();
     try {
       await sendImageOnStorage()
-              .then((snapshot) => _uploadedImageUri = snapshot.downloadUrl);
+              .then((snapshot) {
+                _uploadedImageUri = snapshot.downloadUrl;
+                _showDialog(context);
+              });
     } catch (e) {
       print('transazione fallita');
     }
@@ -167,6 +186,7 @@ $message''';
 
       setState(() {
         this._error = false;
+        this._transactionIndicator = true;
       });
       await _sendMail(_uploadedImageUri);
     } else {
@@ -174,8 +194,10 @@ $message''';
 
       setState(() {
         this._error = true;
+        this._transactionIndicator = true;
       });
     }
+
     await _resultMessage();
   }
 
@@ -189,6 +211,10 @@ $message''';
       home: new Scaffold(
         key: _scaffoldKey,
         appBar: new AppBar(
+          leading: IconButton(icon: Icon(Icons.arrow_back_ios), onPressed: () {
+            Navigator.pop(context);
+          }),
+          automaticallyImplyLeading: true,
           title: new Text('Inviaci una Foto'),
         ),
         body: new Container(

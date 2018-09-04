@@ -39,10 +39,9 @@ class _LoginState extends State<Login> {
         title: Text('LogIn'),
         actions: <Widget>[],
       ),
-      body: SafeArea(
-        bottom: false,
-        top: false,
-        child: Container(
+      body: Stack(
+        fit: StackFit.expand,
+         children :<Widget>[ Container(
           color: Theme.of(context).primaryColor,
           child: Center(
             child: SingleChildScrollView(
@@ -149,7 +148,7 @@ class _LoginState extends State<Login> {
             ),
           ),
         ),
-      ),
+      ]),
     );
   }
 

@@ -135,8 +135,8 @@ class _HomeScaffoldState extends State<HomeScaffold> {
       builder: (context) {
         // return object of type Dialog
         return AlertDialog(
-          title: new Text("Devi accedere per proseguire"),
-          actions: <Widget>[
+          content : new Text("Devi accedere per proseguire"),
+          actions : <Widget>[
             // usually buttons at the bottom of the dialog
             new FlatButton(
               child: new Text("ACCEDI",
