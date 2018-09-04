@@ -17,7 +17,6 @@ class SendImage extends StatefulWidget {
 }
 
 class _SendImageState extends State<SendImage> {
-
   // an image picked from picker()
   File _image;
 
@@ -30,13 +29,11 @@ class _SendImageState extends State<SendImage> {
   // the Uri where stored the image
   Uri _uploadedImageUri;
 
-  bool _transactionIndicator;
 
   @override
   initState() {
     this._error = false;
     super.initState();
-    _transactionIndicator = false;
   }
 
   // get an image from camera
@@ -60,13 +57,25 @@ class _SendImageState extends State<SendImage> {
             app: FirebaseApp.instance,
             storageBucket: 'gs://innova-servicve.appspot.com')
         .ref();
-    uploadImage = await storage
-        .child('${currentUser.name} - ${currentUser.email}')
-        .child('${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll(
-        '/', '-')}')
-        .putFile(_image)
-        .future;
-
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+      return Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }));
+    try {
+      uploadImage = await storage
+          .child('${currentUser.name} - ${currentUser.email}')
+          .child(
+              '${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll('/', '-')}')
+          .putFile(_image)
+          .future;
+    } catch (e) {
+      print('eccezione sollevata da cloud_storage : ' + e);
+    } finally {
+      Navigator.pop(context);
+    }
     return uploadImage;
   }
 
@@ -155,38 +164,19 @@ $message''';
       print('error è null');
     }
   }
-  _showDialog(BuildContext context) {
-    // flutter defined function
-    if(!_transactionIndicator)
-     showDialog(
-      context: context,
-      builder: (context) {
-        // return object of type Dialog
-        return AlertDialog(
-          content : new CircularProgressIndicator(),
-        );
-              },
-            );
-      }
 
   // call picker -> then sendImageOnStorage() and check the Uri result -> then send mail and show result
   Future<void> _pickAndSend() async {
     await picker();
-    try {
-      await sendImageOnStorage()
-              .then((snapshot) {
-                _uploadedImageUri = snapshot.downloadUrl;
-                _showDialog(context);
-              });
-    } catch (e) {
-      print('transazione fallita');
-    }
+    await sendImageOnStorage().then((snapshot) {
+      _uploadedImageUri = snapshot.downloadUrl;
+    });
+
     if (_uploadedImageUri != null) {
       print('transazione effettuata');
 
       setState(() {
         this._error = false;
-        this._transactionIndicator = true;
       });
       await _sendMail(_uploadedImageUri);
     } else {
@@ -194,7 +184,6 @@ $message''';
 
       setState(() {
         this._error = true;
-        this._transactionIndicator = true;
       });
     }
 
@@ -204,16 +193,17 @@ $message''';
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
-
       routes: <String, WidgetBuilder>{
         '/home': (BuildContext context) => new Router()
       }, //HandleCurrentScreen()
       home: new Scaffold(
         key: _scaffoldKey,
         appBar: new AppBar(
-          leading: IconButton(icon: Icon(Icons.arrow_back_ios), onPressed: () {
-            Navigator.pop(context);
-          }),
+          leading: IconButton(
+              icon: Icon(Icons.arrow_back_ios),
+              onPressed: () {
+                Navigator.pop(context);
+              }),
           automaticallyImplyLeading: true,
           title: new Text('Inviaci una Foto'),
         ),
@@ -226,16 +216,16 @@ $message''';
         ),
         floatingActionButton: Builder(
             builder: (context) => new FloatingActionButton(
-                  onPressed: () async{
-                    var connectivityResult = await (new Connectivity().checkConnectivity());
+                  onPressed: () async {
+                    var connectivityResult =
+                        await (new Connectivity().checkConnectivity());
                     if (connectivityResult == ConnectivityResult.none) {
                       _scaffoldKey.currentState.showSnackBar(SnackBar(
                           duration: Duration(seconds: 5),
-                    content: Text('Nessuna Connessione !')));
-                    } else  {
+                          content: Text('Nessuna Connessione !')));
+                    } else {
                       _pickAndSend();
                     }
-
                   },
                   child: new Icon(Icons.camera_alt),
                 )),
