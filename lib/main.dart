@@ -5,6 +5,10 @@ import 'package:innova_service_flutter_project/login_controller/splash_screen.da
 import 'package:innova_service_flutter_project/model/user.dart';
 import 'package:innova_service_flutter_project/route/router.dart';
 
+<<<<<<< HEAD
+=======
+//final String emailAddress = 'clienti@innovaservice.eu';
+>>>>>>> TODO deploy
 final String emailAddress = 'yari.mattia.jobs@gmail.com';
 final String phoneNumber = '+393391418005';
 final String facebook = 'https://www.facebook.com/InnovaService.eu/';
