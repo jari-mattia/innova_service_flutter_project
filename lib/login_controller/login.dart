@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -15,8 +14,6 @@ import 'package:innova_service_flutter_project/main.dart';
 *
 */
 class Login extends StatefulWidget {
-  Login({this.app});
-  final FirebaseApp app;
 
   @override
   _LoginState createState() {
@@ -77,27 +74,13 @@ class _LoginState extends State<Login> {
                                       padding: EdgeInsets.symmetric(
                                           horizontal: 60.0, vertical: 20.0),
                                       color: Theme.of(context).accentColor,
-                                      onPressed: () {
-                                        setState(() {
-                                          enableUnCheckedPrivacy = true;
-                                        });
-                                        if (privacyConsent == true) {
-                                          _authenticateWithGoogle()
-                                              .then((fireUser) =>
-                                                  createUserFromFireUser(
-                                                      fireUser))
-                                              .then((user) {
-                                            setState(() {
-                                              currentUser = user;
-                                              currentUser.logged = true;
-                                              currentUser.add();
-                                            });
-                                          }).whenComplete(() => Navigator.pop(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          Router())));
-                                        }
+                                      onPressed: () async{
+                                        await login();
+                                        Navigator.pop(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    Router()));
                                       },
                                       child: Text(
                                         'ACCEDI',
@@ -157,25 +140,36 @@ class _LoginState extends State<Login> {
   }
 
   //FUNCTIONS
+
+
+  Future<Null> login() async {
+    setState(() {
+      enableUnCheckedPrivacy = true;
+    });
+    if (privacyConsent == true) {
+      fireUser = await _authenticateWithGoogle();
+      currentUser =  await createUserFromFireUser(fireUser);
+        setState(() {
+          currentUser.logged = true;
+          currentUser.add();
+        });
+    }
+  }
+
   /*
   *   Google Auth
   */
   Future<FirebaseUser> _authenticateWithGoogle() async {
-    GoogleSignInAccount googleUser;
 
-    if (googleUser == null) {
-      googleUser = await googleSignIn.signInSilently();
+    if (googleCurrentUser == null) {
+      googleCurrentUser = await googleSignIn.signInSilently();
     }
-    if (googleUser == null) {
-      googleUser = await googleSignIn.signIn();
+    if (googleCurrentUser == null) {
+      googleCurrentUser = await googleSignIn.signIn();
     }
-
-    setState(() {
-      googleCurrentUser = googleUser;
-    });
 
     final GoogleSignInAuthentication googleAuth =
-        await googleUser.authentication;
+        await googleCurrentUser.authentication;
 
     fireUser = await fireAuth.signInWithGoogle(
       accessToken: googleAuth.accessToken,

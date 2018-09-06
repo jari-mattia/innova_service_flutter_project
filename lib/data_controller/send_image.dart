@@ -12,8 +12,6 @@ import 'package:innova_service_flutter_project/route/router.dart';
 import 'package:intl/intl.dart';
 
 class SendImage extends StatefulWidget {
-  SendImage({this.app});
-  final FirebaseApp app;
   @override
   _SendImageState createState() => _SendImageState();
 }
@@ -25,11 +23,17 @@ class _SendImageState extends State<SendImage> {
   // access to the state of Widget
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
- bool _error;
+  // the position on the storage
+  final StorageReference storage = FirebaseStorage(
+          app: FirebaseApp.instance,
+          storageBucket: 'gs://innova-servicve.appspot.com')
+      .ref()
+      .child('${currentUser.name} - ${currentUser.email}')
+      .child(
+          '${DateFormat('dd-MM-yyyy HH:mm').format(DateTime.now()).replaceAll('/', '-')}');
 
   @override
   initState() {
-    _error = false;
     super.initState();
   }
 
@@ -47,33 +51,10 @@ class _SendImageState extends State<SendImage> {
     }
   }
 
-  // store the image on Cloud Storage and generate an Uri
-  Future<UploadTaskSnapshot> sendImage() async {
-    StorageUploadTask uploadImage;
-    StorageReference storage = FirebaseStorage(
-            app: FirebaseApp.instance,
-            storageBucket: 'gs://innova-servicve.appspot.com')
-        .ref();
-
-    /*Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-      return Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }));*/
-
-    try {
-      uploadImage = storage
-              .child('${currentUser.name} - ${currentUser.email}')
-              .child(
-                  '${DateFormat('dd-MM-yyyy HH:mm').format(DateTime.now()).replaceAll('/', '-')}')
-              .putFile(_image);
-    } catch (e) {
-      print(e);
-    } //finally {Navigator.pop(context);}
-
-    return await uploadImage.future;
+  // store the image on Cloud Storage and generate an snapahot
+  Future<UploadTaskSnapshot> storeImage() async {
+    UploadTaskSnapshot uploadImage = await storage.putFile(_image).future;
+    return uploadImage;
   }
 
   // prepare and send the data to mail
@@ -104,27 +85,24 @@ subject: ${subject}
 
  ${message}''';
 
-    var bytes = utf8.encode(content);
+    var bytes =  utf8.encode(content);
     var base64 = base64UrlEncode(bytes);
-    var body = json.encode({'raw': base64});
+    var body =  json.encode({'raw': base64});
 
-    String url = 'https://www.googleapis.com/gmail/v1/users/' +
-        userId +
-        '/messages/send';
+    String url = 'https://www.googleapis.com/gmail/v1/users/' + userId + '/messages/send';
 
-    final http.Response response =
-        await http.post(url, headers: header, body: body);
+    final http.Response response = await http.post(url, headers: header, body: body);
     if (response.statusCode != 200) {
+      error = true;
       setState(() {
         print('error: ' + response.statusCode.toString());
-        error = true;
       });
     } else {
-      final Map<String, dynamic> data = json.decode(response.body);
+      final Map<String, dynamic> data = await json.decode(response.body);
+      error = false;
+      print(data);
       setState(() {
         print('ok: ' + response.statusCode.toString());
-        error = false;
-        print(data);
       });
     }
     return error;
@@ -132,13 +110,14 @@ subject: ${subject}
 
   //prepare the header of mail and call _testingEmail()
   Future<bool> _sendMail(Uri uri) async {
-    await googleSignIn.currentUser.authHeaders.then((result) {
-      var header = {
-        'Authorization': result['Authorization'],
-        'X-Goog-AuthUser': result['X-Goog-AuthUser']
-      };
-      _testingEmail(googleSignIn.currentUser.email, header, uri);
-    });
+
+    Map<String, String> authToken = await googleSignIn.currentUser.authHeaders;
+    var header = {
+        'Authorization': authToken['Authorization'],
+        'X-Goog-AuthUser': authToken['X-Goog-AuthUser']
+        };
+    bool error = await _testingEmail(googleSignIn.currentUser.email, header, uri);
+    return error;
   }
 
   // show a Snackbar() with the result of transaction
@@ -148,53 +127,62 @@ subject: ${subject}
     String errorMessage =
         'Non è stato possibile inviare la richiesta. \nVerifichi di essere connesso alla rete';
 
-    if (error == false) {
-      _scaffoldKey.currentState.showSnackBar(SnackBar(
-        duration: Duration(seconds: 10),
-        content: Text(successMessage),
-        action: SnackBarAction(
-            label: 'OK',
-            onPressed: () {
-              Navigator.pop(context);
-            }),
-      ));
-    } else if (error == true) {
-      _scaffoldKey.currentState.showSnackBar(SnackBar(
-        duration: Duration(seconds: 10),
-        content: Text(errorMessage),
-        action:
-            SnackBarAction(label: 'RIPROVA', onPressed: () => _pickAndSend()),
-      ));
-    }
-  }
+      if (error == false) {
+            _scaffoldKey.currentState.showSnackBar(SnackBar(
+              duration: Duration(seconds: 4),
+              content: Text(successMessage),
+              action: SnackBarAction(
+                  label: 'OK',
+                  onPressed: () {
+                    Navigator.pop(context);
+                  }),
+            ));
+          } else if (error == true) {
+          _scaffoldKey.currentState.showSnackBar(SnackBar(
+              duration: Duration(seconds: 10),
+              content: Text(errorMessage),
+              action:
+                  SnackBarAction(label: 'RIPROVA', onPressed: () => _pickAndSend()),
+            ));
+          }}
 
   // call picker -> then sendImageOnStorage() and check the Uri result -> then send mail and show result
-  Future<void> _pickAndSend() async {
+  Future<Null> _pickAndSend() async {
     await picker();
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+      return Scaffold(
+        appBar: AppBar(centerTitle: true, title: Text('Sto inviando ...'), automaticallyImplyLeading: false),
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }));
     //StorageReference ref = await sendImageOnStorage();
-    UploadTaskSnapshot snapshot = await sendImage();
+    UploadTaskSnapshot snapshot = await storeImage();
     Uri uri = snapshot.downloadUrl;
+    assert(uri != null);
     bool error = await _sendMail(uri);
-    setState(() {
-      this._error = error;
-    });
-    await _resultMessage(error);
+    assert(error != null);
+    Navigator.pop(context);
+     await _resultMessage(error);
+  }
+
+  Future<Null> onSubmit() async {
+    var connectivityResult = await (new Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      _scaffoldKey.currentState.showSnackBar(SnackBar(
+          duration: Duration(seconds: 4),
+          content: Text('Nessuna Connessione !')));
+    } else {
+      await _pickAndSend();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
-      routes: <String, WidgetBuilder>{
-        '/home': (BuildContext context) => new Router()
-      }, //HandleCurrentScreen()
-      home: new Scaffold(
+    return new Scaffold(
         key: _scaffoldKey,
         appBar: new AppBar(
-          leading: IconButton(
-              icon: Icon(Icons.arrow_back_ios),
-              onPressed: () {
-                Navigator.pop(context);
-              }),
           automaticallyImplyLeading: true,
           title: new Text('Inviaci una Foto'),
         ),
@@ -207,21 +195,12 @@ subject: ${subject}
         ),
         floatingActionButton: Builder(
             builder: (context) => new FloatingActionButton(
+              backgroundColor: Theme.of(context).primaryColor,
                   onPressed: () async {
-                    var connectivityResult =
-                        await (new Connectivity().checkConnectivity());
-                    if (connectivityResult == ConnectivityResult.none) {
-                      _scaffoldKey.currentState.showSnackBar(SnackBar(
-                          duration: Duration(seconds: 5),
-                          content: Text('Nessuna Connessione !')));
-                    } else {
-                      _pickAndSend();
-
-                    }
+                    await onSubmit();
                   },
-                  child: new Icon(Icons.camera_alt),
+                  child: new Icon(Icons.camera_alt, color: Colors.white,),
                 )),
-      ),
-    );
+      );
   }
 }

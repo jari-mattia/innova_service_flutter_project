@@ -64,7 +64,7 @@ class User {
   /*
   *     add User on Firebase
   */
-  void add() async {
+  Future<Null> add() async {
     Firestore.instance.runTransaction((Transaction transaction) async {
       Map<String, String> profile = <String, String>{
         'nome ': '${this.name}',
@@ -83,15 +83,15 @@ class User {
       Map<String, String> session = <String, String>{
         'uid ': '${this.uid}',
         'idToken ': '${this.idToken}',
-        'data': DateFormat
-            .yMd()
-            .add_jm()
+        'data': DateFormat('dd-MM-yyyy HH:mm')
             .format(DateTime.now())
             .replaceAll('/', '-')
       };
       await Firestore.instance
           .document(
-              'utenti/${this.name}/sessioni/${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll('/', '-')}')
+              'utenti/${this.name}/sessioni/${DateFormat('dd-MM-yyyy HH:mm')
+                  .format(DateTime.now())
+                  .replaceAll('/', '-')}')
           .setData(session)
           .whenComplete(() => print('success session added'))
           .catchError((e) => print(e));
@@ -102,12 +102,10 @@ class User {
   *   get User data
   */
   Future<DocumentSnapshot> get() async {
-    DocumentSnapshot userData;
-    await Firestore.instance
+
+    DocumentSnapshot userData = await Firestore.instance
         .document('utenti/${this.name}')
-        .get()
-        .then((data) => userData = data)
-        .catchError((e) => print(e));
+        .get();
     if (userData.exists) {
       if (userData.data.isNotEmpty) {
         return userData;

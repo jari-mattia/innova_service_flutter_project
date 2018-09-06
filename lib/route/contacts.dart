@@ -11,8 +11,10 @@ class _ContactsState extends State<Contacts> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+
         backgroundColor: Theme.of(context).primaryColor,
         appBar: AppBar(
+          automaticallyImplyLeading: false,
           backgroundColor: Theme.of(context).primaryColor,
           title: Text("Contatti"),
           centerTitle: true,

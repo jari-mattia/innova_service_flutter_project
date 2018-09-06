@@ -34,9 +34,6 @@ class FormPrivateState extends State<FormPrivate> {
   // a controller for the validation of data
   bool _autoValidate = false;
 
-  // a controller for the state of transaction
-  bool _error;
-
   // a UI component of dropdown
   List<DropdownMenuItem<String>> _dropDownMenuItems;
   String _currentService;
@@ -56,7 +53,6 @@ class FormPrivateState extends State<FormPrivate> {
   void initState() {
     _dropDownMenuItems = getDropDownMenuItems(_items);
     _currentService = null;
-    this._error = false;
     super.initState();
   }
 
@@ -69,18 +65,20 @@ class FormPrivateState extends State<FormPrivate> {
   }
 
   //prepare the header of mail and call _testingEmail()
-  Future<void> sendMail() async {
-    await googleSignIn.currentUser.authHeaders.then((result) {
-      var header = {
-        'Authorization': result['Authorization'],
-        'X-Goog-AuthUser': result['X-Goog-AuthUser']
-      };
-      testingEmail(googleSignIn.currentUser.email, header);
-    });
+  Future<bool> sendMail() async {
+
+    Map<String, String> authToken = await googleSignIn.currentUser.authHeaders;
+    var header = {
+      'Authorization': authToken['Authorization'],
+      'X-Goog-AuthUser': authToken['X-Goog-AuthUser']
+    };
+    bool error = await testingEmail(googleSignIn.currentUser.email, header);
+    return error;
   }
 
   // prepare and send the data to mail
-  Future<void> testingEmail(String userId, Map header) async {
+  Future<bool> testingEmail(String userId, Map header) async {
+    bool error;
     header['Accept'] = 'application/json';
     header['Content-type'] = 'application/json';
 
@@ -96,7 +94,7 @@ class FormPrivateState extends State<FormPrivate> {
         <br> questo è il contenuto della richiesta : 
         <ul>   
         <li> <strong>data : </strong>${DateFormat('dd-MM-yyyy HH:mm').format(DateTime.now()).replaceAll('/', '-')}</li>
-        <li> <strong>client : </strong>privato</li>
+        <li> <strong>cliente : </strong>privato</li>
         <li> <strong>nome : </strong>${this._firstName}</li>
         <li> <strong>cognome : </strong>${this._lastName}</li>
         <li> <strong>email : </strong>${this._email}</li>
@@ -122,34 +120,35 @@ $message''';
         userId +
         '/messages/send';
 
-    final http.Response response =
-    await http.post(url, headers: header, body: body);
-    if (response.statusCode != 200) {
+    final http.Response _response = await http.post(url, headers: header, body: body);
+    if (_response.statusCode != 200) {
+      print('error: ' + _response.statusCode.toString());
+      error = true;
       setState(() {
-        print('error: ' + response.statusCode.toString());
-        this._error = true;
       });
-      return;
+
+    } else {
+      final Map<String, dynamic> _data = await json.decode(_response.body);
+      error = false;
+      print('ok: ' + _response.statusCode.toString());
+      print(_data);
+      setState(() {
+      });
     }
-    final Map<String, dynamic> data = json.decode(response.body);
-    setState(() {
-      print('ok: ' + response.statusCode.toString());
-      this._error = false;
-      print(data);
-    });
+    return error;
   }
 
   // store data on FireStore
-  Future<void> sendOnFireStore() async {
+  Future<Null> sendOnFireStore() async {
     await _document.setData(this._clientData);
   }
 
   // show a snackbar with the result of transaction
-  Future<void> _resultMessage(BuildContext context) async {
+  Future<Null> _resultMessage(BuildContext context, bool error) async {
     String successMessage = 'Invio Riuscito. Grazie!';
     String errorMessage = 'Ops, Invio Fallito !';
 
-    if (this._error == false) {
+    if (error == false) {
       Scaffold.of(context).showSnackBar(SnackBar(
         duration: Duration(seconds: 10),
         content: Text(successMessage),
@@ -159,37 +158,32 @@ $message''';
               context, MaterialPageRoute(builder: (context) => Router())),
         ),
       ));
-    } else if (this._error == true) {
+    } else if (error == true) {
       Scaffold.of(context).showSnackBar(SnackBar(
         duration: Duration(seconds: 10),
         content: Text(errorMessage),
         action: SnackBarAction(
             label: 'RIPROVA', onPressed: () => _pickAndSend()),
       ));
-    } else if (_error == null) {
-      print('error è null');
     }
   }
 
   // call sendOnFireStore and check the result -> then send mail and show result
-  Future<void> _pickAndSend() async {
+  Future<Null> _pickAndSend() async {
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+      return Scaffold(
+        appBar: AppBar(centerTitle: true, title: Text('Sto inviando ...'), automaticallyImplyLeading: false),
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }));
     await sendOnFireStore();
     DocumentSnapshot snapshot = await this._document.get();
-    if (snapshot.exists) {
-      print('transazione effettuata');
-
-      setState(() {
-        this._error = false;
-      });
-      await sendMail();
-    } else {
-      print('transazione fallita');
-
-      setState(() {
-        this._error = true;
-      });
-    }
-    await _resultMessage(context);
+    assert(snapshot.exists);
+    bool error = await sendMail();
+    Navigator.pop(context);
+    await _resultMessage(context, error);
   }
 
   // reset the State of Widget
@@ -204,15 +198,13 @@ $message''';
   /* check the vaildate of Client data then call _pickAndSend and reset the State of Widget
   *   if data aren't valid sets the autovalidate to true
   * */
-  Future<void> onSubmitData(BuildContext context) async {
+  Future<Null> onSubmitData(BuildContext context) async {
     if (_formKey.currentState.validate()) {
 //    If all data are correct then save data to out variables
       _formKey.currentState.save();
 
       setState(() {
-        this._date = '${DateFormat
-            .yMd()
-            .add_jm()
+        this._date = '${DateFormat('dd-MM-yyyy HH:mm')
             .format(DateTime.now())
             .replaceAll('/', '-')
             .toString()}';
@@ -227,17 +219,14 @@ $message''';
               'richiesta': '${this._request}'
             };
           });
-
-      await _pickAndSend().whenComplete(() => _resetForm());
-
+      await _pickAndSend();
+      _resetForm();
     } else {
       setState(() {
         _autoValidate = true;
-        this._error = true;
       });
     }
   }
-
 
 
   @override
@@ -348,7 +337,7 @@ $message''';
                                   duration: Duration(seconds: 5),
                                   content: Text('Nessuna Connessione !')));
                             } else  {
-                              onSubmitData(context);
+                              await onSubmitData(context);
                             }
                           },
                           child: Text('INVIA',

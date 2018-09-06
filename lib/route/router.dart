@@ -1,4 +1,3 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:innova_service_flutter_project/route/about.dart';
 import 'package:innova_service_flutter_project/route/contacts.dart';
@@ -6,8 +5,7 @@ import 'package:innova_service_flutter_project/route/home_page.dart';
 import 'package:innova_service_flutter_project/route/services_page_view.dart';
 
 class Router extends StatefulWidget {
-  Router({this.app});
-  final FirebaseApp app;
+
   @override
   _RouterState createState() => new _RouterState();
 }
@@ -24,7 +22,7 @@ class _RouterState extends State<Router> {
 
   @override
   void initState() {
-    _home = MyHomePage(app: widget.app);
+    _home = MyHomePage();
     _services = MyServicesPageView();
     _aboutUs = About();
     _contacts = Contacts();
