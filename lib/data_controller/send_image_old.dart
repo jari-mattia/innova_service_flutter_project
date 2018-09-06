@@ -40,11 +40,12 @@ class _SendImageOldState extends State<SendImageOld> {
         .ref();
     StorageUploadTask uploadImage = storage
         .child('${currentUser.name} - ${currentUser.email}')
-        .child('${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll(
-        '/', '-')}')
+        .child('${DateFormat('dd-MM-yyyy HH:mm').format(DateTime.now()).replaceAll('/', '-')}')
         .putFile(image);
     return await uploadImage.future;
   }
+
+
   pickAndSend() async {
     await picker();
     sendImage()
@@ -53,27 +54,33 @@ class _SendImageOldState extends State<SendImageOld> {
         .whenComplete(() => Navigator.push(
         context, MaterialPageRoute(builder: (context) => Router())));
   }
+
+
   sendMail(Uri uri) async {
     await googleSignIn.currentUser.authHeaders.then((result) {
       var header = {'Authorization': result['Authorization'], 'X-Goog-AuthUser': result['X-Goog-AuthUser']};
       testingEmail(googleSignIn.currentUser.email, header, uri);
     });
   }
+
+
   Future<Null> testingEmail(String userId, Map header, Uri uri) async {
     header['Accept'] = 'application/json';
     header['Content-type'] = 'application/json';
-    print(userId);
     var from = userId;
     var to = emailAddress;
     var subject = 'richiesta preventivo da ${googleSignIn.currentUser.displayName}';
     //var message = 'worked!!!';
-    var message = """${googleSignIn.currentUser.displayName} 
-    ti ha inviato una richiesta di preventivo tramite un immagine\n\n  
-    
-    puoi rispndere all'indirizzo $userId""";
+    var message = '''
+    ${DateFormat('dd-MM-yyyy HH:mm').format(DateTime.now()).replaceAll('/', '-')}<hr>
+    <strong>${googleSignIn.currentUser.displayName}</strong><br>
+    ti ha inviato una richiesta di preventivo tramite un immagine <br>
+    <a href="${uri.toString()}"> <strong> clicca qui </strong></a> <br>
+    puoi rispndere all'indirizzo $userId
+    ''';
 
     var content = '''
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/html; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 to: ${to}
@@ -83,7 +90,7 @@ subject: ${subject}
  ${message}''';
 
     var bytes = utf8.encode(content);
-    var base64 = base64Encode(bytes);
+    var base64 = base64UrlEncode(bytes);
     var body = json.encode({'raw': base64});
     String url = 'https://www.googleapis.com/gmail/v1/users/' + userId + '/messages/send';
     final http.Response response = await http.post(
@@ -109,6 +116,8 @@ subject: ${subject}
             """Grazie per averci inviato la richiesta \nTi ricontatteremo al più presto """),
         duration: Duration(seconds: 4)));
   }
+
+
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(

@@ -50,7 +50,7 @@ class FormPrivateState extends State<FormPrivate> {
 
   // a FireStore document reference -- place where stores client data
   DocumentReference _document = Firestore.instance.document(
-      'utenti/${currentUser.name}/richieste/${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll('/', '-')}');
+      'utenti/${currentUser.name}/richieste/${DateFormat('dd-MM-yyyy HH:mm').format(DateTime.now()).replaceAll('/', '-')}');
 
   @override
   void initState() {
@@ -90,19 +90,22 @@ class FormPrivateState extends State<FormPrivate> {
         'richiesta preventivo da ${googleSignIn.currentUser.displayName}';
     //var message = 'worked!!!';
     var message =
-    """${googleSignIn.currentUser.displayName} ti ha inviato una richiesta di preventivo   
-        \n puoi rispndere all'indirizzo $userId
-        \n\n questo è il contenuto della richiesta : 
-        \n       data : '${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll('/', '-')}'
-        \n       client : privato,
-        \n       nome : ${this._firstName},
-        \n       cognome : ${this._lastName},
-        \n       email : ${this._email},
-        \n       codice_fiscale : ${this._fiscalCode},
-        \n       servizio : ${this._service},
-        \n       richiesta : ${this._request} """;
+    '''<strong>${googleSignIn.currentUser.displayName}</strong> <br>
+    ti ha inviato una richiesta di preventivo   
+        <br> puoi rispondere all'indirizzo $userId
+        <br> questo è il contenuto della richiesta : 
+        <ul>   
+        <li> <strong>data : </strong>${DateFormat('dd-MM-yyyy HH:mm').format(DateTime.now()).replaceAll('/', '-')}</li>
+        <li> <strong>client : </strong>privato</li>
+        <li> <strong>nome : </strong>${this._firstName}</li>
+        <li> <strong>cognome : </strong>${this._lastName}</li>
+        <li> <strong>email : </strong>${this._email}</li>
+        <li> <strong>codice_fiscale : </strong>${this._fiscalCode}</li>
+        <li> <strong>servizio : </strong>${this._service}</li>
+        <li> <strong>richiesta : </strong>${this._request}</li>
+        </ul>''';
     var content = '''
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/html; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 to: $to
@@ -112,7 +115,7 @@ subject: $subject
 $message''';
 
     var bytes = utf8.encode(content);
-    var base64 = base64Encode(bytes);
+    var base64 = base64UrlEncode(bytes);
     var body = json.encode({'raw': base64});
 
     String url = 'https://www.googleapis.com/gmail/v1/users/' +

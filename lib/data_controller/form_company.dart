@@ -50,7 +50,7 @@ class FormCompanyState extends State<FormCompany> {
 
   // a FireStore document reference -- place where stores client data
   DocumentReference _document = Firestore.instance.document(
-      'utenti/${currentUser.name}/richieste/${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll('/', '-')}');
+      'utenti/${currentUser.name}/richieste/${DateFormat('dd-MM-yyyy HH:mm').format(DateTime.now()).replaceAll('/', '-')}');
 
   @override
   void initState() {
@@ -80,18 +80,20 @@ class FormCompanyState extends State<FormCompany> {
         'richiesta preventivo da ${googleSignIn.currentUser.displayName}';
     //var message = 'worked!!!';
     var _message =
-        """${googleSignIn.currentUser.displayName} ti ha inviato una richiesta di preventivo
-            \n puoi rispondere all'indirizzo $userId
-            \n\n questo è il contenuto della richiesta : 
-            \n data: ${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll('/', '-')},
-            \n cliente : azienda,
-            \n nome : ${this._name},
-            \n email : ${this._email},
-            \n partita iva : ${this._pIva},
-            \n servizio : ${this._service},
-            \n richiesta : ${this._request}""";
+        """<strong> ${googleSignIn.currentUser.displayName} </strong> ti ha inviato una richiesta di preventivo
+            <br> puoi rispondere all'indirizzo $userId
+            <br> questo è il contenuto della richiesta : 
+            <ul>
+            <li><strong>data: </strong>${DateFormat('dd-MM-yyyy HH:mm').format(DateTime.now()).replaceAll('/', '-')}</li>
+            <li><strong>cliente : </strong>azienda</li>
+            <li><strong>nome : </strong>${this._name}</li>
+            <li><strong>email : </strong>${this._email}</li>
+            <li><strong>partita iva : </strong>${this._pIva}</li>
+            <li><strong>servizio : </strong>${this._service}</li>
+            <li><strong>richiesta : </strong>${this._request}</li>
+            </ul>""";
     var _content = '''
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/html; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 to: $_to
@@ -101,7 +103,7 @@ subject: $_subject
 $_message''';
 
     var _bytes = utf8.encode(_content);
-    var _base64 = base64Encode(_bytes);
+    var _base64 = base64UrlEncode(_bytes);
     var _body = json.encode({'raw': _base64});
 
     String _url = 'https://www.googleapis.com/gmail/v1/users/' + userId + '/messages/send';

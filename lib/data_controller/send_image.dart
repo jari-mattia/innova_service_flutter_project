@@ -22,22 +22,14 @@ class _SendImageState extends State<SendImage> {
   // an image picked from picker()
   File _image;
 
-  // a controller for the state of transaction
-  bool _error;
-
   // access to the state of Widget
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  // a List of upload
-  List<StorageUploadTask> _tasks = <StorageUploadTask>[];
-
-  // the Uri where stored the image
-  Uri _uploadedImageUri;
-
+ bool _error;
 
   @override
   initState() {
-    this._error = false;
+    _error = false;
     super.initState();
   }
 
@@ -56,77 +48,64 @@ class _SendImageState extends State<SendImage> {
   }
 
   // store the image on Cloud Storage and generate an Uri
-  Future<StorageReference> sendImageOnStorage() async {
-    StorageReference ref;
+  Future<UploadTaskSnapshot> sendImage() async {
+    StorageUploadTask uploadImage;
     StorageReference storage = FirebaseStorage(
-            app: widget.app,
+            app: FirebaseApp.instance,
             storageBucket: 'gs://innova-servicve.appspot.com')
         .ref();
-    Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+
+    /*Navigator.of(context).push(MaterialPageRoute(builder: (context) {
       return Scaffold(
         body: Center(
           child: CircularProgressIndicator(),
         ),
       );
-    }));
+    }));*/
+
     try {
-       ref = storage
-          .child('${currentUser.name} - ${currentUser.email}')
-          .child(
-              '${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll('/', '-')}');
-
-      final StorageUploadTask uploadTask = ref.putFile(_image);
-       setState(() {
-         _tasks.add(uploadTask);
-       });
-
-
+      uploadImage = storage
+              .child('${currentUser.name} - ${currentUser.email}')
+              .child(
+                  '${DateFormat('dd-MM-yyyy HH:mm').format(DateTime.now()).replaceAll('/', '-')}')
+              .putFile(_image);
     } catch (e) {
-      print('eccezione sollevata da cloud_storage : ' + e);
-      setState(() {
-        this._error = true;
-      });
-    } finally {
-      Navigator.pop(context);
-    }
-    return ref;
+      print(e);
+    } //finally {Navigator.pop(context);}
+
+    return await uploadImage.future;
   }
 
-  Future<String> _downloadFile(StorageReference ref) async {
-    try {
-      String url = await ref.getDownloadURL();
-      print(url);
-      return url;
-    } catch (e) {
-      print('Eccezione in url : '+e);
-    }
-  }
   // prepare and send the data to mail
-  Future<bool> _testingEmail(String userId, Map header, String uri) async {
+  Future<bool> _testingEmail(String userId, Map header, Uri uri) async {
+    bool error;
     header['Accept'] = 'application/json';
     header['Content-type'] = 'application/json';
-    bool error;
     var from = userId;
     var to = emailAddress;
     var subject =
         'richiesta preventivo da ${googleSignIn.currentUser.displayName}';
     //var message = 'worked!!!';
-    var message =
-    '''${googleSignIn.currentUser.displayName} 
-        ti ha inviato una richiesta di preventivo tramite un immagine
-        puoi rispndere all'indirizzo $userId''';
+    var message = '''
+    ${DateFormat('dd-MM-yyyy HH:mm').format(DateTime.now()).replaceAll('/', '-')}<hr>
+    <strong>${googleSignIn.currentUser.displayName}</strong><br>
+    ti ha inviato una richiesta di preventivo tramite un immagine <br>
+    <a href="${uri.toString()}"> <strong> clicca qui </strong></a> <br>
+    puoi rispondere all'indirizzo $userId
+    ''';
 
     var content = '''
 Content-Type: text/html; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-to: $to
-from: $from
-subject: $subject
-$message''';
+to: ${to}
+from: ${from}
+subject: ${subject}
+
+ ${message}''';
 
     var bytes = utf8.encode(content);
-    var base64 = base64Encode(bytes);
+    var base64 = base64UrlEncode(bytes);
     var body = json.encode({'raw': base64});
 
     String url = 'https://www.googleapis.com/gmail/v1/users/' +
@@ -135,13 +114,12 @@ $message''';
 
     final http.Response response =
         await http.post(url, headers: header, body: body);
-    if (response.statusCode != 200 ) {
+    if (response.statusCode != 200) {
       setState(() {
         print('error: ' + response.statusCode.toString());
         error = true;
       });
-    }
-    else {
+    } else {
       final Map<String, dynamic> data = json.decode(response.body);
       setState(() {
         print('ok: ' + response.statusCode.toString());
@@ -153,7 +131,7 @@ $message''';
   }
 
   //prepare the header of mail and call _testingEmail()
-  Future<bool> _sendMail(String uri) async {
+  Future<bool> _sendMail(Uri uri) async {
     await googleSignIn.currentUser.authHeaders.then((result) {
       var header = {
         'Authorization': result['Authorization'],
@@ -164,7 +142,7 @@ $message''';
   }
 
   // show a Snackbar() with the result of transaction
-  void _resultMessage(bool error)  {
+  Future<Null> _resultMessage(bool error) async {
     String successMessage =
         'Grazie per averci inviato la richiesta \nTi ricontatteremo al più presto';
     String errorMessage =
@@ -191,13 +169,16 @@ $message''';
   }
 
   // call picker -> then sendImageOnStorage() and check the Uri result -> then send mail and show result
-  Future<Null> _pickAndSend() async {
+  Future<void> _pickAndSend() async {
     await picker();
-    StorageReference ref = await sendImageOnStorage();
-    String uri = await _downloadFile(ref);
+    //StorageReference ref = await sendImageOnStorage();
+    UploadTaskSnapshot snapshot = await sendImage();
+    Uri uri = snapshot.downloadUrl;
     bool error = await _sendMail(uri);
-    _resultMessage(error);
-
+    setState(() {
+      this._error = error;
+    });
+    await _resultMessage(error);
   }
 
   @override
@@ -234,7 +215,8 @@ $message''';
                           duration: Duration(seconds: 5),
                           content: Text('Nessuna Connessione !')));
                     } else {
-                     _pickAndSend();
+                      _pickAndSend();
+
                     }
                   },
                   child: new Icon(Icons.camera_alt),
