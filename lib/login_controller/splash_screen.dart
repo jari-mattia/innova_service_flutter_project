@@ -1,11 +1,14 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:innova_service_flutter_project/main.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:innova_service_flutter_project/model/user.dart';
 
 class SplashScreen extends StatefulWidget {
+  SplashScreen({this.app});
+  final FirebaseApp app;
   @override
   _SplashScreenState createState() => new _SplashScreenState();
 }

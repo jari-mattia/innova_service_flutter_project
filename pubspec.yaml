@@ -12,12 +12,13 @@ dependencies:
 
 
   # Firebase packages
+  firebase_core:
   cloud_firestore:
   firebase_storage:
   firebase_auth:
   google_sign_in:
-  googleapis: any
-  googleapis_auth: any
+  googleapis:
+  googleapis_auth:
 
 
 

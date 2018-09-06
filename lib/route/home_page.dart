@@ -1,7 +1,9 @@
 import 'dart:async';
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:innova_service_flutter_project/data_controller/send_image.dart';
+import 'package:innova_service_flutter_project/data_controller/send_image_old.dart';
 import 'package:innova_service_flutter_project/main.dart';
 import 'package:innova_service_flutter_project/data_controller/intervention.dart';
 import 'package:innova_service_flutter_project/login_controller/login.dart';
@@ -14,6 +16,8 @@ import 'package:innova_service_flutter_project/model/user.dart';
 *
 * */
 class MyHomePage extends StatefulWidget {
+  MyHomePage({this.app});
+  final FirebaseApp app;
   @override
   _MyHomePageState createState() => new _MyHomePageState();
 }
@@ -21,11 +25,13 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
-    return HomeScaffold();
+    return HomeScaffold(app: widget.app);
   }
 }
 
 class WelcomeText extends StatefulWidget {
+  WelcomeText({this.app});
+  final FirebaseApp app;
   @override
   _WelcomeTextState createState() => _WelcomeTextState();
 }
@@ -103,7 +109,7 @@ class _WelcomeTextState extends State<WelcomeText> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => Login()),
+                    MaterialPageRoute(builder: (context) => Login(app: widget.app)),
                   );
                 },
                 child: Text(
@@ -118,6 +124,8 @@ class _WelcomeTextState extends State<WelcomeText> {
 }
 
 class HomeScaffold extends StatefulWidget {
+  HomeScaffold({this.app});
+  final FirebaseApp app;
   @override
   _HomeScaffoldState createState() => _HomeScaffoldState();
 }
@@ -143,7 +151,7 @@ class _HomeScaffoldState extends State<HomeScaffold> {
                   style: TextStyle(fontWeight: FontWeight.bold)),
               onPressed: () {
                 Navigator.pushReplacement(
-                    context, MaterialPageRoute(builder: (context) => Login()));
+                    context, MaterialPageRoute(builder: (context) => Login(app: widget.app)));
               },
             ),
           ],
@@ -172,7 +180,7 @@ class _HomeScaffoldState extends State<HomeScaffold> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     mainAxisSize: MainAxisSize.max,
                     children: <Widget>[
-                      Container(child: WelcomeText()),
+                      Container(child: WelcomeText(app: widget.app,)),
                       Divider(),
                       Container(
                         margin: EdgeInsets.symmetric(vertical: 16.0),
@@ -246,7 +254,8 @@ class _HomeScaffoldState extends State<HomeScaffold> {
                                             context,
                                             MaterialPageRoute(
                                                 builder: (context) =>
-                                                    SendImage()))
+                                                    SendImage(app: widget.app)//SendImage(app: widget.app)
+                                            ))
                                         : _showDialog(context);
                                   },
                                   child: Icon(
@@ -296,7 +305,7 @@ class _HomeScaffoldState extends State<HomeScaffold> {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: <Widget>[
                         Expanded(
-                          child: WelcomeText(),
+                          child: WelcomeText(app: widget.app),
                         ),
                         Divider(),
                       ],
@@ -387,7 +396,7 @@ class _HomeScaffoldState extends State<HomeScaffold> {
                                                   context,
                                                   MaterialPageRoute(
                                                       builder: (context) =>
-                                                          SendImage()))
+                                                          SendImage(app: widget.app)))
                                               : _showDialog(context);
                                         },
                                         child: Icon(

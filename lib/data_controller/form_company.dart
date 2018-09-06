@@ -104,9 +104,7 @@ $_message''';
     var _base64 = base64Encode(_bytes);
     var _body = json.encode({'raw': _base64});
 
-    String _url = 'https://www.googleapis.com/gmail/v1/users/' +
-        userId +
-        '/messages/send';
+    String _url = 'https://www.googleapis.com/gmail/v1/users/' + userId + '/messages/send';
 
     final http.Response _response =
         await http.post(_url, headers: header, body: _body);

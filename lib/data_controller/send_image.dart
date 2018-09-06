@@ -12,6 +12,8 @@ import 'package:innova_service_flutter_project/route/router.dart';
 import 'package:intl/intl.dart';
 
 class SendImage extends StatefulWidget {
+  SendImage({this.app});
+  final FirebaseApp app;
   @override
   _SendImageState createState() => _SendImageState();
 }
@@ -25,6 +27,9 @@ class _SendImageState extends State<SendImage> {
 
   // access to the state of Widget
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  // a List of upload
+  List<StorageUploadTask> _tasks = <StorageUploadTask>[];
 
   // the Uri where stored the image
   Uri _uploadedImageUri;
@@ -51,10 +56,10 @@ class _SendImageState extends State<SendImage> {
   }
 
   // store the image on Cloud Storage and generate an Uri
-  Future<UploadTaskSnapshot> sendImageOnStorage() async {
-    UploadTaskSnapshot uploadImage;
+  Future<StorageReference> sendImageOnStorage() async {
+    StorageReference ref;
     StorageReference storage = FirebaseStorage(
-            app: FirebaseApp.instance,
+            app: widget.app,
             storageBucket: 'gs://innova-servicve.appspot.com')
         .ref();
     Navigator.of(context).push(MaterialPageRoute(builder: (context) {
@@ -65,34 +70,54 @@ class _SendImageState extends State<SendImage> {
       );
     }));
     try {
-      uploadImage = await storage
+       ref = storage
           .child('${currentUser.name} - ${currentUser.email}')
           .child(
-              '${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll('/', '-')}')
-          .putFile(_image)
-          .future;
+              '${DateFormat.yMd().add_jm().format(DateTime.now()).replaceAll('/', '-')}');
+
+      final StorageUploadTask uploadTask = ref.putFile(_image);
+       setState(() {
+         _tasks.add(uploadTask);
+       });
+
+
     } catch (e) {
       print('eccezione sollevata da cloud_storage : ' + e);
+      setState(() {
+        this._error = true;
+      });
     } finally {
       Navigator.pop(context);
     }
-    return uploadImage;
+    return ref;
   }
 
+  Future<String> _downloadFile(StorageReference ref) async {
+    try {
+      String url = await ref.getDownloadURL();
+      print(url);
+      return url;
+    } catch (e) {
+      print('Eccezione in url : '+e);
+    }
+  }
   // prepare and send the data to mail
-  Future<void> _testingEmail(String userId, Map header, Uri uri) async {
+  Future<bool> _testingEmail(String userId, Map header, String uri) async {
     header['Accept'] = 'application/json';
     header['Content-type'] = 'application/json';
-
+    bool error;
     var from = userId;
     var to = emailAddress;
     var subject =
         'richiesta preventivo da ${googleSignIn.currentUser.displayName}';
     //var message = 'worked!!!';
     var message =
-        "${googleSignIn.currentUser.displayName} ti ha inviato una richiesta di preventivo tramite un immagine\n\n  ${uri.toString()}\n\n puoi rispndere all'indirizzo $userId";
+    '''${googleSignIn.currentUser.displayName} 
+        ti ha inviato una richiesta di preventivo tramite un immagine
+        puoi rispndere all'indirizzo $userId''';
+
     var content = '''
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/html; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 to: $to
@@ -110,23 +135,25 @@ $message''';
 
     final http.Response response =
         await http.post(url, headers: header, body: body);
-    if (response.statusCode != 200 || uri == null) {
+    if (response.statusCode != 200 ) {
       setState(() {
         print('error: ' + response.statusCode.toString());
-        this._error = true;
+        error = true;
       });
-      return;
     }
-    final Map<String, dynamic> data = json.decode(response.body);
-    setState(() {
-      print('ok: ' + response.statusCode.toString());
-      this._error = false;
-      print(data);
-    });
+    else {
+      final Map<String, dynamic> data = json.decode(response.body);
+      setState(() {
+        print('ok: ' + response.statusCode.toString());
+        error = false;
+        print(data);
+      });
+    }
+    return error;
   }
 
   //prepare the header of mail and call _testingEmail()
-  Future<void> _sendMail(Uri uri) async {
+  Future<bool> _sendMail(String uri) async {
     await googleSignIn.currentUser.authHeaders.then((result) {
       var header = {
         'Authorization': result['Authorization'],
@@ -137,13 +164,13 @@ $message''';
   }
 
   // show a Snackbar() with the result of transaction
-  Future<void> _resultMessage() async {
+  void _resultMessage(bool error)  {
     String successMessage =
         'Grazie per averci inviato la richiesta \nTi ricontatteremo al più presto';
     String errorMessage =
         'Non è stato possibile inviare la richiesta. \nVerifichi di essere connesso alla rete';
 
-    if (this._error == false) {
+    if (error == false) {
       _scaffoldKey.currentState.showSnackBar(SnackBar(
         duration: Duration(seconds: 10),
         content: Text(successMessage),
@@ -153,41 +180,24 @@ $message''';
               Navigator.pop(context);
             }),
       ));
-    } else if (this._error == true) {
+    } else if (error == true) {
       _scaffoldKey.currentState.showSnackBar(SnackBar(
         duration: Duration(seconds: 10),
         content: Text(errorMessage),
         action:
             SnackBarAction(label: 'RIPROVA', onPressed: () => _pickAndSend()),
       ));
-    } else if (_error == null) {
-      print('error è null');
     }
   }
 
   // call picker -> then sendImageOnStorage() and check the Uri result -> then send mail and show result
-  Future<void> _pickAndSend() async {
+  Future<Null> _pickAndSend() async {
     await picker();
-    await sendImageOnStorage().then((snapshot) {
-      _uploadedImageUri = snapshot.downloadUrl;
-    });
+    StorageReference ref = await sendImageOnStorage();
+    String uri = await _downloadFile(ref);
+    bool error = await _sendMail(uri);
+    _resultMessage(error);
 
-    if (_uploadedImageUri != null) {
-      print('transazione effettuata');
-
-      setState(() {
-        this._error = false;
-      });
-      await _sendMail(_uploadedImageUri);
-    } else {
-      print('transazione fallita');
-
-      setState(() {
-        this._error = true;
-      });
-    }
-
-    await _resultMessage();
   }
 
   @override
@@ -224,7 +234,7 @@ $message''';
                           duration: Duration(seconds: 5),
                           content: Text('Nessuna Connessione !')));
                     } else {
-                      _pickAndSend();
+                     _pickAndSend();
                     }
                   },
                   child: new Icon(Icons.camera_alt),
