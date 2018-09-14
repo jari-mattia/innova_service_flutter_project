@@ -1,0 +1,180 @@
+{
+  "images" : [
+    {
+      "extent" : "full-screen",
+      "idiom" : "iphone",
+      "subtype" : "2436h",
+      "filename" : "IPhoneX.jpg",
+      "minimum-system-version" : "11.0",
+      "orientation" : "portrait",
+      "scale" : "3x"
+    },
+    {
+      "extent" : "full-screen",
+      "idiom" : "iphone",
+      "subtype" : "2436h",
+      "filename" : "IPhoneX_land.jpg",
+      "minimum-system-version" : "11.0",
+      "orientation" : "landscape",
+      "scale" : "3x"
+    },
+    {
+      "extent" : "full-screen",
+      "idiom" : "iphone",
+      "subtype" : "736h",
+      "filename" : "IPhone8+.jpg",
+      "minimum-system-version" : "8.0",
+      "orientation" : "portrait",
+      "scale" : "3x"
+    },
+    {
+      "extent" : "full-screen",
+      "idiom" : "iphone",
+      "subtype" : "736h",
+      "filename" : "IPhone8+land.jpg",
+      "minimum-system-version" : "8.0",
+      "orientation" : "landscape",
+      "scale" : "3x"
+    },
+    {
+      "extent" : "full-screen",
+      "idiom" : "iphone",
+      "subtype" : "667h",
+      "filename" : "IPhone8.jpg",
+      "minimum-system-version" : "8.0",
+      "orientation" : "portrait",
+      "scale" : "2x"
+    },
+    {
+      "orientation" : "portrait",
+      "idiom" : "iphone",
+      "filename" : "IPhone7+.jpg",
+      "extent" : "full-screen",
+      "minimum-system-version" : "7.0",
+      "scale" : "2x"
+    },
+    {
+      "extent" : "full-screen",
+      "idiom" : "iphone",
+      "subtype" : "retina4",
+      "filename" : "IPhone7+retina.jpg",
+      "minimum-system-version" : "7.0",
+      "orientation" : "portrait",
+      "scale" : "2x"
+    },
+    {
+      "orientation" : "portrait",
+      "idiom" : "ipad",
+      "filename" : "ipad.jpg",
+      "extent" : "full-screen",
+      "minimum-system-version" : "7.0",
+      "scale" : "1x"
+    },
+    {
+      "orientation" : "landscape",
+      "idiom" : "ipad",
+      "filename" : "ipad_land.jpg",
+      "extent" : "full-screen",
+      "minimum-system-version" : "7.0",
+      "scale" : "1x"
+    },
+    {
+      "orientation" : "portrait",
+      "idiom" : "ipad",
+      "filename" : "ipadx2.jpg",
+      "extent" : "full-screen",
+      "minimum-system-version" : "7.0",
+      "scale" : "2x"
+    },
+    {
+      "orientation" : "landscape",
+      "idiom" : "ipad",
+      "filename" : "ipad_landx2.jpg",
+      "extent" : "full-screen",
+      "minimum-system-version" : "7.0",
+      "scale" : "2x"
+    },
+    {
+      "orientation" : "portrait",
+      "idiom" : "iphone",
+      "filename" : "iphone5.jpg",
+      "extent" : "full-screen",
+      "scale" : "1x"
+    },
+    {
+      "orientation" : "portrait",
+      "idiom" : "iphone",
+      "filename" : "IPhone7+-1.jpg",
+      "extent" : "full-screen",
+      "scale" : "2x"
+    },
+    {
+      "orientation" : "portrait",
+      "idiom" : "iphone",
+      "filename" : "IPhone7+retina-1.jpg",
+      "extent" : "full-screen",
+      "subtype" : "retina4",
+      "scale" : "2x"
+    },
+    {
+      "orientation" : "portrait",
+      "idiom" : "ipad",
+      "filename" : "ipad5.jpg",
+      "extent" : "to-status-bar",
+      "scale" : "1x"
+    },
+    {
+      "orientation" : "portrait",
+      "idiom" : "ipad",
+      "filename" : "ipad-1.jpg",
+      "extent" : "full-screen",
+      "scale" : "1x"
+    },
+    {
+      "orientation" : "landscape",
+      "idiom" : "ipad",
+      "filename" : "ipad5lsband.jpg",
+      "extent" : "to-status-bar",
+      "scale" : "1x"
+    },
+    {
+      "orientation" : "landscape",
+      "idiom" : "ipad",
+      "filename" : "ipad_land-1.jpg",
+      "extent" : "full-screen",
+      "scale" : "1x"
+    },
+    {
+      "orientation" : "portrait",
+      "idiom" : "ipad",
+      "filename" : "ipad5x2.jpg",
+      "extent" : "to-status-bar",
+      "scale" : "2x"
+    },
+    {
+      "orientation" : "portrait",
+      "idiom" : "ipad",
+      "filename" : "ipadx2-1.jpg",
+      "extent" : "full-screen",
+      "scale" : "2x"
+    },
+    {
+      "orientation" : "landscape",
+      "idiom" : "ipad",
+      "filename" : "ipad5lsbandx2.jpg",
+      "extent" : "to-status-bar",
+      "scale" : "2x"
+    },
+    {
+      "orientation" : "landscape",
+      "idiom" : "ipad",
+      "filename" : "ipad_landx2-1.jpg",
+      "extent" : "full-screen",
+      "scale" : "2x"
+    }
+  ],
+  "info" : {
+    "version" : 1,
+    "author" : "xcode"
+  }
+}
