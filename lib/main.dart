@@ -4,6 +4,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:innova_service_flutter_project/login_controller/splash_screen.dart';
 import 'package:innova_service_flutter_project/model/user.dart';
 import 'package:innova_service_flutter_project/route/router.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 //final String emailAddress = 'yari.mattia.jobs@gmail.com';
 final String emailAddress = 'clienti@innovaservice.eu';
@@ -40,7 +41,13 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: [
+        const Locale('it'),
+      ],
       title: 'Innova Service',
       theme: ThemeData(
 
