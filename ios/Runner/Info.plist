@@ -32,9 +32,15 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>8</string>
+	<key>LSApplicationCategoryType</key>
+	<string></string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Quest'app accederà alla fotcamera qualora l'utente scelga il servizio che permette di inviare una foto tramite l'app </string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Quest'app non accederà alla galleria fotografica ma solo all'utilizzo della fotocamera</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

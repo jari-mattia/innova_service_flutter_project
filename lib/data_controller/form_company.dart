@@ -23,7 +23,7 @@ class FormCompanyState extends State<FormCompany> {
 
   // Client Data to send
   Map<String, dynamic> _clientData = new Map<String, dynamic>();
-  String _clientType = 'azienda';
+  final String _clientType = 'azienda';
   String _date = '';
   String _name = '';
   String _email = '';
@@ -37,7 +37,7 @@ class FormCompanyState extends State<FormCompany> {
   // a UI component of dropdown
   List<DropdownMenuItem<String>> _dropDownMenuItems;
   String _currentService;
-  List<String> _items = [
+  final List<String> _items = [
     "Pulizie ",
     "Aree Verdi",
     "Impianti",
@@ -46,7 +46,7 @@ class FormCompanyState extends State<FormCompany> {
   ];
 
   // a FireStore document reference -- place where stores client data
-  DocumentReference _document = Firestore.instance.document(
+  final DocumentReference _document = Firestore.instance.document(
       'utenti/${currentUser.name}/richieste/${DateFormat('dd-MM-yyyy HH:mm').format(DateTime.now()).replaceAll('/', '-')}');
 
   @override
@@ -58,7 +58,6 @@ class FormCompanyState extends State<FormCompany> {
 
   //  set a two variable with the choice of Client
   void changedDropDownItem(String selectedCat) {
-    print("Selected city $selectedCat, we are going to refresh the UI");
     setState(() {
       _currentService = selectedCat;
       this._service = selectedCat;
@@ -71,12 +70,12 @@ class FormCompanyState extends State<FormCompany> {
     header['Accept'] = 'application/json';
     header['Content-type'] = 'application/json';
 
-    var _from = userId;
-    var _to = emailAddress;
-    var _subject =
+    final String _from = userId;
+    final String _to = emailAddress;
+    final String _subject =
         'richiesta preventivo da ${googleSignIn.currentUser.displayName}';
     //var message = 'worked!!!';
-    var _message =
+    final String _message =
         """<strong> ${googleSignIn.currentUser.displayName} </strong> ti ha inviato una richiesta di preventivo
             <br> puoi rispondere all'indirizzo $userId
             <br> questo è il contenuto della richiesta : 
@@ -89,7 +88,7 @@ class FormCompanyState extends State<FormCompany> {
             <li><strong>servizio : </strong>${this._service}</li>
             <li><strong>richiesta : </strong>${this._request}</li>
             </ul>""";
-    var _content = '''
+    final String _content = '''
 Content-Type: text/html; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -99,11 +98,11 @@ subject: $_subject
 
 $_message''';
 
-    var _bytes = utf8.encode(_content);
-    var _base64 = base64UrlEncode(_bytes);
-    var _body = json.encode({'raw': _base64});
+    final _bytes = utf8.encode(_content);
+    final _base64 = base64UrlEncode(_bytes);
+    final _body = json.encode({'raw': _base64});
 
-    String _url = 'https://www.googleapis.com/gmail/v1/users/' + userId + '/messages/send';
+    final String _url = 'https://www.googleapis.com/gmail/v1/users/' + userId + '/messages/send';
 
     final http.Response _response = await http.post(_url, headers: header, body: _body);
     if (_response.statusCode != 200) {
@@ -142,8 +141,8 @@ $_message''';
 
   // show a Snackbar() with the result of transaction
   Future<Null> _resultMessage(BuildContext context, bool error) async {
-    String successMessage = 'Invio Riuscito. Grazie!';
-    String errorMessage = 'Ops, Invio Fallito !';
+   final String successMessage = 'Invio Riuscito. Grazie!';
+   final String errorMessage = 'Ops, Invio Fallito !';
 
     if (error == false) {
       Scaffold.of(context).showSnackBar(SnackBar(
@@ -169,7 +168,7 @@ $_message''';
   Future<Null> _pickAndSend() async {
     Navigator.of(context).push(MaterialPageRoute(builder: (context) {
       return Scaffold(
-        appBar: AppBar(centerTitle: true, title: Text('Sto inviando ...'), automaticallyImplyLeading: false),
+        appBar: AppBar(centerTitle: true, title: const Text('Sto inviando ...'), automaticallyImplyLeading: false),
         body: Center(
           child: CircularProgressIndicator(),
         ),

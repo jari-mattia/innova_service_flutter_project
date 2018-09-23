@@ -13,12 +13,12 @@ class QuoteRequest extends StatefulWidget {
 class QuoteRequestState extends State<QuoteRequest> {
 
   // a default value of radio button
-  var _groupValue = 'azienda';
+  String _groupValue = 'azienda';
 
   Widget build(BuildContext context) {
     return Scaffold(
         appBar:
-            AppBar(title: Text("Richiedi un Preventivo"), centerTitle: true),
+            AppBar(title: const Text("Richiedi un Preventivo"), centerTitle: true),
         body: Stack(
           fit: StackFit.expand,
           children: <Widget>[
@@ -37,13 +37,12 @@ class QuoteRequestState extends State<QuoteRequest> {
                             onChanged: (value) {
                               setState(() {
                                 _groupValue = value;
-                                print(_groupValue);
                               });
                             },
                             groupValue: _groupValue,
                             value: 'azienda',
                           ),
-                          Text('azienda'),
+                          const Text('azienda'),
                           Radio(
                             onChanged: (value) {
                               setState(() {
@@ -54,7 +53,7 @@ class QuoteRequestState extends State<QuoteRequest> {
                             groupValue: _groupValue,
                             value: 'privato',
                           ),
-                          Text('privato'),
+                          const Text('privato'),
                         ],
                       ),
                       Container(

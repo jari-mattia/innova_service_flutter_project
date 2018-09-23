@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:innova_service_flutter_project/main.dart';
@@ -28,14 +29,22 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   // try for silently login then routes to home
-  void navigationPage() {
-    if (googleCurrentUser == null)
-      _authenticateWithGoogleSilently().then((fireUser) => (fireUser == null)
-          ? Navigator.of(context).pushReplacementNamed('/home')
-          : User
-          .instance(fireUser)
-          .then((user) => currentUser = user)
-          .whenComplete(() => Navigator.of(context).pushReplacementNamed('/home')));
+  void navigationPage() async{
+    var connectivityResult = await (new Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      Navigator.of(context).pushReplacementNamed('/home');
+    }
+    else {
+      if (googleCurrentUser == null)
+        _authenticateWithGoogleSilently().then((fireUser) =>
+        (fireUser == null)
+            ? Navigator.of(context).pushReplacementNamed('/home')
+            : User
+            .instance(fireUser)
+            .then((user) => currentUser = user)
+            .whenComplete(() =>
+            Navigator.of(context).pushReplacementNamed('/home')));
+    }
   }
 
   // silently login

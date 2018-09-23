@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:innova_service_flutter_project/data_controller/functions.dart';
 import 'package:innova_service_flutter_project/data_controller/quote.dart';
+import 'package:innova_service_flutter_project/login_controller/login.dart';
 import 'package:innova_service_flutter_project/main.dart';
 
 class About extends StatelessWidget {
@@ -138,11 +139,13 @@ class About extends StatelessWidget {
                             padding: EdgeInsets.symmetric(vertical: 20.0),
                             color: Theme.of(context).primaryColor,
                             onPressed: () {
-                              Navigator.push(
+                              (currentUser != null)
+                                  ? Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => QuoteRequest()),
-                              );
+                              )
+                                  : _showDialog(context);
                             },
                             child: Text("FAI UN PREVENTIVO"),
                             textColor: Colors.white,
@@ -233,5 +236,29 @@ class About extends StatelessWidget {
 
       ]),
     ]));
+  }
+
+  void _showDialog(BuildContext context) {
+    // flutter defined function
+    showDialog(
+      context: context,
+      builder: (context) {
+        // return object of type Dialog
+        return AlertDialog(
+          content : new Text("Devi accedere per proseguire"),
+          actions : <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("ACCEDI",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              onPressed: () {
+                Navigator.pushReplacement(
+                    context, MaterialPageRoute(builder: (context) => Login()));
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }

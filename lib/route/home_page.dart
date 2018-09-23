@@ -43,9 +43,9 @@ class _WelcomeTextState extends State<WelcomeText> {
  *  Logout
  */
   Future<void> _signOut() async {
-    await User
-        .signOut(currentUser)
-        .then((user) => setState(() => currentUser = user));
+    currentUser = await User
+        .signOut(currentUser);
+        setState((){});
     if (fireUser != null) await fireAuth.signOut();
     if (googleCurrentUser != null) await googleSignIn.signOut();
   }

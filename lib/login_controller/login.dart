@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +25,9 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   bool privacyConsent;
   bool enableUnCheckedPrivacy;
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  ConnectivityResult connectivityResult;
 
   @override
   initState() {
@@ -35,6 +39,7 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         centerTitle: true,
         title: Text('LogIn'),
@@ -76,6 +81,7 @@ class _LoginState extends State<Login> {
                                       color: Theme.of(context).accentColor,
                                       onPressed: () async{
                                         await login();
+                                        if (privacyConsent == true && connectivityResult != ConnectivityResult.none)
                                         Navigator.pop(
                                             context,
                                             MaterialPageRoute(
@@ -143,16 +149,36 @@ class _LoginState extends State<Login> {
 
 
   Future<Null> login() async {
+    connectivityResult = await (new Connectivity().checkConnectivity());
     setState(() {
       enableUnCheckedPrivacy = true;
     });
     if (privacyConsent == true) {
-      fireUser = await _authenticateWithGoogle();
-      currentUser =  await createUserFromFireUser(fireUser);
+
+      if (connectivityResult != ConnectivityResult.none) {
+        fireUser = await _authenticateWithGoogle();
+        Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+          return Scaffold(
+            appBar: AppBar(centerTitle: true,
+                title: Text('Sto accedendo ...'),
+                automaticallyImplyLeading: false),
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }));
+        currentUser = await createUserFromFireUser(fireUser);
         setState(() {
           currentUser.logged = true;
           currentUser.add();
         });
+        Navigator.pop(context);
+      }
+      else {
+        _scaffoldKey.currentState.showSnackBar(SnackBar(
+            duration: Duration(seconds: 4),
+            content: Text('Nessuna Connessione !')));
+      }
     }
   }
 
@@ -161,12 +187,18 @@ class _LoginState extends State<Login> {
   */
   Future<FirebaseUser> _authenticateWithGoogle() async {
 
-    if (googleCurrentUser == null) {
-      googleCurrentUser = await googleSignIn.signInSilently();
+    GoogleSignInAccount googleUser;
+
+    if (googleUser == null) {
+      googleUser = await googleSignIn.signInSilently();
     }
-    if (googleCurrentUser == null) {
-      googleCurrentUser = await googleSignIn.signIn();
+    if (googleUser == null) {
+      googleUser = await googleSignIn.signIn();
     }
+
+    setState(() {
+      googleCurrentUser = googleUser;
+    });
 
     final GoogleSignInAuthentication googleAuth =
         await googleCurrentUser.authentication;

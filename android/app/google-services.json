@@ -31,6 +31,22 @@
           }
         },
         {
+          "client_id": "775439105293-26e5terlssh6el72u9rkdsdrk3v5sqkl.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mattia.jari.innovaServiceFlutterProject",
+            "certificate_hash": "20455541ebf1cd3df99bd637d5781a86ad962c55"
+          }
+        },
+        {
+          "client_id": "775439105293-6mgq3t36ttnn1j7krklcb9ca3ulkljgo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mattia.jari.innovaServiceFlutterProject",
+            "certificate_hash": "e3b798dfcea6cebf7c3d01ba5e00f2d108e1b028"
+          }
+        },
+        {
           "client_id": "775439105293-aa6eomc9m070v609sv6u95bskfs7plqd.apps.googleusercontent.com",
           "client_type": 3
         }

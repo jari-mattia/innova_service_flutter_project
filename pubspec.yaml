@@ -4,21 +4,22 @@ description: A new Flutter project.
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
 
 
-  intl:
-  http:
-  connectivity:
+  intl: ^0.15.7
+  http: ^0.11.3
+  connectivity: ^0.3.1
 
 
   # Firebase packages
-  firebase_core:
-  cloud_firestore:
-  firebase_storage:
-  firebase_auth:
-  google_sign_in:
-  googleapis:
-  googleapis_auth:
+  cloud_firestore: ^0.8.0
+  firebase_storage: ^1.0.2
+  firebase_auth: ^0.5.20
+  google_sign_in: ^3.0.5
+  googleapis: any
+  googleapis_auth: any
 
 
 
@@ -28,10 +29,10 @@ dependencies:
   cupertino_icons: ^0.1.2
 
   # To use call and email
-  url_launcher:
+  url_launcher: ^3.0.3
 
   # To use camera in the app
-  image_picker:
+  image_picker: ^0.4.10
 
   #to use Whatsapp
   #flutter_launch:
@@ -40,6 +41,11 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
+  flutter_launcher_icons: "^0.6.1"
+
+flutter_icons:
+  android: true
+  image_path: "asset/images/Icon.png"
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec
 
