@@ -11,34 +11,17 @@ import 'package:innova_service_flutter_project/main.dart';
 import 'package:intl/intl.dart';
 import 'package:innova_service_flutter_project/data_controller/functions.dart';
 
-class SendImage extends StatefulWidget {
+class NoImage extends StatefulWidget {
   @override
-  _SendImageState createState() => _SendImageState();
+  _NoImageState createState() => _NoImageState();
 }
 
-class _SendImageState extends State<SendImage> {
+class _NoImageState extends State<NoImage> {
   // an image picked from picker()
   File _image;
 
   // access to the state of Widget
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  final _formKey = GlobalKey<FormState>();
-  String _request = '';
-  bool _autoValidate = false;
-  bool _enabled = true;
-  // the position on the storage
-  final StorageReference storage = FirebaseStorage(
-          app: FirebaseApp.instance,
-          storageBucket: 'gs://innova-servicve.appspot.com')
-      .ref()
-      .child('${currentUser.name} - ${currentUser.email}')
-      .child(
-          '${DateFormat('dd-MM-yyyy HH:mm').format(DateTime.now()).replaceAll('/', '-')}');
-
-  @override
-  initState() {
-    super.initState();
-  }
 
   // get an image from camera
   Future picker() async {
@@ -50,11 +33,68 @@ class _SendImageState extends State<SendImage> {
     setState(() {
       _image = img;
     });
+
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => ImageScreen(_image)));
   }
 
-  // store the image on Cloud Storage and generate an snapahot
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+      key: _scaffoldKey,
+      appBar: new AppBar(
+        automaticallyImplyLeading: true,
+        title: new Text('Inviaci una Foto'),
+      ),
+      body: new Container(
+        child: new Center(
+            child: new Text('nessuna foto da mostrare ')
+                ),
+      ),
+      floatingActionButton: Builder(
+          builder: (context) => new FloatingActionButton(
+                backgroundColor: Theme.of(context).primaryColor,
+                onPressed: () async {
+                  await picker();
+                },
+                child: new Icon(
+                  Icons.camera_alt,
+                  color: Colors.white,
+                ),
+              )),
+    );
+  }
+}
+
+class ImageScreen extends StatefulWidget {
+  final File _image;
+
+  ImageScreen(this._image);
+
+  @override
+  _ImageScreenState createState() => _ImageScreenState();
+}
+
+class _ImageScreenState extends State<ImageScreen> {
+  // the position on the storage
+  final StorageReference storage = FirebaseStorage(
+          app: FirebaseApp.instance,
+          storageBucket: 'gs://innova-servicve.appspot.com')
+      .ref()
+      .child('${currentUser.name} - ${currentUser.email}')
+      .child(
+          '${DateFormat('dd-MM-yyyy HH:mm').format(DateTime.now()).replaceAll('/', '-')}');
+
+  // access to the state of Widget
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _formKey = GlobalKey<FormState>();
+  String _request = '';
+  bool _autoValidate = false;
+  bool _enabled = true;
+
   Future<UploadTaskSnapshot> storeImage() async {
-    UploadTaskSnapshot uploadImage = await storage.putFile(_image).future;
+    UploadTaskSnapshot uploadImage =
+        await storage.putFile(widget._image).future;
     return uploadImage;
   }
 
@@ -81,11 +121,11 @@ class _SendImageState extends State<SendImage> {
 Content-Type: text/html; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-to: ${to}
-from: ${from}
-subject: ${subject}
+to: $to
+from: $from
+subject: $subject
 
- ${message}''';
+ $message''';
 
     var bytes = utf8.encode(content);
     var base64 = base64UrlEncode(bytes);
@@ -125,6 +165,33 @@ subject: ${subject}
     return error;
   }
 
+  // call picker -> then sendImageOnStorage() and check the Uri result -> then send mail and show result
+  Future<Null> _pickAndSend() async {
+    if (widget._image != null) {
+      Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+        return Scaffold(
+          appBar: AppBar(
+              centerTitle: true,
+              title: Text('Sto inviando ...'),
+              automaticallyImplyLeading: false),
+          body: Center(
+            child: CircularProgressIndicator(),
+          ),
+        );
+      }));
+      //StorageReference ref = await sendImageOnStorage();
+      UploadTaskSnapshot snapshot = await storeImage();
+      Uri uri = snapshot.downloadUrl;
+      assert(uri != null);
+      bool error = await _sendMail(uri);
+      assert(error != null);
+      Navigator.pop(context);
+      setState(() => _enabled = false);
+      await _resultMessage(error);
+    } else
+      Navigator.popAndPushNamed(context, '/noImage');
+  }
+
   // show a Snackbar() with the result of transaction
   Future<Null> _resultMessage(bool error) async {
     String successMessage =
@@ -152,35 +219,6 @@ subject: ${subject}
     }
   }
 
-  // call picker -> then sendImageOnStorage() and check the Uri result -> then send mail and show result
-  Future<Null> _pickAndSend() async {
-    await picker();
-    if (_image != null) {
-      Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-        return Scaffold(
-          appBar: AppBar(
-              centerTitle: true,
-              title: Text('Sto inviando ...'),
-              automaticallyImplyLeading: false),
-          body: Center(
-            child: CircularProgressIndicator(),
-          ),
-        );
-      }));
-      //StorageReference ref = await sendImageOnStorage();
-      UploadTaskSnapshot snapshot = await storeImage();
-      Uri uri = snapshot.downloadUrl;
-      assert(uri != null);
-      bool error = await _sendMail(uri);
-      assert(error != null);
-      Navigator.pop(context);
-      setState(() => _enabled = false);
-      await _resultMessage(error);
-    } else
-      return;
-  }
-
-
   Future<Null> onSubmit() async {
     var connectivityResult = await (new Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.none) {
@@ -203,56 +241,67 @@ subject: ${subject}
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      key: _scaffoldKey,
-      appBar: new AppBar(
-        automaticallyImplyLeading: true,
-        title: new Text('Inviaci una Foto'),
-      ),
-      body: new Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            new Form(
-                key: _formKey,
-                autovalidate: _autoValidate,
-                child: Container(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
-                  child: TextFormField(
-                    enabled: _enabled,
-                    onSaved: (String value) {
-                      this._request = value;
-                    },
-                    maxLength: 1000,
-                    decoration: InputDecoration(
-                        labelText: 'Richiesta', icon: Icon(Icons.edit)),
-                    maxLines: null,
-                    keyboardType: TextInputType.multiline,
-                    validator: validateRequest,
-                  ),
-                )),
-        new Container(
-          child: new Center(
-            child: _image == null
-                ? Padding(
-                  padding: const EdgeInsets.only(top : 150.0),
-                  child: new Text('nessuna foto da mostrare '),
-                )
-                : new Image.file(_image,fit: BoxFit.fitHeight,),
+    if(widget._image != null) {
+      return new Scaffold(
+          key: _scaffoldKey,
+          appBar: new AppBar(
+            leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: () => Navigator.popAndPushNamed(context, '/noImage')),
+            automaticallyImplyLeading: true,
+            title: new Text('Inviaci una Foto'),
           ),
-        )
-      ]),
-      floatingActionButton: Builder(
-          builder: (context) => new FloatingActionButton(
-                backgroundColor: Theme.of(context).primaryColor,
+          body: new Stack(children: <Widget>[
+            new Container(
+              child: Center(
+                child: new Image.file(widget._image, fit: BoxFit.cover,),
+              ),
+            ),
+            new Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  new Form(
+                      key: _formKey,
+                      autovalidate: _autoValidate,
+                      child: Container(
+                        margin: EdgeInsets.only(bottom: 90.0),
+                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.all(Radius.elliptical(40.0, 40.0)), boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10.0)]),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 10.0, vertical: 10.0),
+                        child: TextFormField(
+                          enabled: _enabled,
+                          onSaved: (String value) {
+                            this._request = value;
+                          },
+                          maxLength: 1000,
+                          decoration: InputDecoration(
+                              labelText: 'Inserisci Richiesta',
+                              icon: Icon(Icons.edit),
+                              filled: true,
+                              fillColor: Colors.white,
+                              ),
+                          maxLines: null,
+                          keyboardType: TextInputType.multiline,
+                          validator: validateRequest,
+                        ),
+                      )),
+                ])
+          ]),
+          floatingActionButton: Builder(
+              builder: (context) =>
+              new FloatingActionButton(
+                backgroundColor: Theme
+                    .of(context)
+                    .primaryColor,
                 onPressed: () async {
                   await onSubmit();
                 },
                 child: new Icon(
-                  Icons.camera_alt,
+                  Icons.send,
                   color: Colors.white,
                 ),
-              )),
-    );
+              ))
+      );
+    }else{
+      return NoImage();
+    }
   }
 }

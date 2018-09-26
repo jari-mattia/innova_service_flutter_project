@@ -13,6 +13,7 @@ dependencies:
   connectivity: ^0.3.1
 
 
+
   # Firebase packages
   cloud_firestore: ^0.8.0
   firebase_storage: ^1.0.2
@@ -35,7 +36,7 @@ dependencies:
   image_picker: ^0.4.10
 
   #to use Whatsapp
-  #flutter_launch:
+  flutter_launch: ^0.1.2
 
 dev_dependencies:
   flutter_test:

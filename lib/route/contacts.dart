@@ -59,7 +59,7 @@ class _ContactsState extends State<Contacts> {
                           Divider(),
                           ListTile(
                             onTap: () {
-                              whatsAppOpen(context);
+                              whatsAppOpenIos(context);
                             },
                             leading: Image.asset('asset/images/whatsapp.png',
                                 width: 50.0),
@@ -139,7 +139,7 @@ class _ContactsState extends State<Contacts> {
                             Divider(),
                             ListTile(
                               onTap: () {
-                                whatsAppOpen(context);
+                                whatsAppOpenIos(context);
                               },
                               leading: Image.asset('asset/images/whatsapp.png',
                                   width: 50.0),

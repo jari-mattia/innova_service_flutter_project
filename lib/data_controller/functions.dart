@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-
+import 'package:flutter_launch/flutter_launch.dart';
 
 // launches an url
 Future contactUs(url, BuildContext context) async {
@@ -24,6 +24,18 @@ void whatsAppOpen(BuildContext context) async {
         content: Text("Whatsapp non è installato")));
   }
 
+}
+
+void whatsAppOpenIos(BuildContext context) async {
+  bool whatsapp = await FlutterLaunch.hasApp(name: "whatsapp");
+
+  if (whatsapp) {
+    await FlutterLaunch.launchWathsApp(phone: "+393755070555" , message: "");
+  } else {
+    Scaffold.of(context).showSnackBar(SnackBar(
+        duration: Duration(seconds: 5),
+        content: Text("Whatsapp non è installato")));
+  }
 }
 
 /*  VALIDATOR */

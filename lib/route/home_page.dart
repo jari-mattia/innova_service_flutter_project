@@ -247,7 +247,7 @@ class _HomeScaffoldState extends State<HomeScaffold> {
                                             context,
                                             MaterialPageRoute(
                                                 builder: (context) =>
-                                                    SendImage()//SendImage(app: widget.app)
+                                                    NoImage()//SendImage(app: widget.app)
                                             ))
                                         : _showDialog(context);
                                   },
@@ -389,7 +389,7 @@ class _HomeScaffoldState extends State<HomeScaffold> {
                                                   context,
                                                   MaterialPageRoute(
                                                       builder: (context) =>
-                                                          SendImage()))
+                                                          NoImage()))
                                               : _showDialog(context);
                                         },
                                         child: Icon(

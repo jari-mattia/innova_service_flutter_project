@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:innova_service_flutter_project/data_controller/send_image.dart';
 import 'package:innova_service_flutter_project/login_controller/splash_screen.dart';
 import 'package:innova_service_flutter_project/model/user.dart';
 import 'package:innova_service_flutter_project/route/router.dart';
@@ -56,7 +57,8 @@ class _MyAppState extends State<MyApp> {
           accentColor: Colors.cyan),
       home: SplashScreen(),
       routes: <String, WidgetBuilder>{
-        '/home': (BuildContext context) => new Router()
+        '/home': (BuildContext context) => new Router(),
+        '/noImage' : (BuildContext context) => new NoImage()
       },//HandleCurrentScreen()
     );
   }

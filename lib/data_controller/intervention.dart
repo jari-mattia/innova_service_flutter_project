@@ -49,7 +49,7 @@ class _InterventionState extends State<Intervention> {
 
                               ListTile(
                                 onTap: () {
-                                  whatsAppOpen(context);
+                                  whatsAppOpenIos(context);
                                 },
                                 leading: Image.asset('asset/images/whatsapp.png',
                                     width: 50.0),
